@@ -1,0 +1,130 @@
+{% extends "magasin/base.html" %}
+{% load fontawesome %}
+{% load widget_tweaks %}
+
+{% block title %} Fournisseur List {% endblock %}
+
+{% block content %}
+<!-- Main display -->
+<h2 class="header_title">List Des Frounisseur</h2>
+
+<!-- Display Messages -->
+{% for msg in messages %}
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+
+<div class="row mb-3">
+    <!-- Search form-->
+    <div class="col-md-9">
+        <form class="row row-cols-lg-auto align-items-center" action="" method="post">
+            {% csrf_token %}
+            <div class="col-12">
+                <div class="input-group">
+                    <div class="input-group-text">{% fontawesome_icon 'search' %}</div>
+                    {% render_field search_fourniss_form.fourniss_search class="form-control ml-0 col-sm-12" placeholder="By Email" %}
+                </div>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-outline-primary">{% fontawesome_icon 'search' %} Go</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-3">
+        {% if request.user.profile.groupe == 'admin' %}
+            <!--<a type="button" href="{% url "fournisseur:add_fourniss" %}" class="mb-3 btn btn-success float-end" name="button">-->
+                <!--{% fontawesome_icon 'plus-square' %} N. Fournisseur-->
+            <!--</a>-->
+            <button type="button" id="read-article" class="bs-modal btn btn-primary float-end" 
+                    data-form-url="{% url "fournisseur:create_fourniss" %}">{% fontawesome_icon 'plus-square' %} Add Fournisseur 
+            </button>
+        {% endif %}
+    </div>
+</div><!-- end of search row -->
+
+<!-- Table -->
+<div class="main-table" id="article_table">
+    <table class="table table-bordered table-hover main_table">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Nom</th>
+                <th scope="col">Addresse</th>
+                <th scope="col">Fourniture</th>
+                <th scope="col">C-Post</th>
+                <th scope="col">Pays</th>
+                <th scope="col">Tel</th>
+                <th scope="col">Fax</th>
+                <th scope="col">Email</th>
+                <th scope="col">Note</th>
+                <th scope="col">Opération</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fourniss in fourniss_list %}
+                <tr>
+                    <th scope="row">
+                        <a class="text-decoration-none" href="{% url "fournisseur:fourniss_detail" fourniss.fourrnis_id %}">
+                            {{ fourniss.nom }} {{ fourniss.fourrnis_id }}
+                        </a>
+                    </th>
+                    <td>{{ fourniss.address|truncatechars:20 }}</td>
+                    <td>{{ fourniss.fourniture|truncatechars:20 }}</td>
+                    <td>{{ fourniss.code_postal }}</td>
+                    <td>{{ fourniss.pays }}</td>
+                    <td>{{ fourniss.telephone }}</td>
+                    <td>{{ fourniss.fax }}</td>
+                    <td>{{ fourniss.email|truncatechars:15 }}</td>
+                    <td>{{ fourniss.note }}</td>
+                    <td>
+                        <!-- Read Article -->
+                        <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
+                                data-form-url="{% url "fournisseur:read_fourniss" fourniss.fourrnis_id %}">
+                            {% fontawesome_icon 'eye' %} 
+                        </button>
+
+                    </td>
+
+                    {% comment %}
+
+                    {% comment %}
+                        <!-- Update Article -->
+                        <button type="button" id="update-article" class="bs-modal btn btn-sm btn-outline-info" 
+                                data-form-url="{% url "magasin:update_article" article.art_id article.slug %}">
+                            {% fontawesome_icon 'pencil' %} 
+                        </button>
+
+                        <!-- Delete Article -->
+                        <button type="button" id="delete-article" class="bs-modal btn btn-sm btn-outline-danger" 
+                                data-form-url="{% url "magasin:delete_article" article.art_id article.slug %}">
+                            {% fontawesome_icon 'trash' %} 
+                        </button>
+
+                        <!-- Drop down menu for ENTREE, SORTIE -->
+                        <div class="btn-group dropleft">
+                            <div class="dropdown show dropleft">
+                                <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="actionMenu" 
+                                   data-toggle="dropdown" aria-haspopup="True" aria-expanded="false">
+                                    {% fontawesome_icon 'exchange' %}
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="actionMenu">
+                                    <a class="dropdown-item" href="{% url "magasin:entree" article.art_id article.slug %}">
+                                        {% fontawesome_icon 'plus-square-o' %} Entrée
+                                    </a>
+                                    <a class="dropdown-item" href="{% url "magasin:sortie" article.art_id article.slug %}">
+                                        {% fontawesome_icon 'minus-square-o' %} Sortie
+                                    </a>
+                                </div>
+                            </div>
+                        </div><!--End of dropdown show-->
+                    {% endcomment %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div><!--End of main table div-->
+
+{% endblock %}

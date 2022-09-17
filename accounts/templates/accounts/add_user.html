@@ -1,0 +1,58 @@
+{% extends "magasin/base.html" %}
+{% load static %}
+{% load fontawesome %}
+{% load widget_tweaks %}
+
+{% block title %}Add User{% endblock %}
+
+{% block content %}
+<div class="card card_form">
+    <h4 class="card-header bg-secondary text-center text-white p-4">Add New User</h4>
+
+    <div class="card-body">
+        {% for msg in messages %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <form action="" method="POST">
+            {% csrf_token %}
+
+            {% for field in user_form %}
+                <div class="form-group row mb-2">
+                    <label class="col-sm-4 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <div class="col">
+                        {% if field.errors %}
+                            {% render_field field class="form-control is-invalid" placeholder=field.label %}
+                            <div class="invalid-feedback">
+                                {% for error in field.errors %}<span>{{ error }}</p>{% endfor %}
+                            </div>
+                        {% else %}
+                            {% render_field field class="form-control" placeholder=field.label %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            {% for field in profile_form %}
+                <div class="form-group row mb-2">
+                    <label class="col-sm-4 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <div class="col">
+                        {% if field.errors %}
+                            {% render_field field class="form-control is-invalid" placeholder=field.label%}
+                            <div class="invalid-feedback">
+                                {% for error in field.errors %}<span>{{ error }}</span>{% endfor %}
+                            </div>
+                        {% else %}
+                            {% render_field field class+="form-control" placeholder=field.label %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <input type="submit" class="btn btn-info float-end" value="Add User">
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+<div class="modal-header text-center">
+    <h3 class="modal-title">Commande Details</h3>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item"><span class="list_title">ID</span><span>: {{ command.command_id }}</span></li>
+        <li class="list-group-item"><span class="list_title">Utilisateur</span><span>: {{ command.user_id.username }}</span></li>
+        <li class="list-group-item"><span class="list_title">Code</span><span>: {{ command.art_id.code }}</span></li>
+        <li class="list-group-item"><span class="list_title">Designation</span><span>: {{ command.art_id.designation }}</span></li>
+        <li class="list-group-item"><span class="list_title">Date</span><span>: {{ command.command_date|date:"d-M-Y" }}</span></li>
+        <li class="list-group-item"><span class="list_title">Quantité</span><span>: {{ command.qte }}</span></li>
+        <li class="list-group-item">
+            <span class="list_title">Status</span>
+            {% if command.status == 0 %}<span>: Not Active</span>{% else %}<span>: Active</span>{% endif %}
+        </li>
+    </ul>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+</div>

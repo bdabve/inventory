@@ -1,0 +1,300 @@
+/* -------------------------------------------
+ *  Global Rules 
+ * ---------------*/
+@font-face {
+    font-family: 'Amiri';
+    src: url('./Amiri.ttf')
+}
+
+body {
+    font-family: cursive, Monaco !important;
+}
+
+.hijri_date {
+    font-family: Amiri;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    background-color: #212529;
+    color: #fff;
+    padding: 15px;
+    margin-bottom: 40px;
+    border-radius: 10px;
+    max-width: 400px;
+    position: relative;
+    left: 939px;
+    top: 25px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+}
+
+.list_title {
+    float: left;
+    width: 135px;
+    font-weight: bold;
+}
+
+.list_of_totals .list_title {
+    /* total des article bs-modal */
+    width: 165px;
+}
+
+.header_title {
+    padding: 25px 0;
+}
+
+.card_form {
+    max-width: 500px;
+    margin: auto;
+}
+
+.date_row {
+    padding: 0 11px;
+}
+
+/* -------------------------------------------
+ *  Login Page 
+ * ---------------*/
+
+.login_form {
+    max-width: 360px;
+    margin: 50px auto;
+} 
+
+.login_form form {
+    margin-top: 35px;
+}
+
+.login_form form input {
+    border-radius: 15px;
+}
+
+/* -------------------------------------------
+ *  Profile APP 
+ * ---------------*/
+
+
+/* -------------------------------------------
+ *  Navbar 
+ * ---------------*/
+.navbar .dropdown-menu[data-bs-popper] {
+    top: 47px;
+    /*left: -80px;*/
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #212529;
+}
+
+.navbar .dropdown-menu > li > a,
+.navbar .dropdown-menu > li > .dropdown-divider {
+    color: white;
+}
+
+.navbar .dropdown-menu > li > a:focus,
+.navbar .dropdown-menu > li > a:hover {
+    color: #fff;
+    background-color: #8e44ad;
+}
+
+/* ---------------------------------------------
+ * Dashboard Page
+ * ---------------- */
+
+.home_stats {
+    max-width: 1150px;
+    margin: auto;
+}
+
+.home_stats .row {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.home_stats .col-md-3 {
+    padding: 0 5px !important;
+}
+
+.home_stats .col-md-3 a {
+    text-decoration: none;
+}
+
+.home_stats .col-md-3 a:hover {
+    background-color: #fff;
+}
+
+.home_stats .stat {
+    color: #000;
+    background: #fff;
+    box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 50rem;
+    padding: 1.5rem;
+}
+
+.home_stats .stat i {
+    display: flex;
+    width: 2.2rem;
+    height: 2.2rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.home_stats .stat .info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: space-around;
+}
+
+.home_stats .stat .info span {
+    font-size: 22px;
+}
+
+.home_stats .stat .total_valeur {
+    font-size: 25px;
+}
+
+.total_members i {
+    background-color: #16a085;
+}
+
+.total_arts i {
+    background-color: #3498db;
+}
+
+.total_prix i {
+    background-color: #34495e;
+}
+
+.stock_alarm i {
+    background-color: #d35400;
+}
+
+.command_non_vue li {
+    overflow: hidden;
+    padding: 5px;
+}
+
+.command_non_vue li:nth-child(odd) {
+    background-color: #EEE;
+}
+
+.info_container .toggle_info:hover {
+    color: #333333;
+    cursor: pointer;
+}
+
+.info_container .cmd_code {
+    float: left;
+    width: 160px;
+}
+
+.info_container .card .card-body {
+    padding: 0;
+}
+
+/* ---------------------------------------------
+ * Article List Page
+ * ----------------- */
+
+.cat_list .cat_list_header a {
+    padding-left: 10px;
+}
+
+.cat_list .cat_list_header {
+    padding: 20px 0;
+    background-color: #95afc0;
+    color: white;
+    margin-bottom: 0;
+    font-size: 23px;
+}
+
+.cat_list .cat_list_header i{
+    color: #0d6efd;
+    font-size: 20px;
+}
+
+.cat_list .cat_list_item {
+    overflow-y: scroll;
+    height: 400px;
+}
+
+.add_cat {  /* add category button */
+    font-size: 17px;
+}
+
+.main_table {
+    font-size: 16px;
+}
+
+#create-article {
+    font-size: 16px;
+}
+
+.entree_sortie_dropdown .dropdown-menu{
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #212529;
+}
+
+.entree_sortie_dropdown .dropdown-menu > li > a {
+    color: white;
+}
+
+.entree_sortie_dropdown .dropdown-menu > li > a:focus,
+.entree_sortie_dropdown .dropdown-menu > li > a:hover {
+    color: #fff;
+    background-color: #8e44ad;
+}
+
+/* ---------------------------------------------------------------
+ *  Article Details - Modifier article page
+ * ----------------------------------------- */
+
+.col_art_operation {
+    padding: 0;
+}
+
+.col_art_operation .nav-tabs {
+    border-bottom: 1px solid #606163;
+}
+
+.col_art_operation .nav-tabs .nav-item.show .nav-link, 
+.col_art_operation .nav-tabs .nav-link.active {
+    border-color: #606163 #606163 #fff;
+} 
+
+.art_detail_not_admin {
+    margin: auto;
+}
+
+.tab_content {
+    border-left: 1px solid #606163;
+    border-right: 1px solid #606163;
+    border-bottom: 1px solid #606163;
+    padding: 10px;
+    min-height: 430px;
+    overflow: hidden;   /* the form take all available space */
+}
+
+.tab_content .command_form {
+    display: none;
+    clear: both;
+}
+
+#id_entree_date_day, #id_sortie_date_day, #id_cmnd_date_day, #id_date_day {
+    margin: 0 5px;
+}
+
+/* -------------------------------------------
+ *  Movement Page
+ * ---------------*/
+
+.movement_operation {
+    width: 100% !important;
+}
+

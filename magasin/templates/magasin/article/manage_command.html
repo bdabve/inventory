@@ -1,0 +1,58 @@
+{% extends "magasin/base.html" %}
+{% load static %}
+{% load fontawesome %}
+{% load widget_tweaks %}
+
+{% block title %}Commands{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- Display Messages -->
+    {% for msg in messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+    <!-- Table -->
+    <h2 class="text-center mb-5 mt-3 alert alert-dark fst-italic rounded">Commandes</h2>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">User</th>
+                <th scope="col">Code</th>
+                <th scope="col">Designation</th>
+                <th scope="col">Quantité</th>
+                <th scope="col">Opération</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+                <tr>
+                    <td>{{ article.command_date|date:"d M Y" }}</td>
+                    <td>{{ article.user_id.username }}</td>
+                    <td>
+                        <a href="{{ article.art_id.get_absolute_url }}">{{ article.art_id.code }}</a>
+                    </td>
+                    <td>{{ article.art_id.designation }}</td>
+                    <td>{{ article.qte }}</td>
+                    <td class="text-center">
+                        <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
+                                data-form-url="{% url "magasin:read_command" article.command_id %}">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    {% if article.status == 0 %}
+                        <a href="{% url "magasin:manage_command" article.command_id %}" class="btn btn-sm btn-outline-primary">
+                            {% fontawesome_icon "check-circle" %} Activé
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

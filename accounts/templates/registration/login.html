@@ -1,0 +1,43 @@
+{% extends "magasin/base.html" %}
+{% load static %}
+{% load fontawesome %}
+{% load widget_tweaks %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="login_form">
+    <h4 class="alert alert-dark text-center">Login</h4>
+
+    <form action="" method="POST">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <p class="alert alert-danger">
+            Your username and password didn't match.
+            Please try again
+            </p>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="form-group row mb-2">
+                <label class="col-sm-3 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="col-sm-9">
+                    {% if field.errors %}
+                        {% render_field field class="form-control is-invalid" %}
+                        <div class="invalid-feedback">
+                            {% for error in field.errors %}<span>{{ error }}</span>{% endfor %}
+                        </div>
+                    {% else %}
+                        {% render_field field class="form-control" %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="d-grid gap-2"><!-- btn-block -->
+            <input type="submit" class="btn btn-info float-end" value="Login">
+        </div>
+    </form>
+</div>
+{% endblock %}

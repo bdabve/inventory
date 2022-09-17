@@ -1,0 +1,23 @@
+{% load humanize %}
+<div class="modal-header text-center">
+    <h3 class="modal-title">Article Details</h3>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body fournisseur_details">
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item"><span class="list_title">Nom</span><span>: {{ fournisseur.nom }}</span></li>
+        <li class="list-group-item"><span class="list_title">Address</span><span>: {{ fournisseur.address }}</span></li>
+        <li class="list-group-item"><span class="list_title">Fourniture</span><span>: {{ fournisseur.fourniture }}</span></li>
+        <li class="list-group-item"><span class="list_title">Code Postal</span><span>: {{ fournisseur.code_postal }}</span></li>
+        <li class="list-group-item"><span class="list_title">Pays</span><span>: {{ fournisseur.pays }}</span></li>
+        <li class="list-group-item"><span class="list_title">Tél</span><span>: {{ fournisseur.telephone }}</span></li>
+        <li class="list-group-item"><span class="list_title">Fax</span><span>: {{ fournisseur.fax }}</span></li>
+        <li class="list-group-item"><span class="list_title">Email</span><span>: {{ fournisseur.email }}</span></li>
+        <li class="list-group-item"><span class="list_title">Obs</span><span>: {{ fournisseur.note }}</span></li>
+    </ul>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+</div>

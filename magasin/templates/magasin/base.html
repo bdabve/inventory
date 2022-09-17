@@ -1,0 +1,165 @@
+{% load static %}
+{% load fontawesome %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %}</title>
+        <!-- Bootstrap -->
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
+
+        {% fontawesome_stylesheet %}
+        <link rel="stylesheet" href="{% static "css/main.css" %}">
+        <link rel="stylesheet" href="{% static "css/all.min.css" %}">
+
+    </head>
+    <body>
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mr-auto">
+            <div class="container">
+                <a class="navbar-brand" href="{% url "magasin:dashboard" %}">Inventory</a><!--HOME-->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#app-nav" 
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="app-nav">
+                    <ul class="navbar-nav me-auto">
+                        {% if request.user.is_authenticated %}
+                        <!-- Home -->
+                        <li class="nav-item">
+                            <a class="nav-link {% if nbar == "magasin" %}active{% endif %}" href="{% url "magasin:article_list" %}">
+                                {% fontawesome_icon 'home' %} Magasin
+                            </a>
+                        </li>
+                        <!-- Movement -->
+                        <li class="nav-item">
+                            <a class="nav-link {% if nbar == "movement" %}active{% endif %}" href="{% url "magasin:movement" %}">
+                                <i class="fa fa-sync"></i> Movement
+                            </a>
+                        </li>
+
+                        {% comment %}
+                        <!-- Gestion Stocks -->
+                        <li class="nav-item {% if nbar == 'movement' %}active{% endif %}">
+                            <a class="nav-link" href="{% url "magasin:gestion_stocks" %}">G.Stocks</a>
+                        </li>
+                        {% endcomment %}
+
+                        <!-- History -->
+                        <li class="nav-item">
+                            <a class="nav-link {% if nbar == "history" %}active{% endif %}" href="{% url "magasin:magasin_log" %}">
+                                {% fontawesome_icon 'history' %} History
+                            </a>
+                        </li>
+
+                        <!-- Commands -->
+                        <li class="nav-item">
+                            <a class="nav-link {% if nbar == "command" %}active{% endif %}" 
+                               href="{% url "magasin:manage_command" %}"><i class="fas fa-box"></i> Commands
+                            </a>
+                        </li>
+
+                        <!-- Dropdown action -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="actionDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-bars"></i> &nbsp;Actions
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="actionDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{% url "magasin:stock_alarm" 1 %}">
+                                        {% fontawesome_icon "exclamation-circle" color="red"%} Stock Alarm
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{% url "magasin:art_sans_prix" 1 %}">
+                                        {% fontawesome_icon "usd" %} &nbsp;Article Sans Prix
+                                    </a>
+                                </li>
+
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url "fournisseur:fourniss_list" %}">
+                                        <i class="fa fa-shipping-fast"></i> &nbsp;Gestion des Fournisseur
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item bs-modal" href="#" data-form-url="{% url "magasin:total_articles" %}">
+                                        {% fontawesome_icon "usd" %} &nbsp;&nbsp;Total Des Produits
+                                    </a>
+                                </li>
+                            </ul>
+                        </li> <!-- end of dropdown -->
+                        {% endif %}
+                    </ul><!-- end of navbar-nav -->
+
+                    {% if request.user.is_authenticated %}
+
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown ms-auto">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                {% fontawesome_icon "user" %}&nbsp;{{ request.user.username }}
+                            </a>
+                            <ul class="dropdown-menu navbar-right" aria-labelledby="navbarDropdown">
+                                {% if request.user.profile.groupe == 'admin' %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url "accounts:manage_users"%}">
+                                            {% fontawesome_icon "users" color='white' %} &nbsp;Manage Users
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                <li>
+                                    <a class="dropdown-item" href="{% url "accounts:logout" %}">
+                                        <i class="fa fa-sign-out-alt"></i> &nbsp;Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </li><!-- end of nav-item -->
+                    </ul><!-- end of nav-bar right item -->
+                    {% else %}
+
+                    <!-- Login  url -->
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item ms-auto">
+                            <a class="nav-link" href="{% url "accounts:login" %}"><i class="fa fa-sign-in-alt"></i> Login</a>
+                        </li>
+                    </ul>
+                    {% endif %}
+                </div><!-- end of collapse-nav -->
+            </div><!-- end of navbar container -->
+        </nav>
+
+        <!-- Date -->
+        {% if request.user.is_authenticated %}
+            <div class="hijri_date" dir="rtl">
+                <i class="fa fa-calendar-day"></i>
+                {{ hijri.day_name }}: {{ hijri.day }} {{ hijri.month_name }} {{ hijri.year }}
+                            ---
+                <span dir='ltr'>
+                    {{ hijri.year_gr }}  {{ hijri.month_name_gr }}  {{ hijri.day_gr }} 
+                </span>
+            </div>
+        {% endif %}
+
+        <div class="container-fluid">
+            {% block content %}{% endblock %}
+
+            <!-- BS MODAL-->
+            <div class="modal fade" tabindex="-1" role="dialog" id="modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content"></div>
+                </div>
+            </div><!--End of modal-->
+
+        </div>
+
+        <!-- Bootstrap popper and jQuery and the main custom scripts-->
+        <script src="{% static "js/jquery-3.3.1.min.js" %}"></script>
+        <script src="{% static "js/popper_922.min.js" %}"></script>
+        <script src="{% static "js/bootstrap.min.js" %}"></script>
+        <script src="{% static "js/jquery.bootstrap.modal.forms.js" %}"></script>
+        <script src="{% static "js/main.js" %}"></script>
+    </body>
+</html>

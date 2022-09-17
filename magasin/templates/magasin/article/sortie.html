@@ -1,0 +1,66 @@
+{% load widget_tweaks %}
+{% load fontawesome %}
+
+<form action="" method="POST" id="sortie_form_modal">
+    {% csrf_token %}
+    <div class="modal-header">
+        <h5 class="modal-title text-danger">Nouvelle Sortie</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div><!--End of header card-->
+
+    <div class="modal-body">
+
+        <div class="{% if sortie_form.errors %}invalid{% endif %} mb-2">
+            {% for error in sortie_form.errors %}{{ error }}{% endfor %}
+        </div>
+
+        <div class="form-group row mb-2" style="display: none;">
+            <div class="col-sm-9">
+                {% render_field sortie_form.slug|append_attr:"readonly:readonly" value=article.slug %}
+            </div>
+        </div>
+
+        <div class="form-group row mb-2">
+            <label class="col-sm-3 col-form-label" for="{{ sortie_form.sortie_date.id_for_label }}">Date</label>
+            <div class="col-sm-9">
+                <div class="row date_row">
+                    {% if sortie_form.sortie_date.errors %}
+                        {% render_field sortie_form.sortie_date class+="invalid is-invalid" %}
+                        {% for error in sortie_form.sortie_date.errors %}
+                            <div class="invalid-feedback"><span>{{ error }}</span></div>
+                        {% endfor %}
+
+                    {% else %}
+                        {% render_field sortie_form.sortie_date %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row mb-2">
+            <label class="col-sm-3 col-form-label" for="{{ sortie_form.sortie_qte.id_for_label }}">Qte</label>
+            <div class="col-sm-9">
+                {% if sortie_form.sortie_qte.errors %}
+                    {% render_field sortie_form.sortie_qte class+="invalid is-invalid" value=1 %}
+                    {% for error in sortie_form.sortie_qte.errors %}
+                        <div class="invalid-feedback"><span>{{ error }}</span></div>
+                    {% endfor %}
+                {% else %}
+                    {% render_field sortie_form.sortie_qte value=1 %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group row mb-2">
+            <label class="col-sm-3 col-form-label" for="{{ sortie_form.sortie_prix.id_for_label }}">Prix</label>
+            <div class="col-sm-9">
+                {% render_field sortie_form.sortie_prix|append_attr:"readonly:readonly" value=article.prix %}
+            </div>
+        </div>
+    </div><!--End body modal-->
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-danger">{% fontawesome_icon 'minus-square' %} Sortie</button>
+    </div><!--End of footer card-->
+</form>

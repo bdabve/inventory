@@ -1,0 +1,23 @@
+{% load humanize %}
+<div class="modal-header text-center">
+    <h3 class="modal-title">Article Details</h3>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item"><span class="list_title">Username</span><span>: {{ user.username }}</span></li>
+        <li class="list-group-item"><span class="list_title">First Name</span><span>: {{ user.first_name }}</span></li>
+        <li class="list-group-item"><span class="list_title">Last Name</span><span>: {{ user.last_name }}</span></li>
+        <li class="list-group-item"><span class="list_title">Email</span><span>: {{ user.last_name }}</span></li>
+        <li class="list-group-item">
+            <span class="list_title">Poste Travaille</span><span>: {{ request.user.profile.poste_travaille }}</span>
+        </li>
+
+        <li class="list-group-item"><span class="list_title">Groupe</span><span>: {{ user.profile.groupe }}</span></li>
+    </ul>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+</div>

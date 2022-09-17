@@ -1,0 +1,33 @@
+{% load widget_tweaks %}
+
+<form action="" method="POST">
+    {% csrf_token %}
+
+    <div class="modal-header">
+        <h5 class="modal-title">Update Article</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div><!--End of header card-->
+
+    <div class="modal-body">
+        {% for field in form %}
+            <div class="form-group row mb-2">
+                <label class="col-sm-3 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="col-sm-9">
+                    {% if field.errors %}
+                        {% render_field field class="form-control is-invalid invalid" %}
+                        <div class="invalid-feedback">
+                            {% for error in field.errors %}<span>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% else %}
+                        {% render_field field class="form-control" %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div><!--End body modal-->
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="submit-btn btn btn-info">Update</button>
+    </div><!--End of footer card-->
+</form>

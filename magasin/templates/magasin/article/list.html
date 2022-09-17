@@ -1,0 +1,195 @@
+{% extends "magasin/base.html" %}
+{% load fontawesome %}
+{% load widget_tweaks %}
+{% load humanize %}
+
+{% block title %}
+    {% if category %}{{ category.name }}{% else %}Magasin{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col col-md-2">
+        <div class="cat_list shadow bg-body rounded border">
+            <h5 class="cat_list_header text-center">
+                Categories 
+                <a href="#" class="bs-modal add_cat" data-form-url="{% url "magasin:create_category"%}">
+                    {% fontawesome_icon 'plus-square' %}
+                </a>
+            </h5>
+
+            <ul class="list-group list-group-flush text-center cat_list_item">
+                <a href="{% url "magasin:article_list" %}"
+                   {% if not category %}class="list-group-item list-group-item-action active"
+                   {% else %}class="list-group-item list-group-item-action"{% endif %}>
+                   All
+                </a>
+
+                <!-- Loup through all categories -->
+                {% for c in categories %}
+                    <a href="{{ c.get_absolute_url }}" 
+                       {% if category.slug == c.slug %} class="list-group-item list-group-item-action active" 
+                       {% else %}class="list-group-item list-group-item-action"{% endif %}>{{ c.name }}</a>
+                {% endfor %}
+            </ul>
+        </div><!--End of card div-->
+    </div><!--End of side bar col-->
+
+    <!-- ===========================| Main Column |================================= -->
+    <div class="col col-md-10">
+        <div class="main-table" id="article_table">
+            <h2 class="header_title">
+                {% if category %}{{ category.name }} Articles
+                {% elif stock_alarm %}Stock Egale a 0
+                {% else %}Tous Les Articles{% endif %}
+            </h2>
+
+            <!-- ========================| Search form |============================-->
+            <div class="row mb-2">
+                <div class="col-sm-10">
+                    <form class="row row-cols-lg-auto align-items-center" action="" method="post">
+                        {% csrf_token %}
+                        <div class="col-12">
+                            <div class="input-group">
+                                <div class="input-group-text">{% fontawesome_icon 'search' %}</div>
+                                {% render_field search_article_form.search_word class+="search_wrd" placeholder="Search" %}
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-check-inline p-0 me-0">
+                                {% for radio in search_article_form.choice %}
+                                    {{ radio.tag }}
+                                    <label class="form-check-label me-3" for="{{ radio.id_for_label }}">
+                                        {{ radio.choice_label }}
+                                    </label> 
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-outline-primary search_btn">
+                                {% fontawesome_icon 'search' %} Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-sm-2">
+                    {% if request.user.profile.groupe == 'admin' %}
+                    <button type="button" class="bs-modal btn btn-primary float-end" 
+                            data-form-url="{% url "magasin:create_article"%}"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nouveaux Article">
+                        {% fontawesome_icon 'plus-square' %} N. Article
+                    </button>
+                {% endif %}
+                </div>
+
+            </div>
+            
+            <!-- Display Messages -->
+            {% for msg in messages %}
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    {{ msg }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- Table -->
+            <table class="table table-bordered table-hover main_table">
+                <thead class="table-success">
+                    <tr>
+                        <th scope="col">Designation</th>
+                        <th scope="col">Code</th>
+                        <th scope="col">Reference</th>
+                        <th scope="col">Emp</th>
+                        <th scope="col">U-M</th>
+                        <th scope="col">Quantité</th>
+                        <th scope="col">Prix-U</th>
+                        <th scope="col">Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in articles %}
+                        <tr class="{% if article.qte < 1 %}table-danger{% endif %}">
+                            <td scope="row">
+                                <a class="text-decoration-none" href="{{ article.get_absolute_url }}">
+                                    {{ article.designation|truncatechars:17 }}
+                                </a>
+                            </td>
+                            <td data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                                title="OBS: {% if article.observation %}{{ article.observation }}{% else %}RAS{%endif%}">
+                                {{ article.code }}
+                            </td>
+                            <td data-toggle="tooltip" data-placement="bottom" title="{{ artcile.ref }}">
+                                {{ article.ref|truncatechars:20 }}
+                            </td>
+                            <td>{{ article.emp }}</td>
+                            <td>{{ article.umesure }}</td>
+                            <td>{{ article.qte }}</td>
+                            <!--Comment prix unitaire-->
+                            <td>{{ article.prix|intcomma }}</td>
+                            <!--<td>
+                                {% if article.observation == None %}RAS{% else %}{{ article.observation|truncatechars:10 }}{% endif %}
+                                </td>-->
+
+                            <!-- Operations buttons-->
+                            <td class="text-center">
+                                <!-- SuperUser -->
+                                {% if request.user.profile.groupe == 'admin' %}
+                                <!-- Read Article -->
+                                <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
+                                        data-form-url="{% url "magasin:read_article" article.art_id article.slug %}">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                                <!-- Update Article -->
+                                <button type="button" id="update-article" class="bs-modal btn btn-sm btn-outline-info" 
+                                        data-form-url="{% url "magasin:update_article" article.art_id article.slug %}">
+                                    {% fontawesome_icon 'pencil-alt' %} 
+                                </button>
+
+                                <!-- Delete Article -->
+                                <button type="button" id="delete-article" class="bs-modal btn btn-sm btn-outline-danger" 
+                                        data-form-url="{% url "magasin:delete_article" article.art_id article.slug %}">
+                                    {% fontawesome_icon 'trash-alt' %} 
+                                </button>
+
+                                <!-- Drop down menu for ENTREE, SORTIE -->
+                                <div class="btn-group dropstart entree_sortie_dropdown">
+                                    <button class="btn btn-outline-dark btn-sm dropdown-toggle" data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
+                                        {% fontawesome_icon 'exchange-alt' %}
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="actionMenu">
+                                        <li>
+                                            <a href="#" class="bs-modal dropdown-item" id="entree-article" 
+                                                data-form-url="{% url "magasin:entree" article.art_id article.slug %}">
+                                                {% fontawesome_icon 'plus-circle' %} Entrée
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="bs-modal dropdown-item" id="sortie-article"
+                                               data-form-url="{% url "magasin:sortie" article.art_id article.slug %}">
+                                                {% fontawesome_icon 'minus-circle' %} Sortie
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div><!-- end of dropdown entree/sortie -->
+
+                                {% else %}
+                                <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
+                                        data-form-url="{% url "magasin:read_article" article.art_id article.slug %}">
+                                    {% fontawesome_icon 'eye' %} Details
+                                </button>
+                                {% endif %} <!-- endif for checking user group -->
+                            </td><!-- end of operation td -->
+                        </tr><!-- end of table row-->
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div><!--End of main table div-->
+        {% include "pagination.html" with page=articles %}
+    </div><!--End of table col-->
+
+</div><!-- End of row-->
+
+{% endblock %}

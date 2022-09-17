@@ -1,0 +1,31 @@
+{% load widget_tweaks %}
+
+<form action="" method="POST">
+    {% csrf_token %}
+
+    <div class="modal-header">
+        <h5 class="modal-title">Create Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div><!--End of header card-->
+
+    <div class="modal-body">
+        <div class="form-group row mb-3">
+            <label class="col-sm-3 col-form-label">Category</label>
+            <div class="col-sm-9">
+                {% if form.name.errors %}
+                    {% render_field form.name class="invalid is-invalid form-control" %}
+                    <div class="invalid-feedback">
+                        {% for error in form.name.errors %}<span>{{ error }}</span>{% endfor %}
+                    </div>
+                {% else %}
+                    {% render_field form.name class="form-control" %}
+                {% endif %}
+            </div>
+        </div>
+    </div><!--End body modal-->
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="submit-btn btn btn-info">Create</button>
+    </div><!--End of footer card-->
+</form>

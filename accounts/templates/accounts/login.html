@@ -1,0 +1,68 @@
+{% extends "magasin/base.html" %}
+{% load static %}
+{% load fontawesome %}
+{% load widget_tweaks %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+    <div class="col col-md-5">
+
+        <div class="card mb-5">
+            <h4 class="card-header bg-secondary text-center text-white">Login</h4>
+
+            <div class="card-body art_details">
+                <!-- Article Informations -->
+                <!-- Entree Form -->
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label" for="{{ login_form.username.id_for_label }}">Username</label>
+                        <div class="col-sm-9">
+                            {% if login_form.username.errors %}
+                                {% render_field login_form.username class="form-control border border-danger" %}
+                                {% for error in login_form.username.errors %}
+                                    <p class="alert alert-danger mt-1">{{ error }}</p>
+                                {% endfor %}
+                            {% else %}
+                                {% render_field login_form.username class="form-control" %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label" for="{{ login_form.password.id_for_label }}">Password</label>
+                        <div class="col-sm-9">
+                            {% if login_form.password.errors %}
+                                {% render_field login_form.password class="form-control border border-danger" %}
+                                {% for error in login_form.password.errors %}
+                                    <p class="alert alert-danger mt-1">{{ error }}</p>
+                                {% endfor %}
+                            {% else %}
+                                {% render_field login_form.password class="form-control" %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% comment %}
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label" for="{{ login_form.group.id_for_label }}">Group</label>
+                        <div class="col-sm-9">
+                            {% if login_form.group.errors %}
+                                {% render_field login_form.group class="form-control border border-danger" %}
+                                {% for error in login_form.group.errors %}
+                                    <p class="alert alert-danger mt-1">{{ error }}</p>
+                                {% endfor %}
+                            {% else %}
+                                {% render_field login_form.group class="form-control" %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endcomment %}
+
+                    <input type="submit" class="btn btn-info float-right" value="Login">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

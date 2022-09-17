@@ -1,0 +1,13 @@
+TODO:
+    - Select box for category inside the search box
+    - Tooltips
+    - Add a tooltips like inside article details if article.qte == 0
+____________________________________________________________________
+
+Todo:
+    - Add validator for UNIQUE CONSTRAINT update query
+    - SELECT(1) AS "a" FROM "magasin_article" WHERE("magasin_article"."code" = 'ACTIV-003' AND NOT ("magasin_article"."art_id" = '37')) LIMIT 1
+
+FIXME:
+    - handle the modalForms for entree/sortie; Sortie and Entree form save twise in db
+____________________________________________________

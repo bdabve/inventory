@@ -1,0 +1,19 @@
+{% load widget_tweaks %}
+
+<form method="post" action="">
+    {% csrf_token %}
+
+    <div class="modal-header">
+        <h3 class="modal-title">Suppression Movement</h3>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+
+    <div class="modal-body">
+        <p>Suppression du :<strong>{{  movement.movement_id }}: {{ movement.art_id.code }} -- {{ movement.movement }}</strong>?</p>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-danger">Supprimér</button>
+    </div>
+
+</form>

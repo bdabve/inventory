@@ -1,0 +1,96 @@
+{% extends "magasin/base.html" %}
+{% load fontawesome %}
+{% load widget_tweaks %}
+{% load humanize %}
+
+{% block title %}Gestion Des Stocks{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main display -->
+    <div class="col col-md-10">
+        <div class="main-table" id="article_table">
+            <!-- Search form-->
+            {% comment %}
+            <div class="mt-3 mb-3 row">
+                <form class="form-inline" action="" method="post">
+                    {% csrf_token %}
+                    <div class="form-group col-sm-4 search_">
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        {% for radio in search_article_form.choice %}
+                            {{ radio.tag }}
+                            <label class="form-check-label mr-2 ml-2" for="{{ radio.id_for_label }}">
+                                {{ radio.choice_label }}
+                            </label> 
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary search_btn">
+                        {% fontawesome_icon 'search' %} Search
+                    </button>
+                </form>
+            </div>
+            {% endcomment %}
+            <div></div>
+
+
+            <!-- Table -->
+            {% for msg in messages %}
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    {{ msg }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+            <table class="table table-bordered table-hover main_table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Designation</th>
+                        <th scope="col">Code</th>
+                        <th scope="col">ent_qte</th>
+                        <th scope="col">ent_Prix</th>
+                        <th scope="col">ent_valeur</th>
+
+                        <th scope="col">srt_qte</th>
+                        <th scope="col">srt_Prix</th>
+                        <th scope="col">srt_valeur</th>
+
+                        <th scope="col">sf_qte</th>
+                        <th scope="col">sf_Prix</th>
+                        <th scope="col">sf_valeur</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in articles %}
+                        <tr>
+                            <th scope="row">
+                                <a class="text-decoration-none" href="#">
+                                    {{ article.art_id.designation|truncatechars:20 }}
+                                </a>
+                            </th>
+                            <td >{{ article.art_id.code }}</td>
+                            <td data-toggle="tooltip" data-placement="bottom" title="{{ artcile.art_id.ref }}">
+                                {{ article.art_id.ref|truncatechars:20 }}
+                            </td>
+                            <td>{{ article.ent_qte }}</td>
+                            <td>{{ article.ent_prix }}</td>
+                            <!-- Operations buttons-->
+                            <td></td><!-- end of operation td -->
+                        </tr><!-- end of table row-->
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div><!--End of main table div-->
+    </div><!--End of table col-->
+
+</div><!-- End of row-->
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content"></div>
+    </div>
+</div><!--End of modal-->
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "magasin/base.html" %}
+{% load static %}
+{% load fontawesome %}
+{% load widget_tweaks %}
+
+{% block title %}Logged Out{% endblock %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+    <div class="col">
+        <h1>Logged out</h1>
+        <p>You have been successfully logged out. You can <a href="{% url "accounts:login" %}">log-in</a> again.</p>
+    </div>
+</div>
+{% endblock %}

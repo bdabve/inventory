@@ -1,0 +1,31 @@
+{% extends "magasin/base.html" %}
+{% load static %}
+{% load fontawesome %}
+{% load humanize %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="card profile_form">
+    <h5 class="card-header bg-secondary text-center text-white p-4">Profile</h5>
+    <div class="card-body art_details">
+        {% for msg in messages %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><span class="list_title">UserName</span><span>: {{ request.user.username }}</span></li>
+            <li class="list-group-item"><span class="list_title">Nom</span><span>: {{ request.user.first_name }}</span></li>
+            <li class="list-group-item"><span class="list_title">Prenom</span><span>: {{ request.user.last_name }}</span></li>
+            <li class="list-group-item"><span class="list_title">Email</span><span>: {{ request.user.email }}</span></li>
+            <li class="list-group-item"><span class="list_title">Poste</span><span>: {{ request.user.profile.poste_travaille }}</span></li>
+            <li class="list-group-item"><span class="list_title">Groupe</span><span>: {{ request.user.profile.groupe }}</span></li>
+        </ul>
+        <a href="{% url 'accounts:edit_profile' request.user.id %}" class="btn btn-outline-success float-end mt-3">
+            {% fontawesome_icon 'edit' %} Edit
+        </a>
+    </div><!--End of card body-->
+</div><!--End of card-->
+{% endblock %}

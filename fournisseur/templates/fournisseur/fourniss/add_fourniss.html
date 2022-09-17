@@ -1,0 +1,44 @@
+{% extends "magasin/base.html" %}
+{% load fontawesome %}
+{% load widget_tweaks %}
+
+{% block title %}Ajouter Fournisseur{% endblock %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+    <div class="col col-md-6">
+
+        <div class="card mb-5">
+            <h5 class="card-header bg-secondary text-center text-white">Nouveau Fournisseur</h5>
+
+            <div class="card-body art_details">
+                <!-- Article Informations -->
+                <!-- Entree Form -->
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {% for field in add_fourniss_form %}
+
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            <div class="col-sm-9">
+                                {% render_field field class="form-control" placeholder=field.help_text %}
+                                <!-- Handling Errors -->
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        <p class="alert alert-danger mt-1">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <input type="submit" class="btn btn-info float-right" value="Ajouter">
+                </form>
+                <a type="button" class="btn btn-secondary float-right mr-2" href="{% url "fournisseur:fourniss_list" %}">
+                    Annuler
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "magasin/base.html" %}
+{% load fontawesome %}
+{% load widget_tweaks %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+
+{% for msg in messages %}
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endfor %}
+
+<div class="container">
+    <a class="btn btn-primary float-end mb-2 mt-2" href="{% url "accounts:add_user"%}">
+        {% fontawesome_icon 'user-plus' %} Add User
+    </a>
+<!-- Table -->
+<table class="table table-bordered table-hover main_table">
+    <thead class="table-success">
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Username</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Job</th>
+            <th scope="col">Groupe</th>
+            <th scope="col">Last Login</th>
+            <th scope="col">Operations</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+            <tr class="{% if article.qte < 1%}alert alert-danger{% endif %}">
+                <th scope="row">
+                    <a class="text-decoration-none" href="" 
+                       data-toggle="tooltip" data-placement="bottom" title="{{ artcile.designation }}">
+                        {{ user.id }}
+                    </a>
+                </th>
+                <td>{{ user.username }}</td>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <!--Comment prix unitaire-->
+                <td>{{ user.profile.poste_travaille }}</td>
+                <td >{{ user.profile.groupe }}</td>
+                <td >{{ user.last_login|date:"d M Y" }}</td>
+
+                <!-- Operations buttons-->
+                <td class="text-center">
+                    <!-- SuperUser -->
+                    {% if request.user.profile.groupe == 'admin' %}
+                    <!-- Read User -->
+                    <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
+                            data-form-url="{% url "accounts:read_profile" user.id %}">
+                        <i class="fa fa-id-card-alt"></i>
+                    </button>
+                    <!-- Update User -->
+                    <a type="button" href="{% url "accounts:edit_profile" user.id %}" class="btn btn-sm btn-outline-info">
+                        <i class="fa fa-user-edit"></i>
+                    </a>
+
+                    <!-- Delete User -->
+                    <button type="button" id="delete-article" class="bs-modal btn btn-sm btn-outline-danger" 
+                            data-form-url="{% url "accounts:delete_user" user.id %}">
+                        <i class="fa fa-user-minus"></i>
+                    </button>
+
+                    {% else %}
+                    <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
+                            data-form-url="">
+                        {% fontawesome_icon 'eye' %} Details
+                    </button>
+                    {% endif %} <!-- endif for checking user group -->
+                </td><!-- end of operation td -->
+            </tr><!-- end of table row-->
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

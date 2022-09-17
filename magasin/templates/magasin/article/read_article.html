@@ -1,0 +1,26 @@
+{% load humanize %}
+<div class="modal-header text-center">
+    <h3 class="modal-title">Article Details</h3>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item"><span class="list_title">Code</span><span>: {{ article.code }}</span></li>
+
+        <li class="list-group-item"><span class="list_title">Designation</span><span>: {{ article.designation }}</span></li>
+        <li class="list-group-item"><span class="list_title">Reference</span><span>: {{ article.ref }}</span></li>
+        <li class="list-group-item"><span class="list_title">Emplacement</span><span>: {{ article.emp }}</span></li>
+        <li class="list-group-item"><span class="list_title">Quantité</span><span>: {{ article.qte }} {{ article.umesure }}</span></li>
+        <li class="list-group-item"><span class="list_title">Prix Unitaire</span><span>: {{ article.prix|intcomma }} DA</span></li>
+        <li class="list-group-item"><span class="list_title">Valeur</span><span>: {{ article.valeur|intcomma }} DA</span></li>
+        <li class="list-group-item">
+            <span class="list_title">Observation</span>
+            <span>: {% if article.observation %}{{ article.observation }}{% else %}RAS{% endif %}</span>
+        </li>
+    </ul>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+</div>
