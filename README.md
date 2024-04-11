@@ -1,6 +1,6 @@
 # Inventory management
 
-simple application to track a simple stock with
+simple application to track a simple stock
 programmed with Python and Django framework
 
 ### Screenshots
