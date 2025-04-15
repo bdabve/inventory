@@ -40,10 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'fontawesome',
     'widget_tweaks',
+    'bootstrap_modal_forms',
     'magasin.apps.MagasinConfig',
     'fournisseur.apps.FournisseurConfig',
     'debug_toolbar',                # django debug_toolbar
-    'bootstrap_modal_forms',
     'django.contrib.humanize',      # format in human readable; doc(https://docs.djangoproject.com/en/3.1/ref/contrib/humanize)
 ]
 

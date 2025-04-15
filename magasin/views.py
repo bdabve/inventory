@@ -4,10 +4,11 @@ from django.shortcuts import render, get_object_or_404, get_list_or_404, redirec
 from django.urls import reverse_lazy
 
 from .models import Category, Article, MagasinLog, Movement, Command         # , GestionStocks
+from django.db.models import Q
 # from django.contrib.auth.models import User
-from .forms import (CreateCategoryForm, CreateArticleForm, UpdateArticleForm, UpdateArticleForm_, SearchArticleForm,
+from .forms import (CreateCategoryForm, CreateArticleForm, UpdateArticleForm_, SearchArticleForm,
                     EntreeForm, SortieForm, SearchMovementForm, Etats, CreateCommandForm)
-from bootstrap_modal_forms.generic import BSModalCreateView, BSModalReadView, BSModalUpdateView, BSModalDeleteView
+from bootstrap_modal_forms.generic import BSModalCreateView, BSModalReadView, BSModalDeleteView
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 # from django.http import HttpResponseRedirect
@@ -58,14 +59,9 @@ def article_list(request, category_slug=None, stock_alarm=False, art_sans_prix=F
         search_article_form = SearchArticleForm(request.POST)     # PdrSearchForm comme from forms.py file
         if search_article_form.is_valid():
             # form fields passed validation
-            search_word = search_article_form.cleaned_data      # retrieve the user input form
-            where = search_word['choice']               # where clause
-            if where == 'code':
-                articles = Article.objects.filter(code__contains=search_word['search_word'], )   # get records from db
-            elif where == 'ref':
-                articles = Article.objects.filter(ref__contains=search_word['search_word'], )   # get records from db
-            elif where == 'designation':
-                articles = Article.objects.filter(designation__contains=search_word['search_word'], )   # get records from db
+            search_word = search_article_form.cleaned_data['search_word']      # retrieve the user input form
+            print(search_word)
+            articles = Article.objects.filter(Q(designation__icontains=search_word) | Q(code__icontains=search_word) | Q(ref__icontains=search_word)).select_related('category')
 
     else:
         search_article_form = SearchArticleForm()
@@ -224,45 +220,85 @@ def article_detail(request, art_id, slug, history=False, movement=False):
 # ----------------------------------------------------------------------
 # ==> Create Category View (django-bootstrap-modal-form)
 # -----------------------------------------------------
-class CreateCategoryView(BSModalCreateView):
-    template_name = 'magasin/article/create_category.html'
-    form_class = CreateCategoryForm
-    success_message = 'Success: Category Ajouter'
-    success_url = reverse_lazy('magasin:article_list')
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+
+def category_form_partial(request):
+    form = CreateCategoryForm()
+    return render(request, 'magasin/article/create_category.html', {'form': form})
+
+
+@csrf_exempt
+def create_category(request):
+    if request.method == 'POST':
+        form = CreateCategoryForm(request.POST)
+        if form.is_valid():
+            category = form.save()
+            return JsonResponse({'success': True, 'name': category.name, 'id': category.cat_id})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
 
 
 # ----------------------------------------------------------------------
 # ==> Create Article View (django-bootstrap-modal-form)
 # -----------------------------------------------------
-class CreateArticleView(BSModalCreateView):
-    template_name = 'magasin/article/create_article.html'
-    form_class = CreateArticleForm
-    success_message = 'Success: Article Ajouter.'
-    success_url = reverse_lazy('magasin:article_list')
+def article_form_partial(request):
+    form = CreateArticleForm()
+    return render(request, 'magasin/article/create_article.html', {'form': form})
+
+
+@csrf_exempt
+def create_article(request):
+    if request.method == 'POST':
+        form = CreateArticleForm(request.POST)
+        if form.is_valid():
+            article = form.save()
+            return JsonResponse({'success': True, 'code': article.code, 'id': article.art_id})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
 
 
 # ----------------------------------------------------------------------
 # ==> Read Article View (django-bootstrap-modal-form)
 # -----------------------------------------------------
-class ReadArticle(BSModalReadView):
-    model = Article
-    template_name = 'magasin/article/read_article.html'
+def read_article(request, art_id, slug):
+    article = get_object_or_404(Article, art_id=art_id, slug=slug)
+    return render(request, 'magasin/article/read_article.html', {'article': article})
 
 
 # ----------------------------------------------------------------------
 # ==> Update Article View (django-bootstrap-modal-form)
 # -----------------------------------------------------
-class UpdateArticleView(BSModalUpdateView):
-    model = Article
-    template_name = 'magasin/article/update_article.html'
-    form_class = UpdateArticleForm
-    success_message = 'Success: Article Modifier avec Succés.'
-    success_url = reverse_lazy('magasin:article_list')
+
+def update_form_partial(request, art_id, slug):
+    article = get_object_or_404(Article, art_id=art_id, slug=slug)
+    form = CreateArticleForm(instance=article)
+    return render(request, 'magasin/article/update_article.html', {'form': form, 'article': article})
+
+
+def update_article(request, art_id, slug):
+    article = get_object_or_404(Article, art_id=art_id, slug=slug)
+    if request.method == 'POST':
+        form = CreateArticleForm(request.POST, instance=article)
+        if form.is_valid():
+            updated_article = form.save()
+            return JsonResponse({'success': True, 'designation': updated_article.designation})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
 
 
 # ----------------------------------------------------------------------
 # ==> Delete Article View (django-bootstrap-modal-form)
 # -----------------------------------------------------
+def delete_article(request, art_id, slug):
+    if request.method == 'POST':
+        article = get_object_or_404(Article, art_id=art_id, slug=slug)
+        article.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+
 class DeleteArticleView(BSModalDeleteView):
     model = Article
     template_name = 'magasin/article/delete_article.html'

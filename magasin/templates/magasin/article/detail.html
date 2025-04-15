@@ -13,14 +13,14 @@
         <!-- Search Article Form -->
         <form class="row row-cols-lg-auto align-items-center mb-2" action="" method="post">
             {% csrf_token %}
-            <div class="col-12">
+            <div class="col">
                 <div class="input-group">
-                    <div class="input-group-text">{% fontawesome_icon 'search' %}</div>
-                    {% render_field search_form.search_word placeholder="Entree Le Code Article" %}
+                    <div class="input-group-text"><i class="bi bi-search"></i></div>
+                    {% render_field search_form.search_word placeholder="Code Article" %}
                 </div>
             </div>
 
-            <div class="col-12">
+            <div class="col">
                 <button type="submit" name="search_form" class="btn btn-outline-secondary search_btn">
                     {% fontawesome_icon 'search' %} Recherche
                 </button>
@@ -108,7 +108,10 @@
             </div><!-- End of col-md-6 -->
 
             {% if request.user.profile.groupe == 'admin' %}
-            <!-- =======================| TABS: MOVEMENT / MODIFICATION / ENTREE / SORTIE |==========================-->
+            <!-- =======================| 
+            =   TABS: 
+                MOVEMENT / MODIFICATION / ENTREE / SORTIE 
+            |==========================-->
             <div class="col-md-6 col_art_operation">
                 <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -143,7 +146,9 @@
                 </ul>
 
 
-                <!-- ========================| MOVEMENT TAB |============================================ -->
+                <!-- ========================| 
+                    MOVEMENT TAB 
+                |============================ -->
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active tab_content" id="movement" role="tabpanel" aria-labelledby="movement-tab">
                         <h5 class="text-center alert alert-secondary">Article Movement</h5>
@@ -184,7 +189,9 @@
                         {% endif %}
                     </div><!-- end of movement tab -->
 
-                    <!-- =============================| MODIFICATION FORM |=================================================-->
+                    <!-- ================================================| 
+                        MODIFICATION FORM 
+                    |=================================================-->
                     <div class="tab-pane tab_content fade" id="modifier" role="tabpanel" aria-labelledby="modifier-tab">
                         <h5 class="alert alert-success text-center">Modification Article</h5>
                         <form action="" method="POST">

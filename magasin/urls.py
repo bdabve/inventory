@@ -13,11 +13,19 @@ urlpatterns = [
     path('magasin/<int:art_id>/<slug:slug>/', views.article_detail, name='article_detail'),            # article details
 
     # Django-bootstrap-modal-forms URLS
-    path('read-article/<int:art_id>/<slug:slug>', views.ReadArticle.as_view(), name='read_article'),   # article detail boots modal
-    path('create-category/', views.CreateCategoryView.as_view(), name='create_category'),                       # create category
-    path('create-article/', views.CreateArticleView.as_view(), name='create_article'),                          # create article
-    path('update-article/<int:art_id>/<slug:slug>', views.UpdateArticleView.as_view(), name='update_article'),  # update article
-    path('delete-article/<int:art_id>/<slug:slug>', views.DeleteArticleView.as_view(), name='delete_article'),  # delete article
+    path('read-article/<int:art_id>/<slug:slug>', views.read_article, name='read_article'),   # article detail boots modal
+    #######
+    path('category/form/', views.category_form_partial, name='category_form_partial'),
+    path('create-category/', views.create_category, name='create_category'),                       # create category
+    ######
+
+    path('article/form/', views.article_form_partial, name='article_form_partial'),
+    path('create-article/', views.create_article, name='create_article'),                          # create article
+
+    path('edit-article/form/<int:art_id>/<slug:slug>', views.update_form_partial, name='update_form_partial'),
+    path('update-article/<int:art_id>/<slug:slug>', views.update_article, name='update_article'),  # update article
+
+    path('delete-article/<int:art_id>/<slug:slug>', views.delete_article, name='delete_article'),  # delete article
 
     # Django-bootstrap-modal-forms with custom view
     path('entree-article/<int:art_id>/<slug:slug>', views.entree_article_view, name='entree'),      # new entry

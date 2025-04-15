@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form action="" method="POST">
+<form id="articleEditForm"action="" method="POST" data-art-id="{{ article.art_id }}" data-slug="{{ article.slug }}">
     {% csrf_token %}
 
     <div class="modal-header">
@@ -9,6 +9,8 @@
     </div><!--End of header card-->
 
     <div class="modal-body">
+        <div id="formErrors" class="alert alert-danger mt-2" style="display: none;"></div>
+
         {% for field in form %}
             <div class="form-group row mb-2">
                 <label class="col-sm-3 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -28,6 +30,6 @@
 
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="submit-btn btn btn-info">Update</button>
+        <button type="submit" class="btn btn-info">Update</button>
     </div><!--End of footer card-->
 </form>

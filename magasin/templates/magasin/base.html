@@ -1,22 +1,22 @@
 {% load static %}
-{% load fontawesome %}
 
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
+
+
         <!-- Bootstrap -->
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
-
-        {% fontawesome_stylesheet %}
+        <link rel="stylesheet" href="{% static "css/bootstrap-icons.min.css" %}">
         <link rel="stylesheet" href="{% static "css/main.css" %}">
-        <link rel="stylesheet" href="{% static "css/all.min.css" %}">
 
     </head>
     <body>
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mr-auto">
+        <nav class="navbar navbar-expand-lg mr-auto border-bottom border-body fixed-top bg-body-tertiary" 
+            data-bs-theme="light">
             <div class="container">
                 <a class="navbar-brand" href="{% url "magasin:dashboard" %}">Inventory</a><!--HOME-->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#app-nav" 
@@ -27,15 +27,16 @@
                     <ul class="navbar-nav me-auto">
                         {% if request.user.is_authenticated %}
                         <!-- Home -->
-                        <li class="nav-item">
-                            <a class="nav-link {% if nbar == "magasin" %}active{% endif %}" href="{% url "magasin:article_list" %}">
-                                {% fontawesome_icon 'home' %} Magasin
+                        <li class="nav-item ">
+                            <a class="nav-link 
+                               {% if nbar == "magasin" %}active{% endif %}" href="{% url "magasin:article_list" %}">
+                                <i class="bi bi-house"></i> Magasin
                             </a>
                         </li>
                         <!-- Movement -->
-                        <li class="nav-item">
+                        <li class="nav-item ">
                             <a class="nav-link {% if nbar == "movement" %}active{% endif %}" href="{% url "magasin:movement" %}">
-                                <i class="fa fa-sync"></i> Movement
+                                <i class="bi bi-arrow-repeat"></i> Movement
                             </a>
                         </li>
 
@@ -47,46 +48,47 @@
                         {% endcomment %}
 
                         <!-- History -->
-                        <li class="nav-item">
+                        <li class="nav-item ">
                             <a class="nav-link {% if nbar == "history" %}active{% endif %}" href="{% url "magasin:magasin_log" %}">
-                                {% fontawesome_icon 'history' %} History
+                                <i class="bi bi-clock"></i> History
                             </a>
                         </li>
 
                         <!-- Commands -->
-                        <li class="nav-item">
+                        <li class="nav-item ">
                             <a class="nav-link {% if nbar == "command" %}active{% endif %}" 
-                               href="{% url "magasin:manage_command" %}"><i class="fas fa-box"></i> Commands
+                               href="{% url "magasin:manage_command" %}">
+                                <i class="bi bi-truck-flatbed"></i> Commands
                             </a>
                         </li>
 
                         <!-- Dropdown action -->
-                        <li class="nav-item dropdown">
+                        <li class="nav-item dropdown ">
                             <a class="nav-link dropdown-toggle" href="#" id="actionDropdown" role="button" 
-                               data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-bars"></i> &nbsp;Actions
+                               data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-database-gear"></i> &nbsp;Actions
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="actionDropdown">
                                 <li>
                                     <a class="dropdown-item" href="{% url "magasin:stock_alarm" 1 %}">
-                                        {% fontawesome_icon "exclamation-circle" color="red"%} Stock Alarm
+                                        <i class="bi bi-alarm"></i> Stock Alarm
                                     </a>
                                 </li>
 
                                 <li>
                                     <a class="dropdown-item" href="{% url "magasin:art_sans_prix" 1 %}">
-                                        {% fontawesome_icon "usd" %} &nbsp;Article Sans Prix
+                                        <i class="bi bi-journal-minus"></i> Article Sans Prix
                                     </a>
                                 </li>
 
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{% url "fournisseur:fourniss_list" %}">
-                                        <i class="fa fa-shipping-fast"></i> &nbsp;Gestion des Fournisseur
+                                        <i class="bi bi-person-gear"></i> &nbsp;Gestion des Fournisseur
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item bs-modal" href="#" data-form-url="{% url "magasin:total_articles" %}">
-                                        {% fontawesome_icon "usd" %} &nbsp;&nbsp;Total Des Produits
+                                        <i class="bi bi-currency-dollar"></i> Total Des Produits
                                     </a>
                                 </li>
                             </ul>
@@ -97,22 +99,22 @@
                     {% if request.user.is_authenticated %}
 
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item dropdown ms-auto">
+                        <li class="nav-item dropdown ms-auto ">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
                                data-bs-toggle="dropdown" aria-expanded="false">
-                                {% fontawesome_icon "user" %}&nbsp;{{ request.user.username }}
+                                <i class="bi bi-person"></i>&nbsp;{{ request.user.username }}
                             </a>
                             <ul class="dropdown-menu navbar-right" aria-labelledby="navbarDropdown">
                                 {% if request.user.profile.groupe == 'admin' %}
                                     <li>
                                         <a class="dropdown-item" href="{% url "accounts:manage_users"%}">
-                                            {% fontawesome_icon "users" color='white' %} &nbsp;Manage Users
+                                            <i class="bi bi-person-lines-fill"></i>&nbsp; Manage Users
                                         </a>
                                     </li>
                                 {% endif %}
                                 <li>
                                     <a class="dropdown-item" href="{% url "accounts:logout" %}">
-                                        <i class="fa fa-sign-out-alt"></i> &nbsp;Logout
+                                        <i class="bi bi-box-arrow-in-right"></i> &nbsp;Logout
                                     </a>
                                 </li>
                             </ul>
@@ -146,20 +148,18 @@
         <div class="container-fluid">
             {% block content %}{% endblock %}
 
-            <!-- BS MODAL-->
-            <div class="modal fade" tabindex="-1" role="dialog" id="modal">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content"></div>
+            <!-- Modal -->
+            <div class="modal fade" id="mainModal" 
+                 tabindex="-1" aria-labelledby="mainModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content" id="modalContent"></div>
                 </div>
-            </div><!--End of modal-->
-
+            </div>
         </div>
 
         <!-- Bootstrap popper and jQuery and the main custom scripts-->
-        <script src="{% static "js/jquery-3.3.1.min.js" %}"></script>
-        <script src="{% static "js/popper_922.min.js" %}"></script>
-        <script src="{% static "js/bootstrap.min.js" %}"></script>
-        <script src="{% static "js/jquery.bootstrap.modal.forms.js" %}"></script>
-        <script src="{% static "js/main.js" %}"></script>
+        <script src='{% static "js/jQuery-3.7.1.js" %}'></script>
+        <script src='{% static "js/bootstrap.bundle.min.js" %}'></script>
+        <script src='{% static "js/main.js" %}'></script>
     </body>
 </html>

@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 # from django.core.exceptions import ValidationError
 
 
@@ -18,8 +19,9 @@ class Category(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.name = self.name.upper()
-        self.slug = self.name.lower()
+        if self.name:
+            self.name = self.name.upper()
+            self.slug = slugify(self.name.lower())
         super(Category, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -48,7 +50,7 @@ class Article(models.Model):
 
     def save(self, *args, **kwargs):
         self.code = self.code.upper()
-        self.slug = self.code.lower()
+        self.slug = slugify(self.code.lower())
         self.emp = self.emp.upper()
         self.valeur = (self.qte * self.prix)
         super(Article, self).save(*args, **kwargs)

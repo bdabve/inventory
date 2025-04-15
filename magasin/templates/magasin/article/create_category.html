@@ -1,6 +1,7 @@
 {% load widget_tweaks %}
 
-<form action="" method="POST">
+<form id="categoryForm" action="" method="POST">
+    
     {% csrf_token %}
 
     <div class="modal-header">
@@ -18,14 +19,15 @@
                         {% for error in form.name.errors %}<span>{{ error }}</span>{% endfor %}
                     </div>
                 {% else %}
-                    {% render_field form.name class="form-control" %}
+                    {% render_field form.name class="form-control" placeholder="Category Name" %}
                 {% endif %}
             </div>
         </div>
+        <div id="formErrors"></div>
     </div><!--End body modal-->
 
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="submit-btn btn btn-info">Create</button>
+        <button type="submit" class="submit-btn btn btn-info">Create</button>
     </div><!--End of footer card-->
 </form>

@@ -1,11 +1,10 @@
 from django import forms
 from django.shortcuts import get_object_or_404
 from .models import Category, Article       # , Command
-from bootstrap_modal_forms.forms import BSModalModelForm
 from datetime import date
 
 
-class CreateCategoryForm(BSModalModelForm):
+class CreateCategoryForm(forms.ModelForm):
     class Meta:
         model = Category
         exclude = ['cat_id', 'slug']
@@ -20,7 +19,7 @@ class CreateCategoryForm(BSModalModelForm):
 
 
 # --------- | Articles Forms |------------------------------
-class CreateArticleForm(BSModalModelForm):
+class CreateArticleForm(forms.ModelForm):
     class Meta:
         model = Article
         exclude = ['art_id', 'slug', 'valeur']
@@ -43,12 +42,6 @@ class CreateArticleForm(BSModalModelForm):
         return self.cleaned_data
 
 
-class UpdateArticleForm(BSModalModelForm):
-    class Meta:
-        model = Article
-        exclude = ['art_id', 'slug', 'qte', 'prix', 'valeur']
-
-
 class UpdateArticleForm_(forms.ModelForm):
     # UpdateArticleFrom_: to update article from article detail
     class Meta:
@@ -60,9 +53,6 @@ class UpdateArticleForm_(forms.ModelForm):
 
 class SearchArticleForm(forms.Form):
     search_word = forms.CharField(max_length=100, label=False)
-    CHOICES = [('code', 'Code'), ('ref', 'Reference'), ('designation', 'Designation')]
-    choice = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect, label=False, required=False, initial='code')
-
     search_word.widget.attrs.update({'class': 'form-control', 'size': '35'})
 
 

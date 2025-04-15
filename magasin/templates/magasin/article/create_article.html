@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form action="" method="POST">
+<form id="articleForm" action="" method="POST">
     {% csrf_token %}
 
     <div class="modal-header">
@@ -13,6 +13,9 @@
             <div class="form-group row mb-2">
                 <label class="col-sm-3 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                 <div class="col-sm-9">
+
+                    <div id="formErrors"></div>
+
                     {% if field.errors %}
                         {% render_field field class="form-control is-invalid invalid" placeholder=field.label %}
                         <div class="invalid-feedback">
@@ -29,6 +32,6 @@
 
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="submit-btn btn btn-info">Create</button>
+        <button type="submit" class="btn btn-info">Create</button>
     </div><!--End of footer card-->
 </form>

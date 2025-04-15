@@ -1,5 +1,4 @@
 {% extends "magasin/base.html" %}
-{% load fontawesome %}
 {% load widget_tweaks %}
 {% load humanize %}
 
@@ -11,11 +10,16 @@
 <div class="row">
     <div class="col col-md-2">
         <div class="cat_list shadow bg-body rounded border">
-            <h5 class="cat_list_header text-center">
-                Categories 
-                <a href="#" class="bs-modal add_cat" data-form-url="{% url "magasin:create_category"%}">
-                    {% fontawesome_icon 'plus-square' %}
-                </a>
+            <h5 class=" text-center d-flex">
+                <!--cat_list_header-->
+                <div class="">
+                    Categories 
+                </div>
+                <div class="">
+                    <a href="#" type="button" id="addCategoryBtn" class="add_cat" >
+                        <i class="bi bi-plus-square"></i>
+                    </a>
+                </div>
             </h5>
 
             <ul class="list-group list-group-flush text-center cat_list_item">
@@ -51,35 +55,22 @@
                         {% csrf_token %}
                         <div class="col-12">
                             <div class="input-group">
-                                <div class="input-group-text">{% fontawesome_icon 'search' %}</div>
-                                {% render_field search_article_form.search_word class+="search_wrd" placeholder="Search" %}
+                                <div class="input-group-text"><i class="bi bi-search"></i></div>
+                                {% render_field search_article_form.search_word class+="search_wrd" placeholder="Code; Reference; Desigation" %}
                             </div>
                         </div>
 
                         <div class="col-12">
-                            <div class="form-check form-check-inline p-0 me-0">
-                                {% for radio in search_article_form.choice %}
-                                    {{ radio.tag }}
-                                    <label class="form-check-label me-3" for="{{ radio.id_for_label }}">
-                                        {{ radio.choice_label }}
-                                    </label> 
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-outline-primary search_btn">
-                                {% fontawesome_icon 'search' %} Search
-                            </button>
+                            <button type="submit" class="btn btn-outline-primary search_btn">Search</button>
                         </div>
                     </form>
                 </div>
 
                 <div class="col-sm-2">
                     {% if request.user.profile.groupe == 'admin' %}
-                    <button type="button" class="bs-modal btn btn-primary float-end" 
-                            data-form-url="{% url "magasin:create_article"%}"
+                    <button id="addArticleBtn" type="button" class="btn btn-primary float-end" 
                             data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nouveaux Article">
-                        {% fontawesome_icon 'plus-square' %} N. Article
+                        <i class="bi bi-plus"></i> N. Article
                     </button>
                 {% endif %}
                 </div>
@@ -93,6 +84,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
+            <div id="successAlert" class="alert alert-success d-none" role="alert"></div>
 
             <!-- Table -->
             <table class="table table-bordered table-hover main_table">
@@ -110,7 +102,7 @@
                 </thead>
                 <tbody>
                     {% for article in articles %}
-                        <tr class="{% if article.qte < 1 %}table-danger{% endif %}">
+                        <tr class="{% if article.qte < 1 %}table-danger{% endif %}" id="article-row-{{ article.art_id }}">
                             <td scope="row">
                                 <a class="text-decoration-none" href="{{ article.get_absolute_url }}">
                                     {{ article.designation|truncatechars:17 }}
@@ -137,39 +129,40 @@
                                 <!-- SuperUser -->
                                 {% if request.user.profile.groupe == 'admin' %}
                                 <!-- Read Article -->
-                                <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
-                                        data-form-url="{% url "magasin:read_article" article.art_id article.slug %}">
-                                    <i class="far fa-eye"></i>
+                                <button type="button" class="readArticleBtn btn btn-sm btn-outline-primary" 
+                                        data-slug="{{ article.slug }}" data-art-id="{{ article.art_id }}">
+                                    <i class="bi bi-eye"></i>
                                 </button>
                                 <!-- Update Article -->
-                                <button type="button" id="update-article" class="bs-modal btn btn-sm btn-outline-info" 
-                                        data-form-url="{% url "magasin:update_article" article.art_id article.slug %}">
-                                    {% fontawesome_icon 'pencil-alt' %} 
+                                <button type="button" class="updateArticleBtn btn btn-sm btn-outline-info" 
+                                        data-slug="{{ article.slug }}" data-art-id="{{ article.art_id }}">
+                                        {% comment %}data-form-url="{% url "magasin:update_article" article.art_id article.slug %}">{% endcomment %}
+                                    <i class="bi bi-pencil-square"></i>
                                 </button>
 
                                 <!-- Delete Article -->
-                                <button type="button" id="delete-article" class="bs-modal btn btn-sm btn-outline-danger" 
-                                        data-form-url="{% url "magasin:delete_article" article.art_id article.slug %}">
-                                    {% fontawesome_icon 'trash-alt' %} 
+                                <button type="button" class="deleteArticleBtn btn btn-sm btn-outline-danger" 
+                                        data-slug="{{ article.slug }}" data-art-id="{{ article.art_id }}">
+                                    <i class="bi bi-trash"></i>
                                 </button>
 
                                 <!-- Drop down menu for ENTREE, SORTIE -->
-                                <div class="btn-group dropstart entree_sortie_dropdown">
+                                <div class="btn-group dropstart">
                                     <button class="btn btn-outline-dark btn-sm dropdown-toggle" data-bs-toggle="dropdown" 
                                         aria-expanded="false">
-                                        {% fontawesome_icon 'exchange-alt' %}
+                                        <i class="bi bi-arrow-left-right"></i>
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="actionMenu">
                                         <li>
                                             <a href="#" class="bs-modal dropdown-item" id="entree-article" 
                                                 data-form-url="{% url "magasin:entree" article.art_id article.slug %}">
-                                                {% fontawesome_icon 'plus-circle' %} Entrée
+                                                <i class="bi bi-download"></i> Entree
                                             </a>
                                         </li>
                                         <li>
                                             <a href="#" class="bs-modal dropdown-item" id="sortie-article"
                                                data-form-url="{% url "magasin:sortie" article.art_id article.slug %}">
-                                                {% fontawesome_icon 'minus-circle' %} Sortie
+                                                <i class="bi bi-upload"></i> Sortie
                                             </a>
                                         </li>
                                     </ul>
@@ -178,7 +171,7 @@
                                 {% else %}
                                 <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
                                         data-form-url="{% url "magasin:read_article" article.art_id article.slug %}">
-                                    {% fontawesome_icon 'eye' %} Details
+                                    <i class="bi bi-eye"></i>
                                 </button>
                                 {% endif %} <!-- endif for checking user group -->
                             </td><!-- end of operation td -->
