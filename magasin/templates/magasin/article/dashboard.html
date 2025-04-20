@@ -73,17 +73,33 @@
                 </div><!-- end of card-header -->
 
                 <div class="card-body">
-                    <ul class="list-group list-group-flush command_non_vue">
+                    <ul class="list-group list-group-flush p-3">
                         {% for cmd in pending_command %}
-                            <li class="list-group-item">
-                                <span class="cmd_code"><a href="{{ cmd.art_id.get_absolute_url }}">{{ cmd.art_id.code }}</a></span>
-                                <span class="cmd_qte">: {{ cmd.qte }} {{ cmd.art_id.umesure }}</span>
-                                <span> ( {{ cmd.user_id.username }} )</span>
-                                <a href="{% url "magasin:manage_command" cmd.command_id %}" 
-                                   class="btn btn-outline-primary btn-sm float-end">
-                                    <i class="bi bi-calendar-check"></i> Activé
-                                </a>
-                            </li>
+                            <figure class="border-bottom">
+                                <blockquote class="blockquote">
+                                    <a href="{{ cmd.art_id.get_absolute_url }}" class="text-decoration-none">
+                                        {{ cmd.art_id.code }}
+                                    </a>
+                                </blockquote>
+
+                                <figcaption class="blockquote-footer clear-fix">
+                                    {% comment %}Someone famous in <cite title="Source Title">Source Title</cite>{% endcomment %}
+                                    <b>{{ cmd.qte }} {{ cmd.art_id.umesure|lower }}</b> commandé par 
+                                    <b>{{ cmd.user_id.username }} {{ cmd.user_id. }}</b>
+                                    <br>
+                                    Date: {{ cmd.command_date|date:"d M Y" }}
+                                    {% if cmd.status == 0 %}
+                                        <span class="badge bg-danger">Non Vue</span>
+                                        <a href="#" 
+                                           class="activateCommandeBtn btn btn-primary btn-sm float-end"
+                                           data-form-url="{% url "magasin:activate_commande" cmd.command_id %}">
+                                            <i class="bi bi-check2-all"></i> Activé
+                                        </a>
+                                    {% else %}
+                                        <span class="badge bg-success">Vue</span>
+                                    {% endif %}
+                                </figcaption>
+                            </figure>
                         {% endfor %}
                     </ul>
                 </div><!-- end of card-body -->

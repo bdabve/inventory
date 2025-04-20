@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect        # , reverse
-from django.urls import reverse_lazy
+# from django.urls import reverse_lazy
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -10,12 +10,9 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.db.models import Count, Sum, F
 from .models import Category, Article, MagasinLog, Movement, Command         # , GestionStocks
-
 from .forms import (CreateCategoryForm, ArticalForm, SearchArticleForm,     # UpdateArticleForm_
-                    EntreeForm, SortieForm, SearchMovementForm, Etats, CreateCommandForm)
+                    EntreeForm, SortieForm, SearchMovementForm, Etats, CreateCommandForm, EditCommandeForm)
 from . import functions
-
-from bootstrap_modal_forms.generic import BSModalCreateView, BSModalReadView, BSModalDeleteView
 
 
 @login_required
@@ -207,6 +204,7 @@ def article_detail(request, art_id, slug, history=False, movement=False):
 
     # ----------------------------------------------------------------
     # commande form
+    # this is the place where create a new commande
     # ----------------
     if request.method == 'POST' and 'cmnd_form' in request.POST:
         command_form = CreateCommandForm(request.POST)     # PdrSearchForm comme from forms.py file
@@ -297,6 +295,7 @@ def create_article(request):
                 qte=form.cleaned_data['qte'],
                 prix=form.cleaned_data['prix'],
             )
+            MagasinLog.object.create()
             return JsonResponse({'success': True, 'message': f'✅ Article {article.code} Enregistrés avec succés'})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
@@ -481,7 +480,7 @@ def movement(request, art_id=None):
             articles = Movement.objects.filter(filters).order_by('-movement_date')
     else:
         search_movement_form = SearchMovementForm()
-        articles = Movement.objects.none()
+        articles = Movement.objects.all()
     # ----------------------------------------------------------------
     # Etats
     if request.method == 'POST' and 'etat' in request.POST:
@@ -540,14 +539,17 @@ def movement(request, art_id=None):
     return render(request, 'magasin/article/movement.html', context)
 
 
-# ==> Delete Movement
-# FIXME:  work with our ajax views not bs-models
 # --------------------
-class DeleteMovementView(BSModalDeleteView):
-    model = Movement
-    template_name = 'magasin/article/delete_movement.html'
-    success_message = 'Success: Movement Supprimer.'
-    success_url = reverse_lazy('magasin:movement')
+# ==> Delete Movement
+@login_required
+@require_POST
+def delete_movement(request, pk):
+    movement = get_object_or_404(Movement, movement_id=pk)
+    try:
+        movement.delete()
+        return JsonResponse({'success': True, 'message': f'✅ Commande {pk} supprimé avec succés.'})
+    except Exception as err:
+        return JsonResponse({'success': False, 'error': f'Invalid request {err}'})
 
 
 # ----------------------------------------------------------------------
@@ -612,33 +614,56 @@ def total_articles(request):
 # ==> Commande Page
 # ------------------
 @login_required
-def manage_command(request, command_id=None):
+@require_POST
+def activate_commande(request, pk):
+    commande = get_object_or_404(Command, command_id=pk)
+    commande.status = 1
+    try:
+        commande.save()
+        return JsonResponse({'success': True, 'message': f'✅ Commande {commande.command_id} Modifier avec succés.'})
+    except Exception as err:
+        return JsonResponse({'success': False, 'errors': err})
+
+
+@login_required
+def manage_command(request):
     hijri = functions.hijri_()
     nbar = 'command'
+    commandes = Command.objects.select_related('art_id', 'user_id').all()
 
-    if command_id:
-        Command.objects.filter(command_id=command_id).update(status=1)
-        messages.info(request, 'Commande Activé Avec Succés')
-
-    articles = Command.objects.select_related('art_id', 'user_id').all()
-
-    context = {'hijri': hijri, 'nbar': nbar, 'articles': articles}
+    context = {'hijri': hijri, 'nbar': nbar, 'commandes': commandes}
     return render(request, 'magasin/article/manage_command.html', context)
 
 
-# ----------------------------------------------------------------------
-# ==> Create Command View (django-bootstrap-modal-form)
-# -----------------------------------------------------
-class CreateCommandView(BSModalCreateView):
-    template_name = 'magasin/article/create_command.html'
-    form_class = CreateCommandForm
-    success_message = 'Success: Article Ajouter.'
-    success_url = reverse_lazy('magasin:article_list')
+# ==> Read Command (bootstrap-modal-form)
+def read_commande(request, pk):
+    commande = get_object_or_404(Command, command_id=pk)
+    return render(request, 'magasin/article/read_command.html', {'commande': commande})
 
 
-# ----------------------------------------------------------------------
-# ==> Read Command View (django-bootstrap-modal-form)
-# -----------------------------------------------------
-class ReadCommand(BSModalReadView):
-    model = Command
-    template_name = 'magasin/article/read_command.html'
+# ==> Update Commande AJAX
+def edit_commande_form(request, pk):
+    commande = get_object_or_404(Command, command_id=pk)
+    form = EditCommandeForm(instance=commande)
+    return render(request, 'magasin/article/update_commande.html', {'form': form, 'commande': commande})
+
+
+@require_POST
+def update_commande(request, pk):
+    commande = get_object_or_404(Command, command_id=pk)
+    form = EditCommandeForm(request.POST, instance=commande)
+    if form.is_valid():
+        updated_commande = form.save()
+        return JsonResponse({'success': True, 'message': f'✅ Commande {updated_commande.command_id} Modifier avec succés.'})
+    else:
+        return JsonResponse({'success': False, 'errors': form.errors})
+
+
+# ==> Delete Commande
+def delete_commande(request, pk):
+    commande = get_object_or_404(Command, command_id=pk)
+    try:
+        commande.delete()
+        return JsonResponse({'success': True, 'message': f'✅ Commande {commande.command_id} supprimé avec succés.'})
+    except Exception as err:
+        return JsonResponse({'success': False, 'error': f'Invalid request {err}'})

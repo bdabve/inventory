@@ -71,7 +71,7 @@ class MagasinLog(models.Model):
     emp = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
-        ordering = ('log_date', 'slug')
+        ordering = ('-log_date', 'slug')
 
     def save(self, *args, **kwargs):
         self.code = self.code.upper()

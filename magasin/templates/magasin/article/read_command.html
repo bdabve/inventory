@@ -5,19 +5,43 @@
 
 <div class="modal-body">
     <ul class="list-group list-group-flush">
-        <li class="list-group-item"><span class="list_title">ID</span><span>: {{ command.command_id }}</span></li>
-        <li class="list-group-item"><span class="list_title">Utilisateur</span><span>: {{ command.user_id.username }}</span></li>
-        <li class="list-group-item"><span class="list_title">Code</span><span>: {{ command.art_id.code }}</span></li>
-        <li class="list-group-item"><span class="list_title">Designation</span><span>: {{ command.art_id.designation }}</span></li>
-        <li class="list-group-item"><span class="list_title">Date</span><span>: {{ command.command_date|date:"d-M-Y" }}</span></li>
-        <li class="list-group-item"><span class="list_title">Quantité</span><span>: {{ command.qte }}</span></li>
-        <li class="list-group-item">
-            <span class="list_title">Status</span>
-            {% if command.status == 0 %}<span>: Not Active</span>{% else %}<span>: Active</span>{% endif %}
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">ID</span>
+            <span class="fw-bold">{{ commande.command_id }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Utilisateur</span>
+            <span class="fw-bold">{{ commande.user_id.username }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Code</span>
+            <span class="fw-bold">{{ commande.art_id.code }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Designation</span>
+            <span class="fw-bold">{{ commande.art_id.designation }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Date</span>
+            <span class="fw-bold">{{ commande.command_date|date:"d-M-Y" }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Quantité</span>
+            <span class="fw-bold text-danger">{{ commande.qte }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Status</span>
+            <span class="fw-bold {% if commande.status == 0 %}text-warning{% else %}text-primary{% endif %}">
+                {% if commande.status == 0 %}
+                    <i class="bi bi-hourglass-split"></i> Not Active
+                {% else %}
+                    <i class="bi bi-check2-all"></i> Active
+                {% endif %}
+            </span>
         </li>
     </ul>
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-default border" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i> Close</button>
 </div>

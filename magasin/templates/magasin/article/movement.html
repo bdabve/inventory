@@ -14,72 +14,67 @@
         </div>
     {% endfor %}
 
-    <div class="d-flex my-4">
+    <div class="d-flex my-5">
         <!-- Search form-->
-        <div class="">
-            <form class="d-flex align-items-center" action="" method="post">
-                {% csrf_token %}
-                <div class="form-group me-2">
-                    {% render_field search_movement_form.search_code class="form-control" placeholder="Code Article" %}
-                </div>
-                <div class="form-group me-2">
-                    {% render_field search_movement_form.operation class="form-select movement_operation" %}
-                </div>
+        <form class="d-flex align-items-center" action="" method="post">
+            {% csrf_token %}
+            <div class="form-group me-2">
+                {% render_field search_movement_form.search_code class="form-control" placeholder="Code Article" %}
+            </div>
+            <div class="form-group me-2">
+                {% render_field search_movement_form.operation class="form-select movement_operation" %}
+            </div>
 
-                <div class="form-group me-2">
-                    {% render_field search_movement_form.day class="form-select" %}
-                </div>
-                <div class="form-group me-2">
-                    {% render_field search_movement_form.month class="form-select" %}
-                </div>
-                <div class="form-group me-2">
-                    {% render_field search_movement_form.year class="form-select" %}
-                </div>
+            <div class="form-group me-2">
+                {% render_field search_movement_form.day class="form-select" %}
+            </div>
+            <div class="form-group me-2">
+                {% render_field search_movement_form.month class="form-select" %}
+            </div>
+            <div class="form-group me-2">
+                {% render_field search_movement_form.year class="form-select" %}
+            </div>
 
-                <button type="submit" class="btn btn-outline-primary" name="search_mov_form">
-                    <i class="bi bi-search"></i> Search
-                </button>
-            </form>
-        </div>
+            <button type="submit" class="btn btn-outline-primary" name="search_mov_form">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </form>
 
         <div class="ms-auto">
             <button type="button" class="btn btn-success dropdown-toggle shadow float-end" data-bs-toggle="dropdown">
                 <i class="bi bi-file-excel"></i> Etats stocks
             </button>
             <div class="dropdown-menu dropdown-menu-end">
+                <p class="lead text-center py-2 border-bottom border-2">Etats</p>
                 <form class="px-2 py-2" action="" method="post">
                     {% csrf_token %}
-                    <div class="form-group row mb-2">
-                        <label class="col-form-label col-sm-4" for="{{ etat_form.par.id_for_label }}">Etats</label>
-                        <div class="col-sm-8">
-                            {% if etat_form.par.errors %}
-                                {% render_field etat_form.par class="form-control id-invalid" %}
+                    <div class="form-group mb-2">
+                        {% if etat_form.par.errors %}
+                            {% render_field etat_form.par class="form-control id-invalid" %}
+                            <div class="invalid-feedback">
+                                {% for error in etat_form.par.errors %}<span>{{ error }}</span>{% endfor %}
+                            </div>
+                        {% else %}
+                            {% render_field etat_form.par class="form-select" %}
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <div class="d-flex">
+                            {% if etat_form.etat_date.errors %}
+                                {% render_field etat_form.etat_date class+="is-invalid" %}
                                 <div class="invalid-feedback">
-                                    {% for error in etat_form.par.errors %}<span>{{ error }}</span>{% endfor %}
+                                    {% for error in etat_form.etat_date.errors %}<span>{{ error }}</span>{% endfor %}
                                 </div>
                             {% else %}
-                                {% render_field etat_form.par class="form-select" %}
+                                {% render_field etat_form.etat_date %}
                             {% endif %}
                         </div>
                     </div>
-
-                    <div class="form-group row">
-                        <label class="col-form-label col-sm-4" for="{{ etat_form.date.id_for_label }}">Date</label>
-                        <div class="col-sm-8 mb-2">
-                            <div class="row date_row">
-                                {% if etat_form.etat_date.errors %}
-                                    {% render_field etat_form.etat_date class+="is-invalid" %}
-                                    <div class="invalid-feedback">
-                                        {% for error in etat_form.etat_date.errors %}<span>{{ error }}</span>{% endfor %}
-                                    </div>
-                                {% else %}
-                                    {% render_field etat_form.etat_date %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
                     <hr>
-                    <button type="submit" name="etat" class="btn btn-outline-primary float-end">Enregistrer</button>
+                    <button type="submit" name="etat" class="btn btn-outline-success float-end">
+                        <i class="bi bi-file-excel"></i> Enregistrer
+                    </button>
                 </form>
             </div>
         </div>
@@ -101,7 +96,7 @@
         </thead>
         <tbody>
             {% for article in articles %}
-                <tr>
+                <tr id="movement-row-{{ article.movement_id}}">
                     <td>{{ article.movement_date|date:"d M Y" }}</td>
                     <td>{{ article.user_id.username }}</td>
                     <td>{{ article.movement }}</td>
@@ -114,8 +109,8 @@
                     <td class="text-center">
                         {% if request.user.profile.groupe == 'admin' %}
                             <!-- del Movement -->
-                            <button type="button" id="delete-movement" class="bs-modal btn btn-sm btn-outline-danger" 
-                                    data-form-url="{% url "magasin:delete_movement" article.movement_id %}">
+                            <button type="button" data-movement-id="{{ article.movement_id}}"
+                                    class="deleteMovementBtn btn btn-sm btn-outline-danger">
                                 {{ article.movement_id }} <i class="bi bi-trash"></i>
                             </button>
                         {% endif %} <!-- endif for checking user group -->

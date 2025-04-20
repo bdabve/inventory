@@ -18,7 +18,8 @@
         <nav class="navbar navbar-expand-lg mr-auto border-bottom border-body fixed-top bg-body-tertiary">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{% url "magasin:dashboard" %}">Inventory</a><!--HOME-->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#app-nav" 
+                <button class="navbar-toggler" type="button" 
+                        data-bs-toggle="collapse" data-bs-target="#app-nav" 
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -27,20 +28,22 @@
                         {% if request.user.is_authenticated %}
                         <!-- Home -->
                         <li class="nav-item ">
-                            <a class="nav-link 
-                               {% if nbar == "magasin" %}active{% endif %}" href="{% url "magasin:article_list" %}">
+                            <a class="nav-link {% if nbar == "magasin" %}active{% endif %}" 
+                               href="{% url "magasin:article_list" %}">
                                 <i class="bi bi-house"></i> Magasin
                             </a>
                         </li>
                         <!-- Movement -->
                         <li class="nav-item ">
-                            <a class="nav-link {% if nbar == "movement" %}active{% endif %}" href="{% url "magasin:movement" %}">
+                            <a class="nav-link {% if nbar == "movement" %}active{% endif %}" 
+                               href="{% url "magasin:movement" %}">
                                 <i class="bi bi-arrow-repeat"></i> Movement
                             </a>
                         </li>
                         <!-- History -->
                         <li class="nav-item ">
-                            <a class="nav-link {% if nbar == "history" %}active{% endif %}" href="{% url "magasin:magasin_log" %}">
+                            <a class="nav-link {% if nbar == "history" %}active{% endif %}" 
+                               href="{% url "magasin:magasin_log" %}">
                                 <i class="bi bi-clock"></i> History
                             </a>
                         </li>
@@ -54,7 +57,8 @@
                         <!-- Actions Dropdown -->
                         <li class="nav-item dropdown ">
                             <a class="nav-link dropdown-toggle" href="#" id="actionDropdown" role="button" 
-                               data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-database-gear"></i> &nbsp;Actions
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                               <i class="bi bi-database-gear"></i> &nbsp;Actions
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="actionDropdown">
                                 <li>
@@ -70,11 +74,7 @@
                                 </li>
 
                                 <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url "fournisseur:fourniss_list" %}">
-                                        <i class="bi bi-person-gear"></i> &nbsp;Gestion des Fournisseur
-                                    </a>
-                                </li>
+                                
                                 <li>
                                     <a id="totalsModal"class="dropdown-item" href="#" 
                                        data-form-url="{% url "magasin:total_articles" %}">
@@ -108,23 +108,34 @@
                     {% if request.user.is_authenticated %}
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item dropdown ms-auto ">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
-                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-person"></i>&nbsp;{{ request.user.username }}
                                 </a>
-                                <ul class="dropdown-menu navbar-right login-div" aria-labelledby="navbarDropdown">
+                                <ul class="dropdown-menu navbar-right login-div" 
+                                    aria-labelledby="navbarDropdown">                                    
+                                    {% if request.user.profile.groupe == 'admin' %}
+                                        <li>
+                                            <a class="dropdown-item" 
+                                               href="{% url "accounts:manage_users"%}">
+                                                <i class="bi bi-person-lines-fill"></i>&nbsp; 
+                                                Manage Users
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" 
+                                               href="{% url "fournisseur:fourniss_list" %}">
+                                                <i class="bi bi-truck"></i> &nbsp;
+                                                Gestion des Fournisseur
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a href="#" class="dropdown-item" id="toggle-theme">
                                             <i class="bi bi-moon-stars"></i>&nbsp; Dark
                                         </a>
                                     </li>
-                                    {% if request.user.profile.groupe == 'admin' %}
-                                        <li>
-                                            <a class="dropdown-item" href="{% url "accounts:manage_users"%}">
-                                                <i class="bi bi-person-lines-fill"></i>&nbsp; Manage Users
-                                            </a>
-                                        </li>
-                                    {% endif %}
                                     <li>
                                         <a class="dropdown-item" href="{% url "accounts:logout" %}">
                                             <i class="bi bi-box-arrow-in-right"></i> &nbsp;Logout

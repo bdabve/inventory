@@ -4,6 +4,8 @@ from django.urls import reverse_lazy
 
 from .forms import AddFournisseurForm, CreateFournissForm, SearchFournissForm
 from bootstrap_modal_forms.generic import BSModalReadView, BSModalCreateView
+
+from django.db.models import Q
 from .models import Fournisseur
 from magasin import functions
 
@@ -12,16 +14,23 @@ from magasin import functions
 def fourniss_list(request):
     hijri = functions.hijri_()
     fourniss_list = Fournisseur.objects.all()
+    search_fourniss_form = SearchFournissForm(request.POST or None)
 
-    if request.method == 'POST':
-        search_fourniss_form = SearchFournissForm(request.POST)
-        if search_fourniss_form.is_valid():
-            fourniss_list = Fournisseur.objects.filter(email=search_fourniss_form.cleaned_data['fourniss_search'])
+    if request.method == 'POST' and search_fourniss_form.is_valid():
+        query = search_fourniss_form.cleaned_data['fourniss_search']
+        fourniss_list = Fournisseur.objects.filter(
+            Q(email__icontains=query) |
+            Q(nom__icontains=query) |
+            Q(telephone__icontains=query) |
+            Q(address__icontains=query) |
+            Q(fourniture__icontains=query)
+        )
 
-    else:
-        search_fourniss_form = SearchFournissForm()
-
-    context = {'hijri': hijri, 'fourniss_list': fourniss_list, 'search_fourniss_form': search_fourniss_form}
+    context = {
+        'hijri': hijri,
+        'fourniss_list': fourniss_list,
+        'search_fourniss_form': search_fourniss_form,
+    }
     return render(request, 'fournisseur/fourniss/fourniss_list.html', context)
 
 

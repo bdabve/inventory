@@ -29,26 +29,44 @@
             </tr>
         </thead>
         <tbody>
-            {% for article in articles %}
-                <tr>
-                    <td>{{ article.command_date|date:"d M Y" }}</td>
-                    <td>{{ article.user_id.username }}</td>
+            {% for commande in commandes %}
+                <tr id="commande-row-{{ commande.command_id}}">
+                    <td>{{ commande.command_date|date:"d M Y" }}</td>
+                    <td>{{ commande.user_id.username }}</td>
                     <td>
-                        <a href="{{ article.art_id.get_absolute_url }}">{{ article.art_id.code }}</a>
+                        <a href="{{ commande.art_id.get_absolute_url }}">{{ commande.art_id.code }}</a>
                     </td>
-                    <td>{{ article.art_id.designation }}</td>
-                    <td>{{ article.qte }}</td>
+                    <td>{{ commande.art_id.designation }}</td>
+                    <td>{{ commande.qte }}</td>
                     <td class="text-center">
-                        <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
-                                data-form-url="{% url "magasin:read_command" article.command_id %}">
-                            <i class="far fa-eye"></i>
+                        <button class="readCommandBtn btn btn-sm btn-primary" 
+                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Commande détail."
+                                data-form-url="{% url "magasin:read_commande" commande.command_id %}">
+                            <i class="bi bi-journal-text"></i>
                         </button>
-                    {% if article.status == 0 %}
-                        <a href="{% url "magasin:manage_command" article.command_id %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-check-circle"></i> Activé
-                        </a>
+
+                        <button class="editCommandeBtn btn btn-sm btn-warning" 
+                                data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                                title="Modifier la commande."
+                                data-form-url="{% url "magasin:edit_commande_form" commande.command_id %}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+
+                        <button class="deleteCommandeBtn btn btn-sm btn-danger" 
+                                data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                                title="Supprimé la commande."
+                                data-commande-id="{{ commande.command_id}}"
+                                data-form-url="{% url "magasin:delete_commande" commande.command_id %}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        {% if commande.status == 0 %}
+                            <a href="#" class="activateCommandeBtn btn btn-sm btn-success"
+                               data-form-url="{% url "magasin:activate_commande" commande.command_id %}"
+                               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Activé la commande.">
+                                <i class="bi bi-check2-all activateCommandeBtn"></i> Activé
+                            </a>
+                        {% endif %}
                     </td>
-                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>

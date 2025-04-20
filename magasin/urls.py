@@ -37,28 +37,36 @@ urlpatterns = [
     # Delete Article
     path('magasin/delete-article/<int:art_id>/<slug:slug>', views.delete_article, name='delete_article'),
 
-    # Django-bootstrap-modal-forms with custom view
+    # Entree, Sortie Article Bs-Model
     path('magasin/entree/form/<int:art_id>/<slug:slug>', views.entree_form_partial, name='entree_form_partial'),
     path('magasin/entree-article/<int:art_id>/<slug:slug>', views.entree_article_ajax, name='entree_ajax'),      # new entry
-
     path('magasin/sortie/form/<int:art_id>/<slug:slug>', views.sortie_form_partial, name='sortie_form_partial'),
     path('magasin/sortie-article/<int:art_id>/<slug:slug>', views.sortie_article_ajax, name='sortie_ajax'),      # new sortie
 
+    # -----------------------------------------------------------
     # History
     path('magasin/history', views.magasin_log, name='magasin_log'),                         # article history
     path('magasin/history/<int:art_id>/', views.magasin_log, name='magasin_log_article'),   # article history
 
+    # -----------------------------------------------------------
     # Movement
     path('magasin/movement', views.movement, name='movement'),                          # All movement
     path('magasin/movement/<int:art_id>/', views.movement, name='movement_article'),    # Movement by article.
     path('magasin/movement/etats', views.etats, name='etats'),                          # etats journalier, mensuel
-    path('delete-movement/<int:pk>/', views.DeleteMovementView.as_view(), name='delete_movement'),  # delete movement
 
-    # commands urls
+    # TODO:
+    path('magasin/delete-movement/<int:pk>', views.delete_movement, name='delete_movement'),  # delete movement
+
+    # -----------------------------------------------------------
+    # Commands urls
     path('magasin/commands', views.manage_command, name='manage_command'),                    # all commands
-    path('magasin/commands/<int:command_id>', views.manage_command, name='manage_command'),   # Active Command
-    path('create-command/', views.CreateCommandView.as_view(), name='create_command'),        # create command
-    path('read-command/<int:pk>', views.ReadCommand.as_view(), name='read_command'),   # Commande Details
+    path('magasin/commands/<int:pk>', views.activate_commande, name='activate_commande'),   # Active Command
+    path('read-command/<int:pk>', views.read_commande, name='read_commande'),   # Commande Details
+
+    path('magasin/edit-commande/form/<int:pk>', views.edit_commande_form, name='edit_commande_form'),
+    path('magasin/update-commande/<int:pk>', views.update_commande, name='update_commande'),
+
+    path('magasin/delete-commande/<int:pk>', views.delete_commande, name='delete_commande'),
 
     # Gestion Stocks
     # path('magasin/gestion_stocks', views.gestion_stocks, name='gestion_stocks'),                          # all movement

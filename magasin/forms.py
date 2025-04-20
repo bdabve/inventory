@@ -1,6 +1,6 @@
 from django import forms
 from django.shortcuts import get_object_or_404
-from .models import Category, Article       # , Command
+from .models import Category, Article, Command
 from datetime import date
 import datetime
 
@@ -124,8 +124,16 @@ class SearchMovementForm(forms.Form):
 class Etats(forms.Form):
     tday = date.today()
     PAR = [('journalier', 'Journalier'), ('mensuel', 'Mensuel'), ('tous', 'Tous')]
-    etat_date = forms.DateField(widget=forms.SelectDateWidget(attrs={'class': 'col form-select'}), required=True, initial=tday)
     par = forms.ChoiceField(widget=forms.Select, choices=PAR, label=False, required=True, initial='journalier')
+    etat_date = forms.DateField(
+        required=False,
+        initial=date.today,
+        widget=forms.SelectDateWidget(
+            attrs={'class': 'form-select me-2'},
+            empty_label=("Année", "Mois", "Jour"),
+            years=range(2020, date.today().year + 1),
+        )
+    )
 
 
 # --------- | Commands Forms |------------------------------
@@ -145,4 +153,21 @@ class CreateCommandForm(forms.Form):
 
         if qte < 1:
             self._errors['cmnd_qte'] = self.error_class(['Valeur doit être superieur ou égale a 1'])
+        return self.cleaned_data
+
+
+class EditCommandeForm(forms.ModelForm):
+    class Meta:
+        model = Command
+        exclude = ['art_id']
+        labels = {'user_id': 'Utilisateur', 'command_date': 'Date', 'qte': 'Quantité', }
+        widgets = {
+            'command_date': forms.DateInput(attrs={'class': 'form-select', 'type': 'date'})
+        }
+
+    def clean(self):
+        super(EditCommandeForm, self).clean()
+        status = self.cleaned_data.get('status')
+        if status not in (1, 0):
+            self._errors['status'] = self.error_class(['Ce champ doit contenir 0 ou 1'])
         return self.cleaned_data

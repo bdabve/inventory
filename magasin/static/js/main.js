@@ -42,7 +42,7 @@ $(document).ready(function (){
             $(this).html('N. Commande <i class="fa fa-chevron-down"></i>')
             $('.cmd_form_hr').remove();
         }
-    });    
+    });
     // Dashboard: toggle info div
     $('.toggle_info').click(function(){
         $(this).toggleClass('selected').parent().next('.card-body').slideToggle('slow');
@@ -51,7 +51,7 @@ $(document).ready(function (){
         } else {
             $(this).html('<i class="fa fa-caret-down fa-lg"></i>')
         }
-    });    
+    });
     // ---------------------------------------
     // Total Modal
     // ---------------------------------------
@@ -92,13 +92,13 @@ $(document).ready(function (){
         return errorHtml;
     }
     // ---------------------------------------------------
-    // ==> Formating Errors for Articles Page 
+    // ==> Formating Errors for Articles Page
     // --------------------------------------
     function formatArticleErrors(errors) {
         let errorHtml = '';
         for (let field in errors) {
             errorHtml += field + ': ' + errors[field].join(', ') + '<br>';
-        }        
+        }
         return errorHtml;
     }
     // ---------------------------------------------------
@@ -108,16 +108,16 @@ $(document).ready(function (){
         const $alert = $('#successAlert');
         $alert
             .stop(true, true)
-            .hide() 
-            .removeClass('d-none alert-info alert-success alert-danger alert-warning show') 
-            .addClass(`show ${alert_type}`) 
+            .hide()
+            .removeClass('d-none alert-info alert-success alert-danger alert-warning show')
+            .addClass(`show ${alert_type}`)
             .html(`
                 <span>${msg}</span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             `)
-            .fadeIn(300) 
-            .delay(4000) 
-            .fadeOut(300); 
+            .fadeIn(300)
+            .delay(4000)
+            .fadeOut(300);
     }
     // ---------------------------------------------------
     // ==> Handle Ajax Form Submition
@@ -127,7 +127,7 @@ $(document).ready(function (){
             e.preventDefault();
             const $form = $(this);
             const url = $form.data('form-url');
-            
+
             $.ajax({
                 type: 'POST',
                 url: url,
@@ -172,7 +172,7 @@ $(document).ready(function (){
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
-                <button class="btn btn-danger ${btnClassName}" 
+                <button class="btn btn-danger ${btnClassName}"
                         data-slug="${slug}" ${artIdAttribute}">
                     <i class="bi bi-trash"></i> Confirm
                 </button>
@@ -181,9 +181,9 @@ $(document).ready(function (){
         `
         return html
     }
-    
+
     // ---------------------------------------------------
-    // Add Category 
+    // Add Category
     // -------------
     // Open modal and load the form dynamically
     $('#addCategoryBtn').click(function () {
@@ -197,7 +197,7 @@ $(document).ready(function (){
     handleAjaxFormSubmit('#categoryForm');
     // ---------------------------------------------------
     // Remove Category
-    // -----------------    
+    // -----------------
     $('.removeCategoryBtn').click(function (e) {
         e.preventDefault();
         const slug = $(this).data('slug');
@@ -250,7 +250,7 @@ $(document).ready(function (){
     });
 
     // ---------------------------------------------------
-    // Update Article 
+    // Update Article
     // ----------------
     $('.updateArticleBtn').click(function () {
         const url = $(this).data("form-url");
@@ -263,7 +263,7 @@ $(document).ready(function (){
     handleAjaxFormSubmit('#articleEditForm');
 
     // ---------------------------------------------------
-    // Delete Article 
+    // Delete Article
     // ---------------
     $('.deleteArticleBtn').click(function () {
         const art_id = $(this).data('art-id');
@@ -324,7 +324,7 @@ $(document).ready(function (){
     handleAjaxFormSubmit('#sortieArticleForm');
 
     // ---------------------------------------------------------------
-    // ===> USERS PAGE 
+    // ===> USERS PAGE
     // ----------------
     // Read User
     $('.readUserBtn').click(function () {
@@ -333,7 +333,7 @@ $(document).ready(function (){
             $('#modalContent').html(data);
             $('#mainModal').modal('show');
         });
-    });    
+    });
     // --------------------------------------------------------
     // Create user
     // ------------
@@ -346,9 +346,9 @@ $(document).ready(function (){
     });
     // Handle CreateUser form submission
     handleAjaxFormSubmit('#addUserForm');
-    
+
     // ------------------------------------------------------------
-    // Edit user 
+    // Edit user
     // ----------
     $('.editUserBtn').click(function () {
         const url = $(this).data('form-url');
@@ -359,7 +359,7 @@ $(document).ready(function (){
     });
     // Handle UpdateUser form submission
     handleAjaxFormSubmit('#userEditForm');
-    
+
     // ---------------------------------------
     // Delete User AJAX
     // -----------------
@@ -390,6 +390,121 @@ $(document).ready(function (){
                     showMessages(res.message, 'alert-info');
                 } else {
                     $('#deleteErrors').text(res.error);
+                }
+            }
+        });
+    });
+    // ---------------------------------------------------------------
+    // ===> Commandes PAGE
+    // --------------------
+    // Activate Commande
+    $(document).on('click', '.activateCommandeBtn', function (e) {
+        e.preventDefault();  // Prevent default action
+        const url = $(this).data('form-url');  
+        $.ajax({
+            url: url,  
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken()  // Include CSRF token for security
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Display a success message
+                    showMessages(response.message, 'alert-success');
+                    // Optionally, you can reload the page or update the UI
+                    location.reload();  // Uncomment to reload the page after success
+                }
+            },
+            error: function(xhr, status, error) {
+                // Handle AJAX error
+                showMessages('An error occurred while processing your request.', 'alert-danger');
+            }
+            });
+    });
+
+    // ------------------------------------------------------------
+    // Edit Commande
+    // --------------
+    $('.editCommandeBtn').click(function () {
+        const url = $(this).data('form-url');
+        $.get(url, function (data) {
+            $('#modalContent').html(data);
+            $('#mainModal').modal('show');
+        });
+    });
+    // Handle EditCommande form submission
+    handleAjaxFormSubmit('#commandeEditForm');
+    // ------------------------------------------------------------
+    // Read Commande
+    $('.readCommandBtn').click(function () {
+        const url = $(this).data('form-url');
+        $.get(url, function (data) {
+            $('#modalContent').html(data);
+            $('#mainModal').modal('show');
+        });
+    });    
+    // ---------------------------------------
+    // Delete Commande AJAX
+    // ----------------------
+    $('.deleteCommandeBtn').click(function () {
+        const commande_id = $(this).data('commande-id');
+        const html = generateDeleteDialog("la commande ", commande_id, 'confirmDeleteCmdBtn');
+        $('#modalContent').html(html);
+        $('#mainModal').modal('show');
+    });
+    //
+    // Handle form submission
+    $(document).on('click', '.confirmDeleteCmdBtn', function () {
+        const commande_id = $(this).data('slug');
+        const url = `/magasin/delete-commande/${commande_id}`;
+        $.ajax({
+            type: 'POST',
+            url: url,
+            headers: { 'X-CSRFToken': getCSRFToken() },
+            success: function (res) {
+                if (res.success) {
+                    $('#mainModal').modal('hide');
+                    // Fade out the article row
+                    $(`#commande-row-${commande_id}`).fadeOut(500, function () {
+                        $(this).remove();
+                    });
+                    // Show success message
+                    showMessages(res.message, 'alert-info');
+                } else {
+                    $('#deleteErrors').text(res.error);
+                }
+            }
+        });
+    });
+    // ---------------------------------------
+    // Delete Movement AJAX
+    // ----------------------
+    $('.deleteMovementBtn').click(function () {
+        const movement_id = $(this).data('movement-id');
+        const html = generateDeleteDialog("le movement ", movement_id, 'confirmDeleteMovBtn');
+        $('#modalContent').html(html);
+        $('#mainModal').modal('show');
+    });
+    //
+    // Handle form submission
+    $(document).on('click', '.confirmDeleteMovBtn', function () {
+        const movement_id = $(this).data('slug');
+        const url = `/magasin/delete-movement/${movement_id}`;
+        $.ajax({
+            type: 'POST',
+            url: url,
+            headers: { 'X-CSRFToken': getCSRFToken() },
+            success: function (res) {
+                if (res.success) {
+                    $('#mainModal').modal('hide');
+                    // Fade out the article row
+                    $(`#commande-row-${movement_id}`).fadeOut(500, function () {
+                        $(this).remove();
+                    });
+                    // Show success message
+                    showMessages(res.message, 'alert-info');
+                } else {
+                    showMessages(res.error, 'alert-danger');
                 }
             }
         });
