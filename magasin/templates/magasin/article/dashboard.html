@@ -1,5 +1,4 @@
 {% extends "magasin/base.html" %}
-{% load fontawesome %}
 {% load widget_tweaks %}
 {% load humanize %}
 
@@ -13,7 +12,7 @@
     <div class="col-md-3">
         <a href="{% url "magasin:manage_command" %}">
         <div class="stat total_members">
-          {% fontawesome_icon "shopping-cart" %}
+          <i class="bi bi-cart2"></i>
           <div class="info">
               <div>
                   <h6>Total Commands</h6>
@@ -27,7 +26,7 @@
     <div class="col-md-3">
       <a href="{% url "magasin:article_list" %}">
         <div class="stat total_arts">
-          {% fontawesome_icon "tag"%}
+          <i class="bi bi-tag"></i>
           <div class="info">
               <div><h6>Total Articles</h6><span>{{ total_articles.article_count }}</span></div>
           </div>
@@ -51,7 +50,7 @@
     <div class="col-md-3">
       <a href="{% url "magasin:stock_alarm" 1 %}">
         <div class="stat stock_alarm">
-          {% fontawesome_icon "exclamation-triangle"%}
+          <i class="bi bi-exclamation-triangle"></i>
           <div class="info">
               <div><h6>Stock Alarm</h6><span>{{ stock_alarm.stock_alarm }}</span></div>
           </div>
@@ -67,7 +66,7 @@
         <div class="col-sm-6">
             <div class="card shadow mb-5 bg-body rounded">
                 <div class="card-header">
-                    {% fontawesome_icon "shopping-cart" color="#4598db" %} Commande Non Vue
+                    <i class="bi bi-truck"></i> Commande Non Vue
                     <span class="float-end toggle_info">
                         <i class="fa fa-caret-down fa-lg"></i>
                     </span>
@@ -80,8 +79,9 @@
                                 <span class="cmd_code"><a href="{{ cmd.art_id.get_absolute_url }}">{{ cmd.art_id.code }}</a></span>
                                 <span class="cmd_qte">: {{ cmd.qte }} {{ cmd.art_id.umesure }}</span>
                                 <span> ( {{ cmd.user_id.username }} )</span>
-                                <a href="{% url "magasin:manage_command" cmd.command_id %}" class="btn btn-outline-primary btn-sm float-end">
-                                    {% fontawesome_icon "check-circle" %} Activé
+                                <a href="{% url "magasin:manage_command" cmd.command_id %}" 
+                                   class="btn btn-outline-primary btn-sm float-end">
+                                    <i class="bi bi-calendar-check"></i> Activé
                                 </a>
                             </li>
                         {% endfor %}
@@ -94,7 +94,7 @@
         <div class="col-sm-6">
             <div class="card shadow mb-5 bg-body rounded">
                 <div class="card-header">
-                    {% fontawesome_icon "sync" color="#4598db" %} Dernier Movement
+                    <i class="bi bi-arrow-left-right"></i> Dernier Movement
                     <span class="float-end toggle_info">
                         <i class="fa fa-caret-down fa-lg"></i>
                     </span>
@@ -120,7 +120,7 @@
 
                                 {% if latest_mov.movement == 'Sortie' %}
                                     <td class="text-danger">{{ latest_mov.movement }}</td>
-                                {% elif latest_mov.movement == 'Entree'%}
+                                {% else %}
                                     <td class="text-primary">{{ latest_mov.movement }}</td>
                                 {% endif %}
                                 <td>

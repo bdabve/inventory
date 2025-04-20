@@ -6,23 +6,41 @@
 
 <div class="modal-body">
     <ul class="list-group list-group-flush">
-        <li class="list-group-item"><span class="list_title">Code</span><span>: {{ article.code }}</span></li>
 
-        <li class="list-group-item">
-            <span class="list_title">Designation</span><span>: {{ article.designation }}</span>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Code</span>
+            <span class="text-capitalize">{{ article.code }}</span>
         </li>
-        <li class="list-group-item"><span class="list_title">Reference</span><span>: {{ article.ref }}</span></li>
-        <li class="list-group-item"><span class="list_title">Emplacement</span><span>: {{ article.emp }}</span></li>
-        <li class="list-group-item">
-            <span class="list_title">Quantité</span><span>: {{ article.qte }} {{ article.umesure }}</span>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Désignation</span>
+            <span>{{ article.designation }}</span>
         </li>
-        <li class="list-group-item">
-            <span class="list_title">Prix Unitaire</span><span>: {{ article.prix|intcomma }} DA</span>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Référence</span>
+            <span>{{ article.ref }}</span>
         </li>
-        <li class="list-group-item"><span class="list_title">Valeur</span><span>: {{ article.valeur|intcomma }} DA</span></li>
-        <li class="list-group-item">
-            <span class="list_title">Observation</span>
-            <span>: {% if article.observation %}{{ article.observation }}{% else %}RAS{% endif %}</span>
+
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Emplacement</span>
+            <span>{{ article.emp }}</span>
+        </li>
+
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Quantité</span>
+            <span>{{ article.qte }} {{ article.umesure }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Prix Unité</span>
+            <span>{{ article.prix|intcomma }} DA</span>
+        </li>
+
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Valeur</span>
+            <span>{{ article.valeur|intcomma }} DA</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Observation</span>
+            <span>{% if article.observation %}{{ article.observation }}{% else %}RAS{% endif %}</span>
         </li>
     </ul>
 </div>

@@ -1,7 +1,6 @@
-{% load fontawesome %}
 {% load widget_tweaks %}
 
-<form action="" method="POST">
+<form id="entreeArticleForm" action="" method="POST" data-form-url='{% url "magasin:entree_ajax" article.art_id article.slug %}'>
     {% csrf_token %}
 
     <div class="modal-header">
@@ -10,60 +9,41 @@
     </div><!--End of header card-->
 
     <div class="modal-body">
-        <div class="form-group row mb-2" style="display: none;">
+        <div id="formErrors" class="alert alert-danger" style="display: none;"></div>
+
+        <div class="form-group row mb-2" style="">
+            <label class="col-sm-3 col-form-label" for="{{ form.slug.id_for_label }}">Code</label>
             <div class="col-sm-9">
-                {% render_field sortie_form.slug|append_attr:"readonly:readonly" class="form-control" value=article.slug %}
+                <input class="form-control-plaintext text-uppercase fw-bold" name="slug" value="{{ article.slug }}" readonly>
             </div>
         </div>
 
         <div class="form-group row mb-2">
-            <label class="col-sm-3 col-form-label" for="{{ entree_form.entree_date.id_for_label }}">Date</label>
+            <label class="col-sm-3 col-form-label" for="{{ form.entree_date.id_for_label }}">Date</label>
             <div class="col-sm-9">
                 <div class="row date_row">
-                    {% if entrie_form.entree_date.errors %}
-                        {% render_field entree_form.entree_date class+="invalid is-invalid" %}
-                        <div class="invalid-feedback">
-                            {% for error in entree_form.entree_date.errors %}<span>{{ error }}</span>{% endfor %}
-                        </div>
-
-                    {% else %}
-                        {% render_field entree_form.entree_date %}
-                    {% endif %}
+                    {% render_field form.entree_date %}
                 </div>
             </div>
         </div>
 
         <div class="form-group row mb-2">
-            <label class="col-sm-3 col-form-label" for="{{ entree_form.qte.id_for_label }}">Qte</label>
+            <label class="col-sm-3 col-form-label" for="{{ form.qte.id_for_label }}">Qte</label>
             <div class="col-sm-9">
-                {% if entree_form.qte.errors %}
-                    {% render_field entree_form.qte class="form-control invalid is-invalid" value=1 %}
-                    <div class="invalid-feedback">
-                        {% for error in entree_form.qte.errors %}<span>{{ error }}</span>{% endfor %}
-                    </div>
-                {% else %}
-                    {% render_field entree_form.qte class="form-control" value=1 %}
-                {% endif %}
+                {% render_field form.qte class="form-control" value=1 %}
             </div>
         </div>
 
         <div class="form-group row mb-2">
-            <label class="col-sm-3 col-form-label" for="{{ entree_form.prix.id_for_label }}">Prix</label>
+            <label class="col-sm-3 col-form-label" for="{{ form.prix.id_for_label }}">Prix</label>
             <div class="col-sm-9">
-                {% if entree_form.prix.errors %}
-                    {% render_field entree_form.prix class="form-control invalid is-invalid" value=1 %}
-                    <div class="invalid-feedback">
-                        {% for error in entree_form.prix.errors %}<span>{{ error }}</span>{% endfor %}
-                    </div>
-                {% else %}
-                    {% render_field entree_form.prix class="form-control" value=article.prix %}
-                {% endif %}
+                {% render_field form.prix class="form-control" value=article.prix %}
             </div>
         </div>
     </div><!--End body modal-->
 
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="submit-btn btn btn-primary">{% fontawesome_icon 'plus-square' %} Entree</button>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-plus-square"></i> Entree</button>
     </div><!--End of footer card-->
 </form>

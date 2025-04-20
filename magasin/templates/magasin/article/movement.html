@@ -1,12 +1,11 @@
 {% extends "magasin/base.html" %}
 {% load static %}
-{% load fontawesome %}
 {% load widget_tweaks %}
 
 {% block title %}Movement{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-2">
 
     {% for msg in messages %}
         <div class="alert alert-info alert-dismissible fade show" role="alert">
@@ -15,29 +14,37 @@
         </div>
     {% endfor %}
 
-    <div class="row mb-3">
+    <div class="d-flex my-4">
         <!-- Search form-->
-        <div class="col-md-9">
-            <form class="row align-items-center" action="" method="post">
+        <div class="">
+            <form class="d-flex align-items-center" action="" method="post">
                 {% csrf_token %}
-                <div class="form-group col-md-3">
+                <div class="form-group me-2">
                     {% render_field search_movement_form.search_code class="form-control" placeholder="Code Article" %}
                 </div>
-                <div class="form-group col-md-2">
+                <div class="form-group me-2">
                     {% render_field search_movement_form.operation class="form-select movement_operation" %}
                 </div>
-                <div class="form-group col row">
-                    {% render_field search_movement_form.date class="form-select col" %}
+
+                <div class="form-group me-2">
+                    {% render_field search_movement_form.day class="form-select" %}
                 </div>
-                <button type="submit" class="btn btn-outline-primary col-md-2 ms-2" name="search_mov_form">
-                    {% fontawesome_icon 'search' %} Search
+                <div class="form-group me-2">
+                    {% render_field search_movement_form.month class="form-select" %}
+                </div>
+                <div class="form-group me-2">
+                    {% render_field search_movement_form.year class="form-select" %}
+                </div>
+
+                <button type="submit" class="btn btn-outline-primary" name="search_mov_form">
+                    <i class="bi bi-search"></i> Search
                 </button>
             </form>
         </div>
 
-        <div class="col-md-3">
-            <button type="button" class="btn btn-outline-info dropdown-toggle float-end" data-bs-toggle="dropdown">
-                <i class="far fa-file-excel"></i> Etats stocks
+        <div class="ms-auto">
+            <button type="button" class="btn btn-success dropdown-toggle shadow float-end" data-bs-toggle="dropdown">
+                <i class="bi bi-file-excel"></i> Etats stocks
             </button>
             <div class="dropdown-menu dropdown-menu-end">
                 <form class="px-2 py-2" action="" method="post">
@@ -109,7 +116,7 @@
                             <!-- del Movement -->
                             <button type="button" id="delete-movement" class="bs-modal btn btn-sm btn-outline-danger" 
                                     data-form-url="{% url "magasin:delete_movement" article.movement_id %}">
-                                {{ article.movement_id }} {% fontawesome_icon 'trash' %} 
+                                {{ article.movement_id }} <i class="bi bi-trash"></i>
                             </button>
                         {% endif %} <!-- endif for checking user group -->
                     </td>

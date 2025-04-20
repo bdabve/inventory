@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form id="articleForm" action="" method="POST">
+<form id="articleForm" action="" method="POST" data-form-url='{% url "magasin:create_article" %}'>
     {% csrf_token %}
 
     <div class="modal-header">
@@ -9,22 +9,12 @@
     </div><!--End of header card-->
 
     <div class="modal-body">
+        <div id="formErrors" class="alert alert-danger" style="display: none;"></div>
         {% for field in form %}
             <div class="form-group row mb-2">
                 <label class="col-sm-3 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                 <div class="col-sm-9">
-
-                    <div id="formErrors"></div>
-
-                    {% if field.errors %}
-                        {% render_field field class="form-control is-invalid invalid" placeholder=field.label %}
-                        <div class="invalid-feedback">
-                            {% for error in field.errors %}<span>{{ error }}</span>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        {% render_field field class="form-control" placeholder=field.label %}
-                    {% endif %}
+                    {% render_field field class="form-control" placeholder=field.label %}
                 </div>
             </div>
         {% endfor %}

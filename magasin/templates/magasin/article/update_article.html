@@ -1,6 +1,7 @@
 {% load widget_tweaks %}
 
-<form id="articleEditForm"action="" method="POST" data-art-id="{{ article.art_id }}" data-slug="{{ article.slug }}">
+<form id="articleEditForm" action="" method="POST" 
+      data-form-url='{% url "magasin:update_article" article.art_id article.slug %}'>
     {% csrf_token %}
 
     <div class="modal-header">
@@ -13,13 +14,12 @@
 
         {% for field in form %}
             <div class="form-group row mb-2">
-                <label class="col-sm-3 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <label class="col-sm-3 col-form-label" for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
                 <div class="col-sm-9">
-                    {% if field.errors %}
-                        {% render_field field class="form-control is-invalid invalid" %}
-                        <div class="invalid-feedback">
-                            {% for error in field.errors %}<span>{{ error }}</p>{% endfor %}
-                        </div>
+                    {% if field.name == "category" %}
+                        {% render_field field class="form-select" %}
                     {% else %}
                         {% render_field field class="form-control" %}
                     {% endif %}

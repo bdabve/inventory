@@ -2,18 +2,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect        # , reverse
 from django.urls import reverse_lazy
-
-from .models import Category, Article, MagasinLog, Movement, Command         # , GestionStocks
-from django.db.models import Q
-# from django.contrib.auth.models import User
-from .forms import (CreateCategoryForm, CreateArticleForm, UpdateArticleForm_, SearchArticleForm,
-                    EntreeForm, SortieForm, SearchMovementForm, Etats, CreateCommandForm)
-from bootstrap_modal_forms.generic import BSModalCreateView, BSModalReadView, BSModalDeleteView
-
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-# from django.http import HttpResponseRedirect
-from . import functions
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
+from django.db.models import Q
 from django.db.models import Count, Sum, F
+from .models import Category, Article, MagasinLog, Movement, Command         # , GestionStocks
+
+from .forms import (CreateCategoryForm, ArticalForm, SearchArticleForm,     # UpdateArticleForm_
+                    EntreeForm, SortieForm, SearchMovementForm, Etats, CreateCommandForm)
+from . import functions
+
+from bootstrap_modal_forms.generic import BSModalCreateView, BSModalReadView, BSModalDeleteView
 
 
 @login_required
@@ -60,9 +62,9 @@ def article_list(request, category_slug=None, stock_alarm=False, art_sans_prix=F
         if search_article_form.is_valid():
             # form fields passed validation
             search_word = search_article_form.cleaned_data['search_word']      # retrieve the user input form
-            print(search_word)
-            articles = Article.objects.filter(Q(designation__icontains=search_word) | Q(code__icontains=search_word) | Q(ref__icontains=search_word)).select_related('category')
-
+            articles = Article.objects.filter(
+                Q(designation__icontains=search_word) | Q(code__icontains=search_word) | Q(ref__icontains=search_word)
+            ).select_related('category')
     else:
         search_article_form = SearchArticleForm()
 
@@ -85,8 +87,10 @@ def article_list(request, category_slug=None, stock_alarm=False, art_sans_prix=F
 
 
 # ----------------------------------------------------------------------
+# ==> Articles Views
+# ------------------------
+#
 # ==> Article Details View
-# -------------------------
 @login_required
 def article_detail(request, art_id, slug, history=False, movement=False):
     hijri = functions.hijri_()
@@ -118,7 +122,8 @@ def article_detail(request, art_id, slug, history=False, movement=False):
                 art = Article.objects.get(code=code)
                 return redirect('magasin:article_detail', art_id=art.art_id, slug=art.slug)
             except Article.DoesNotExist:
-                pass
+                messages.warning(request, f'Aucun article trouvé avec le code « {code} »')
+                return redirect('magasin:article_detail', art_id=art_id, slug=slug)
     else:
         search_form = SearchArticleForm()
 
@@ -134,26 +139,28 @@ def article_detail(request, art_id, slug, history=False, movement=False):
             entree_date = entree_form.cleaned_data['entree_date']
 
             # Save movement in Movement table
-            entree_movement = Movement(art_id=article, movement_date=entree_date, user_id=request.user, movement="Entree",
-                                       qte=new_qte, prix=new_prix,)
-            entree_movement.save()
+            Movement.objects.create(
+                art_id=article,
+                movement_date=entree_date,
+                user_id=request.user,
+                movement="Entree",
+                qte=new_qte,
+                prix=new_prix,
+            )
 
-            # max date with id from movement table
-            # from django.db.models import Max
-            # art = GestionStocks.objects.filter(art_id=art_id).values_list('sf_qte', 'sf_prix').latest('gs_date')
-
-            # save in database
+            # save in main Article table
             if article.prix == new_prix:
                 # if prix is equal to old prix; only add quantity
                 article.qte = F('qte') + new_qte
                 article.save()
 
-            elif article.prix != new_prix:
+            else:
                 # if prix is not equal to old prix; modify prix
                 # prix = ( sum(valeur) / sum(qte)); cout moyen penduré
-                new_prix = ((new_qte * new_prix) + article.valeur) / (article.qte + new_qte)
+                total_val = (new_qte * new_prix) + (article.valeur or 0)
+                total_qte = article.qte + new_qte
+                article.prix = total_val / total_qte
                 article.qte = F('qte') + new_qte
-                article.prix = new_prix
                 article.save()
 
             messages.info(request, 'Entree Ajouter avec Succés')
@@ -167,15 +174,20 @@ def article_detail(request, art_id, slug, history=False, movement=False):
         sortie_form = SortieForm(request.POST)     # PdrSearchForm comme from forms.py file
         if sortie_form.is_valid():
             # form fields passed validation
-            new_qte = sortie_form.cleaned_data['sortie_qte']      # retrieve the user input form
-            article.qte = F('qte') - new_qte
+            sortie_qte = sortie_form.cleaned_data['qte']      # retrieve the user input form
+            article.qte = F('qte') - sortie_qte
             sortie_date = sortie_form.cleaned_data['sortie_date']
             # Save movement in Movement table
-            entree_movement = Movement(art_id=article, user_id=request.user, movement_date=sortie_date, movement="Sortie",
-                                       qte=new_qte, prix=article.prix,)
-            entree_movement.save()
+            Movement.objects.create(
+                art_id=article,
+                user_id=request.user,
+                movement_date=sortie_date,
+                movement="Sortie",
+                qte=sortie_qte,
+                prix=article.prix,
+            )
             article.save()
-            messages.info(request, 'Sortie Ajouter avec Succés')
+            messages.info(request, 'Sortie Enregistrés avec Succés.')
             return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
     else:
         sortie_form = SortieForm()
@@ -184,13 +196,14 @@ def article_detail(request, art_id, slug, history=False, movement=False):
     # Modification form
     # ----------------
     if request.method == 'POST' and 'update_art' in request.POST:
-        update_art_form = UpdateArticleForm_(request.POST, instance=article)
+        update_art_form = ArticalForm(request.POST, instance=article)
         if update_art_form.is_valid():
-            article.save()
+            update_art_form.save()
+            # article.save()
             messages.info(request, 'Article Modifier avec Succés')
             return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
     else:
-        update_art_form = UpdateArticleForm_(instance=article)
+        update_art_form = ArticalForm(instance=article)
 
     # ----------------------------------------------------------------
     # commande form
@@ -200,7 +213,12 @@ def article_detail(request, art_id, slug, history=False, movement=False):
         if command_form.is_valid():
             # form fields passed validation
             cd = command_form.cleaned_data
-            Command.objects.create(art_id=article, user_id=request.user, command_date=cd['cmnd_date'], qte=cd['cmnd_qte'])
+            Command.objects.create(
+                art_id=article,
+                user_id=request.user,
+                command_date=cd['cmnd_date'],
+                qte=cd['cmnd_qte']
+            )
 
             messages.info(request, 'Commande Ajouter avec Succés')
             return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
@@ -210,20 +228,25 @@ def article_detail(request, art_id, slug, history=False, movement=False):
     if art_history: history = True
     if art_movement: movement = True
 
-    context = {'article': article, 'hijri': hijri, 'history': history, 'movement': movement, 'article_mov': article_mov,
-               'art_cmd': art_cmd, 'search_form': search_form, 'entree_form': entree_form, 'sortie_form': sortie_form,
-               'update_art_form': update_art_form, 'command_form': command_form}
+    context = {
+        'hijri': hijri,
+        'article': article,
+        'history': history,
+        'movement': movement,
+        'article_mov': article_mov,
+        'art_cmd': art_cmd,             # commande
+        'search_form': search_form,
+        'entree_form': entree_form,
+        'sortie_form': sortie_form,
+        'update_art_form': update_art_form,
+        'command_form': command_form
+    }
 
     return render(request, 'magasin/article/detail.html', context)
 
 
-# ----------------------------------------------------------------------
-# ==> Create Category View (django-bootstrap-modal-form)
 # -----------------------------------------------------
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-
-
+# ==> Create Category View
 def category_form_partial(request):
     form = CreateCategoryForm()
     return render(request, 'magasin/article/create_category.html', {'form': form})
@@ -235,149 +258,166 @@ def create_category(request):
         form = CreateCategoryForm(request.POST)
         if form.is_valid():
             category = form.save()
-            return JsonResponse({'success': True, 'name': category.name, 'id': category.cat_id})
+            return JsonResponse({'success': True, 'message': f"✅ Category {category.name} Enregistrés avec succés"})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
 
 
-# ----------------------------------------------------------------------
-# ==> Create Article View (django-bootstrap-modal-form)
+def delete_category(request, slug):
+    if request.method == 'POST':
+        category = get_object_or_404(Category, slug=slug)
+        cat_name = category.name
+        category.delete()
+        return JsonResponse({'success': True, 'message': f"✅ Catégorie {cat_name} supprimée avec succés."})
+    else:
+        return JsonResponse({'success': False, 'error': "❌ Une erreur s’est produite"})
+
+
 # -----------------------------------------------------
+# ==> Create Article View
 def article_form_partial(request):
-    form = CreateArticleForm()
+    form = ArticalForm()
     return render(request, 'magasin/article/create_article.html', {'form': form})
 
 
 @csrf_exempt
 def create_article(request):
+    from datetime import date
+    today = date.today()
     if request.method == 'POST':
-        form = CreateArticleForm(request.POST)
+        form = ArticalForm(request.POST)
         if form.is_valid():
             article = form.save()
-            return JsonResponse({'success': True, 'code': article.code, 'id': article.art_id})
+            # Save initial movement in Movement table
+            Movement.objects.create(
+                art_id=article,
+                movement_date=today,
+                user_id=request.user,
+                movement="Initial",
+                qte=form.cleaned_data['qte'],
+                prix=form.cleaned_data['prix'],
+            )
+            return JsonResponse({'success': True, 'message': f'✅ Article {article.code} Enregistrés avec succés'})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
 
 
-# ----------------------------------------------------------------------
-# ==> Read Article View (django-bootstrap-modal-form)
 # -----------------------------------------------------
+# ==> Read Article View (bootstrap-modal-form)
 def read_article(request, art_id, slug):
     article = get_object_or_404(Article, art_id=art_id, slug=slug)
     return render(request, 'magasin/article/read_article.html', {'article': article})
 
 
-# ----------------------------------------------------------------------
-# ==> Update Article View (django-bootstrap-modal-form)
 # -----------------------------------------------------
-
+# ==> Update Article View (bootstrap-modal-form)
 def update_form_partial(request, art_id, slug):
     article = get_object_or_404(Article, art_id=art_id, slug=slug)
-    form = CreateArticleForm(instance=article)
+    form = ArticalForm(instance=article)
     return render(request, 'magasin/article/update_article.html', {'form': form, 'article': article})
 
 
 def update_article(request, art_id, slug):
     article = get_object_or_404(Article, art_id=art_id, slug=slug)
     if request.method == 'POST':
-        form = CreateArticleForm(request.POST, instance=article)
+        form = ArticalForm(request.POST, instance=article)
         if form.is_valid():
             updated_article = form.save()
-            return JsonResponse({'success': True, 'designation': updated_article.designation})
+            return JsonResponse({'success': True, 'message': f'✅ Article {updated_article.code} Modifier avec succés.'})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
 
 
-# ----------------------------------------------------------------------
-# ==> Delete Article View (django-bootstrap-modal-form)
 # -----------------------------------------------------
+# ==> Delete Article View (bootstrap-modal-form)
 def delete_article(request, art_id, slug):
     if request.method == 'POST':
         article = get_object_or_404(Article, art_id=art_id, slug=slug)
         article.delete()
-        return JsonResponse({'success': True})
+        return JsonResponse({'success': True, 'message': f'✅ Article {article.code} supprimé avec succés.'})
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 
-class DeleteArticleView(BSModalDeleteView):
-    model = Article
-    template_name = 'magasin/article/delete_article.html'
-    success_message = 'Success: Article Supprimer.'
-    success_url = reverse_lazy('magasin:article_list')
-
-
-# ----------------------------------------------------------------------
-# ==> Entree view
 # ----------------------------
-@login_required
-def entree_article_view(request, art_id, slug):
+# ==> New Entree view
+def entree_form_partial(request, art_id, slug):
     article = get_object_or_404(Article, art_id=art_id, slug=slug)
+    form = EntreeForm()
+    return render(request, 'magasin/article/entree.html', {'article': article, 'form': form})
 
-    if request.method == 'POST':
-        entree_form = EntreeForm(request.POST)     # PdrSearchForm comme from forms.py file
-        if entree_form.is_valid():
-            # form fields passed validation
-            new_qte = entree_form.cleaned_data['qte']      # retrieve the user input form
-            new_prix = entree_form.cleaned_data['prix']
-            entree_date = entree_form.cleaned_data['entree_date']
 
-            # Save movement in Movement table
-            entree_movement = Movement(art_id=article, movement_date=entree_date, user_id=request.user, movement="Entree",
-                                       qte=new_qte, prix=new_prix,)
-            entree_movement.save()
+@login_required
+@require_POST
+def entree_article_ajax(request, art_id, slug):
+    article = get_object_or_404(Article, art_id=art_id, slug=slug)
+    form = EntreeForm(request.POST)     # PdrSearchForm comme from forms.py file
 
-            # max date with id from movement table
-            # from django.db.models import Max
-            # art = GestionStocks.objects.filter(art_id=art_id).values_list('sf_qte', 'sf_prix').latest('gs_date')
+    if form.is_valid():
+        # form fields passed validation
+        new_qte = form.cleaned_data['qte']      # retrieve the user input form
+        new_prix = form.cleaned_data['prix']
+        entree_date = form.cleaned_data['entree_date']
 
-            # save in database
-            if article.prix == new_prix:
-                # if prix is equal to old prix; only add quantity
-                article.qte = F('qte') + new_qte
-            elif article.prix != new_prix:
-                # if prix is not equal to old prix; than prix = ( sum(valeur) / sum(qte)); cout moyen penduré
-                new_prix = ((new_qte * new_prix) + article.valeur) / (article.qte + new_qte)
-                article.qte = F('qte') + new_qte
-                article.prix = new_prix
+        # Save movement in Movement table
+        Movement.objects.create(
+            art_id=article,
+            movement_date=entree_date,
+            user_id=request.user,
+            movement="Entree",
+            qte=new_qte,
+            prix=new_prix,
+        )
 
-            article.save()
+        # save in database
+        if article.prix == new_prix:
+            # if prix is equal to old prix; only add quantity
+            article.qte = F('qte') + new_qte
+        else:
+            # if prix is not equal to old prix; than prix = ( sum(valeur) / sum(qte)); cout moyen penduré
+            total_val = (new_qte * new_prix) + (article.valeur or 0)
+            total_qte = article.qte + new_qte
+            article.prix = total_val / total_qte
+            article.qte = F('qte') + new_qte
 
-            messages.info(request, 'Entree Ajouter avec Succés')
-            return redirect('magasin:article_list')
+        article.save()
+        return JsonResponse({'success': True, 'message': f'✅ Entrée ajoutée avec succès code article {article.code}.'})
     else:
-        entree_form = EntreeForm()
-
-    context = {'article': article, 'entree_form': entree_form}
-    return render(request, 'magasin/article/entree.html', context)
+        return JsonResponse({'success': False, 'errors': form.errors})
 
 
 # ----------------------------------------------------------------------
-# ==> Sortie view (django-bootstrap-modal-form)
-# ---------------------------------------------
-@login_required
-def sortie_article_view(request, art_id, slug):
+# ==> Sortie view (bootstrap-modal-form)
+def sortie_form_partial(request, art_id, slug):
     article = get_object_or_404(Article, art_id=art_id, slug=slug)
+    form = SortieForm()
+    return render(request, 'magasin/article/sortie.html', {'article': article, 'form': form})
 
-    if request.method == 'POST':
-        sortie_form = SortieForm(request.POST)     # PdrSearchForm comme from forms.py file
-        if sortie_form.is_valid():
-            # form fields passed validation
-            new_qte = sortie_form.cleaned_data['sortie_qte']      # retrieve the user input form
-            article.qte = F('qte') - new_qte
-            # sortie_date = sortie_form.cleaned_data['sortie_date']
-            # Save movement in Movement table
-            # entree_movement = Movement(art_id=article, user_id=request.user, movement_date=sortie_date, movement="Sortie",
-            #                          qte=new_qte, prix=article.prix,)
-            # entree_movement.save()
-            article.save()
 
-            messages.info(request, 'Sortie Ajouter avec Succés')
-            return redirect('magasin:article_list')
+@login_required
+@require_POST
+def sortie_article_ajax(request, art_id, slug):
+    article = get_object_or_404(Article, art_id=art_id, slug=slug)
+    form = SortieForm(request.POST)     # PdrSearchForm comme from forms.py file
+    if form.is_valid():
+        # form fields passed validation
+        sortie_qte = form.cleaned_data['qte']      # retrieve the user input form
+        sortie_date = form.cleaned_data['sortie_date']
+        article.qte = F('qte') - sortie_qte
+
+        # Save movement in Movement table
+        Movement.objects.create(
+            art_id=article,
+            user_id=request.user,
+            movement_date=sortie_date,
+            movement="Sortie",
+            qte=sortie_qte,
+            prix=article.prix,
+        )
+
+        article.save()
+        return JsonResponse({'success': True, 'message': f'✅ Sortie ajoutée avec succès code article {article.code}.'})
     else:
-        sortie_form = SortieForm()
-
-    context = {'article': article, 'sortie_form': sortie_form}
-    return render(request, 'magasin/article/sortie.html', context)
+        return JsonResponse({'success': False, 'errors': form.errors})
 
 
 # ----------------------------------------------------------------------
@@ -410,52 +450,74 @@ def movement(request, art_id=None):
 
     # Search for an article
     if request.method == 'POST' and 'search_mov_form' in request.POST:
-        # form was submited
-        search_movement_form = SearchMovementForm(request.POST)     # PdrSearchForm comme from forms.py file
+        search_movement_form = SearchMovementForm(request.POST)
         if search_movement_form.is_valid():
-            # form fields passed validation
-            code = search_movement_form.cleaned_data['search_code']
-            operation = search_movement_form.cleaned_data['operation']
-            date = search_movement_form.cleaned_data['date']
+            code = search_movement_form.cleaned_data.get('search_code')
+            operation = search_movement_form.cleaned_data.get('operation')
+            day = search_movement_form.cleaned_data.get('day')
+            month = search_movement_form.cleaned_data.get('month')
+            year = search_movement_form.cleaned_data.get('year')
+
+            filters = Q()
+
             if code:
-                art_id = Article.objects.get(code__contains=code).art_id
-                if date:
-                    articles = Movement.objects.filter(art_id_id=art_id, movement__contains=operation,
-                                                       movement_date__contains=date)
+                article_qs = Article.objects.filter(code__icontains=code)
+                if article_qs.exists():
+                    filters &= Q(art_id__in=article_qs)
                 else:
-                    articles = Movement.objects.filter(art_id_id=art_id, movement__contains=operation)
-            else:
-                if date:
-                    articles = Movement.objects.filter(movement__contains=operation, movement_date__contains=date)
-                else:
-                    articles = Movement.objects.filter(movement__contains=operation)
+                    messages.warning(request, f"Aucun article trouvé avec le code « {code} »")
+                    return redirect('magasin:movement')
+
+            if operation:
+                filters &= Q(movement=operation)
+
+            if day:
+                filters &= Q(movement_date=day)
+            elif month and year:
+                filters &= Q(movement_date__month=month, movement_date__year=year)
+            elif year:
+                filters &= Q(movement_date__year=year)
+
+            articles = Movement.objects.filter(filters).order_by('-movement_date')
     else:
         search_movement_form = SearchMovementForm()
-
+        articles = Movement.objects.none()
+    # ----------------------------------------------------------------
+    # Etats
     if request.method == 'POST' and 'etat' in request.POST:
         etat_form = Etats(request.POST)
+
         if etat_form.is_valid():
             par = etat_form.cleaned_data['par']
             date_ = etat_form.cleaned_data['etat_date']
-            # art_id__code, and art_id__designation: retrieve many_to_many fields
-            desc = ['movement_date', 'art_id__code', 'art_id__designation', 'movement', 'qte', 'prix', 'valeur']
 
-            if par == 'journalier':
-                articles = Movement.objects.filter(movement_date__contains=date_).values_list(*desc)
-                functions.write_to_excel(desc, articles, date_.strftime('%d_%B_%Y'))
-                messages.success(request, 'Etat Journalier Ajouter')
-                return redirect('magasin:movement')
+            fields = ['movement_date', 'art_id__code', 'art_id__designation', 'movement', 'qte', 'prix', 'valeur']
 
-            elif par == 'mensuel':
-                articles = Movement.objects.filter(movement_date__month=date_.month).values_list(*desc)
-                functions.write_to_excel(desc, articles, date_.strftime('%B_%Y'))
-                messages.success(request, 'Etat Mensuel Ajouter')
-                return redirect('magasin:movement')
+            export_config = {
+                'journalier': {
+                    'queryset': Movement.objects.filter(movement_date=date_),
+                    'filename': date_.strftime('%d_%B_%Y'),
+                    'message': 'État journalier généré avec succès.'
+                },
+                'mensuel': {
+                    'queryset': Movement.objects.filter(
+                        movement_date__month=date_.month,
+                        movement_date__year=date_.year
+                    ),
+                    'filename': date_.strftime('%m_%Y'),  # Format: 03_2025
+                    'message': 'État mensuel généré avec succès.'
+                },
+                'tous': {
+                    'queryset': Movement.objects.all(),
+                    'filename': 'Tous_Les_Mouvements',
+                    'message': 'État global généré avec succès.'
+                }
+            }
 
-            elif par == 'tous':
-                articles = Movement.objects.all().values_list(*desc)
-                functions.write_to_excel(desc, articles, 'Tous Les Movement')
-                messages.success(request, 'Etat Tous Ajouter')
+            config = export_config.get(par)
+            if config:
+                functions.write_to_excel_g(fields, config['queryset'], config['filename'])
+                messages.success(request, config['message'])
                 return redirect('magasin:movement')
     else:
         etat_form = Etats()
@@ -478,8 +540,8 @@ def movement(request, art_id=None):
     return render(request, 'magasin/article/movement.html', context)
 
 
-# ----------------------------------------------------------------------
 # ==> Delete Movement
+# FIXME:  work with our ajax views not bs-models
 # --------------------
 class DeleteMovementView(BSModalDeleteView):
     model = Movement
@@ -539,7 +601,10 @@ def total_articles(request):
     total_article_qte = Article.objects.aggregate(total_article_qte=Sum('qte'))
     total_valeur = Article.objects.aggregate(total_valeur=Sum('valeur'))
 
-    context = {'hijri': hijri, 'total_article': total_article, 'total_article_qte': total_article_qte, 'total_valeur': total_valeur}
+    context = {
+        'hijri': hijri,
+        'total_article': total_article, 'total_article_qte': total_article_qte, 'total_valeur': total_valeur
+    }
     return render(request, 'magasin/article/total_article.html', context)
 
 

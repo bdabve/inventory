@@ -1,6 +1,5 @@
 {% extends "magasin/base.html" %}
 {% load static %}
-{% load fontawesome %}
 {% load humanize %}
 {% load widget_tweaks %}
 
@@ -22,7 +21,7 @@
 
             <div class="col">
                 <button type="submit" name="search_form" class="btn btn-outline-secondary search_btn">
-                    {% fontawesome_icon 'search' %} Recherche
+                    <i class="bi bi-search"></i> Recherche
                 </button>
             </div>
         </form>
@@ -31,7 +30,8 @@
     <div class="card mb-2">
         <!-- Success Messages-->
         {% for msg in messages %}
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <div class="alert alert-{% if msg.tags %}{{ msg.tags }}{% else %}info{% endif %} alert-dismissible fade show" 
+             role="alert">
                 {{ msg }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -68,89 +68,99 @@
         <div class="row card-body">
             <!-- =============================| ARTICLE DETAILS |=================================================-->
             <div class="col col-md-6 {% if request.user.profile.groupe != 'admin' %}art_detail_not_admin{% endif %}">
-                <h4 class="p-3 text-center">Fiche de Stock Article N°: {{ article.art_id }}</h5>
-                <hr>
+                <h4 class="p-3 text-center border-bottom border-3">Fiche de Stock Article N°: {{ article.art_id }}</h5>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <span class="list_title">Code</span><span>: {{ article.code }}</span>
+                    <li class="list-group-item d-flex align-items-center">
+                        <span class="w-50 fs-5">Code</span><span class="fs-5 fw-bold">{{ article.code }}</span>
                     </li>
-                    <li class="list-group-item">
-                        <span class="list_title">Designation</span><span>: {{ article.designation }}</span>
+                    <li class="list-group-item d-flex align-items-center">
+                        <span class="w-50 fs-5">Designation</span><span class="fs-5 fw-bold">{{ article.designation }}</span>
                     </li>
-                    <li class="list-group-item">
-                        <span class="list_title">Reference</span><span>: {{ article.ref }}</span>
+                    <li class="list-group-item d-flex align-items-center">
+                        <span class="w-50 fs-5">Reference</span><span class="fs-5 fw-bold">{{ article.ref }}</span>
                     </li>
-                    <li class="list-group-item">
-                        <span class="list_title">Emplacement</span><span>: {{ article.emp }}</span>
+                    <li class="list-group-item d-flex align-items-center">
+                        <span class="w-50 fs-5">Emplacement</span><span class="fs-5 fw-bold">{{ article.emp }}</span>
                     </li>
 
-                    <li class="list-group-item">
-                        <span class="list_title">Quantité</span>
-                        <span class="{% if article.qte == 0 %}text-danger fw-bold{% endif %}">
-                            : {{ article.qte }} {{ article.umesure }}
+                    <li class="list-group-item d-flex align-items-center">
+                        <span class="w-50 fs-5">Quantité</span>
+                        <span class="fs-5 fw-bold{% if article.qte == 0 %}text-danger{% endif %}">
+                            {{ article.qte }} {{ article.umesure }}
                         </span>
                     </li>
 
-                    <li class="list-group-item">
-                        <span class="list_title">Prix Unitaire</span><span>: {{ article.prix|intcomma }} DA</span>
+                    <li class="list-group-item d-flex align-items-center">
+                        <span class="w-50 fs-5">Prix Unitaire</span><span class="fs-5 fw-bold text-danger">
+                            {{ article.prix|intcomma }} DA
+                        </span>
                     </li>
 
-                    <li class="list-group-item">
-                        <span class="list_title">Valeur</span><span>: {{ article.valeur|intcomma }} DA</span>
+                    <li class="list-group-item d-flex align-items-center">
+                        <span class="w-50 fs-5">Valeur</span><span class="fs-5 fw-bold">{{ article.valeur|intcomma }} DA</span>
                     </li>
 
-                    <li class="list-group-item">
-                        <span class="list_title">Observation</span>
-                        <span>: {% if article.observation %}{{ article.observation }}{% else %}RAS{% endif %}</span>
+                    <li class="list-group-item d-flex align-items-center">
+                        <span class="w-50 fs-5">Observation</span>
+                        <span>{% if article.observation %}{{ article.observation }}{% else %}RAS{% endif %}</span>
                     </li>
-
                 </ul>
-            </div><!-- End of col-md-6 -->
+            </div><!-- End of article details col-md-6 -->
 
             {% if request.user.profile.groupe == 'admin' %}
-            <!-- =======================| 
-            =   TABS: 
-                MOVEMENT / MODIFICATION / ENTREE / SORTIE 
-            |==========================-->
+            <!-- ==============================================| 
+                 =   TABS: Buttons
+                 =   MOVEMENT / MODIFICATION / ENTREE / SORTIE 
+            |=================================================-->
             <div class="col-md-6 col_art_operation">
                 <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="movement-tab" data-bs-toggle="tab" data-bs-target="#movement" type="button" 
-                                role="tab" aria-controls="sortie" aria-selected="false">Movement
+                        <button class="nav-link active px-1 py-2" id="movement-tab" 
+                                data-bs-toggle="tab" data-bs-target="#movement" type="button" 
+                                role="tab" aria-controls="sortie" aria-selected="false">
+                            <i class="bi bi-arrow-left-right"></i> Movement
                         </button>
                     </li>
 
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="modifier-tab" data-bs-toggle="tab" data-bs-target="#modifier" type="button"
-                                role="tab" aria-controls="modifier" aria-selected="true">Modifier
+                        <button class="nav-link px-1 py-2" id="modifier-tab" 
+                                data-bs-toggle="tab" data-bs-target="#modifier" type="button"
+                                role="tab" aria-controls="modifier" aria-selected="true">
+                            <i class="bi bi-pencil-square"></i> Modifier
                         </button>
                     </li>
                   
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="entree-tab" data-bs-toggle="tab" data-bs-target="#entree" type="button" 
-                                role="tab" aria-controls="entree" aria-selected="false">Entree
+                        <button class="nav-link px-1 py-2" id="entree-tab" 
+                                data-bs-toggle="tab" data-bs-target="#entree" type="button" 
+                                role="tab" aria-controls="entree" aria-selected="false">
+                            <i class="bi bi-arrow-down-short"></i> Entree
                         </button>
                     </li>
                   
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="sortie-tab" data-bs-toggle="tab" data-bs-target="#sortie" type="button" 
-                                role="tab" aria-controls="sortie" aria-selected="false">Sortie
+                        <button class="nav-link px-1 py-2" id="sortie-tab" 
+                                data-bs-toggle="tab" data-bs-target="#sortie" type="button" 
+                                role="tab" aria-controls="sortie" aria-selected="false">
+                            <i class="bi bi-arrow-up-short"></i> Sortie
                         </button>
                     </li>
 
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="commend-tab" data-bs-toggle="tab" data-bs-target="#command" type="button" 
-                                role="tab" aria-controls="command" aria-selected="false">Commands
+                        <button class="nav-link px-1 py-2" id="commend-tab" 
+                                data-bs-toggle="tab" data-bs-target="#command" type="button" 
+                                role="tab" aria-controls="command" aria-selected="false">
+                            <i class="bi bi-journal-plus"></i> Commands
                         </button>
                     </li>
                 </ul>
-
 
                 <!-- ========================| 
                     MOVEMENT TAB 
                 |============================ -->
                 <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active tab_content" id="movement" role="tabpanel" aria-labelledby="movement-tab">
+                    <div class="tab-pane fade show active tab_content" id="movement" role="tabpanel" 
+                        aria-labelledby="movement-tab">
                         <h5 class="text-center alert alert-secondary">Article Movement</h5>
                         {% if article_mov == "empty" %}
                             <p class="p-3">- Pas de Movement Pour Cette Article.</p>
@@ -174,7 +184,7 @@
 
                                     {% if mov_art.movement == 'Sortie' %}
                                         <td class="text-danger">{{ mov_art.movement }}</td>
-                                    {% elif mov_art.movement == 'Entree'%}
+                                    {% else %}
                                         <td class="text-primary">{{ mov_art.movement }}</td>
                                     {% endif %}
                                     <td>
@@ -196,52 +206,54 @@
                         <h5 class="alert alert-success text-center">Modification Article</h5>
                         <form action="" method="POST">
                             {% csrf_token %}
+
                             {% for field in update_art_form %}
-                                {% if field == update_art_form.category %}
-
                                 <div class="form-group row mb-2">
-                                    <label class="col-sm-4 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    <label class="col-sm-4 col-form-label" for="{{ field.id_for_label }}">
+                                        {{ field.label }}
+                                    </label>
+
                                     <div class="col-sm-8">
                                         {% if field.errors %}
-                                            {% render_field field class+="is-invalid" %}
+                                            {% if field.name == "category" %}
+                                                {% render_field field class+="is-invalid" %}
+                                            {% else %}
+                                                {% render_field field class="form-control is-invalid" %}
+                                            {% endif %}
                                             <div class="invalid-feedback">
                                                 {% for error in field.errors %}<span>{{ error }}</span>{% endfor %}
                                             </div>
                                         {% else %}
-                                            {% render_field field %}
+                                            {% if field.name == "category" %}
+                                                {% render_field field %}
+                                            {% else %}
+                                                {% render_field field class="form-control" %}
+                                            {% endif %}
                                         {% endif %}
                                     </div>
                                 </div>
-
-                                {% else %}
-
-                                <div class="form-group row mb-2">
-                                    <label class="col-sm-4 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                    <div class="col-sm-8">
-                                        {% if field.errors %}
-                                            {% render_field field class="form-control is-invalid" %}
-                                            <div class="invalid-feedback">
-                                                {% for error in field.errors %}<span>{{ error }}</span>{% endfor %}
-                                            </div>
-                                        {% else %}
-                                            {% render_field field class="form-control" %}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                {% endif %}
-
                             {% endfor %}
                             <button type="submit" name="update_art" class="submit-btn btn btn-outline-success float-end">
-                                {% fontawesome_icon 'edit' %} Modifier
+                                <i class="bi bi-pencil-square"></i> Modifier
                             </button>
                         </form>
                     </div><!-- end of modify tab -->
 
-                    <!-- =============================| ENTREE FORM |============================================-->
+                    <!-- =============================| 
+                        == ENTREE FORM 
+                    |============================================-->
                     <div class="tab-pane tab_content fade" id="entree" role="tabpanel" aria-labelledby="entree-tab">
                         <h5 class="alert alert-primary text-center">Nouvelle Entree</h5>
                         <form action="" method="POST">
                             {% csrf_token %}
+                            <div class="form-group row mb-2" style="">
+                                <label class="col-sm-3 col-form-label" for="{{ form.slug.id_for_label }}">Code</label>
+                                <div class="col-sm-9">
+                                    <input class="form-control-plaintext text-uppercase fw-bold" 
+                                           name="slug" value="{{ article.slug }}" readonly>
+                                </div>
+                            </div>
+
                             <div class="form-group row mb-2">
                                 <label class="col-sm-3 col-form-label" for="{{ entree_form.entree_date.id_for_label }}">
                                     Date
@@ -289,20 +301,24 @@
                                 </div>
                             </div>
                             <button type="submit" name="entree_form" class="btn btn-outline-primary float-end">
-                                {% fontawesome_icon 'plus-square' %} Entree
+                                <i class="bi bi-plus-lg"></i> Entree
                             </button>
                         </form>
                     </div><!-- end of entree tab -->
 
-                    <!-- =============================| SORTIE FORM |============================================-->
+                    <!-- =============================| 
+                        == SORTIE FORM 
+                    |============================================-->
                     <div class="tab-pane tab_content fade" id="sortie" role="tabpanel" aria-labelledby="contact-tab">
                         <h5 class="text-center alert alert-danger">Nouvelle Sortie</h5>
                         <form action="" method="POST">
                             {% csrf_token %}
 
-                            <div class="form-group row mb-2" style="display: none;">
+                            <div class="form-group row mb-2" style="">
+                                <label class="col-sm-3 col-form-label" for="{{ sortie_form.slug.id_for_label }}">Code</label>
                                 <div class="col-sm-9">
-                                    {% render_field sortie_form.slug|append_attr:"readonly:readonly" value=article.slug %}
+                                    <input class="form-control-plaintext text-uppercase fw-bold" 
+                                           name="slug" value="{{ article.slug }}" readonly>
                                 </div>
                             </div>
 
@@ -326,27 +342,27 @@
                             </div>
 
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label" for="{{ sortie_form.sortie_qte.id_for_label }}">Qte</label>
+                                <label class="col-sm-3 col-form-label" for="{{ sortie_form.qte.id_for_label }}">Qte</label>
                                 <div class="col-sm-9">
-                                    {% if sortie_form.sortie_qte.errors %}
-                                        {% render_field sortie_form.sortie_qte class+="is-invalid" value=1 %}
-                                        {% for error in sortie_form.sortie_qte.errors %}
+                                    {% if sortie_form.qte.errors %}
+                                        {% render_field sortie_form.qte class+="form-control is-invalid" value=1 %}
+                                        {% for error in sortie_form.qte.errors %}
                                             <div class="invalid-feedback"><span>{{ error }}</span></div>
                                         {% endfor %}
                                     {% else %}
-                                        {% render_field sortie_form.sortie_qte value=1 %}
+                                        {% render_field sortie_form.qte class="form-control" value=1 %}
                                     {% endif %}
                                 </div>
                             </div>
 
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label" for="{{ sortie_form.sortie_prix.id_for_label }}">Prix</label>
+                                <label class="col-sm-3 col-form-label" for="{{ sortie_form.prix.id_for_label }}">Prix</label>
                                 <div class="col-sm-9">
-                                    {% render_field sortie_form.sortie_prix|append_attr:"readonly:readonly" value=article.prix %}
+                                    {% render_field sortie_form.prix|append_attr:"readonly:readonly" class="form-control" value=article.prix %}
                                 </div>
                             </div>
                             <button type="submit" name="sortie_form" class="btn btn-outline-danger float-end">
-                                {% fontawesome_icon 'minus-square' %} Sortie
+                                <i class="bi bi-dash-lg"></i> Sortie
                             </button>
                         </form>
                     </div><!-- end of sorite tab -->
@@ -356,7 +372,7 @@
                         <h5 class="text-center alert alert-info">Commands</h5>
 
                         {% if art_cmd == "empty" %}
-                            <p class="p-3">- Pas de Command Pour Cette Article.</p>
+                            <p class="p-3">Pas de Command Pour Cette Article.</p>
                         {% else %}
                         <table class="table table-bordered table-hover text-center">
                             <thead>
@@ -387,17 +403,18 @@
                             <hr>
                             {% csrf_token %}
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label" for="{{ command_form.cmnd_date.id_for_label }}">Date</label>
+                                <label class="col-sm-3 col-form-label" for="{{ command_form.cmnd_date.id_for_label }}">
+                                    Date
+                                </label>
                                 <div class="col-sm-9">
                                     <div class="row date_row">
                                         {% if command_form.cmnd_date.errors %}
-                                            {% render_field command_form.cmnd_date class+="col is-invalid" %}
+                                            {% render_field command_form.cmnd_date class+="form-control is-invalid" %}
                                             {% for error in command_form.cmnd_date.errors %}
                                                 <div class="invalid-feedback"><span>{{ error }}</span></div>
                                             {% endfor %}
-
                                         {% else %}
-                                            {% render_field command_form.cmnd_date class+="col" %}
+                                            {% render_field command_form.cmnd_date class+="form-control" %}
                                         {% endif %}
                                     </div>
                                 </div>
@@ -407,18 +424,18 @@
                                 <label class="col-sm-3 col-form-label" for="{{ command_form.cmnd_qte.id_for_label }}">Qte</label>
                                 <div class="col-sm-9">
                                     {% if command_form.cmnd_qte.errors %}
-                                        {% render_field command_form.cmnd_qte class+="is-invalid" %}
+                                        {% render_field command_form.cmnd_qte class="form-control is-invalid" %}
                                         {% for error in command_form.cmnd_qte.errors %}
                                             <div class="invalid-feedback"><span>{{ error }}</span></div>
                                         {% endfor %}
                                     {% else %}
-                                        {% render_field command_form.cmnd_qte value=1 %}
+                                        {% render_field command_form.cmnd_qte class="form-control" value=1 %}
                                     {% endif %}
                                 </div>
                             </div>
 
                             <button type="submit" name="cmnd_form" class="btn btn-outline-info float-end">
-                                {% fontawesome_icon 'plus-square' %} Enregistre
+                                <i class="bi bi-floppy2"></i> Enregistre
                             </button>
                         </form>
                     </div><!-- end of command tab -->
@@ -429,7 +446,7 @@
                 <div class="text-center mt-2">
                     {% if history %}
                         <a href="{% url "magasin:magasin_log_article" article.art_id %}" class="btn btn-warning">
-                            {% fontawesome_icon 'history' %} Hist
+                            <i class="bi bi-hourglass-split"></i> Hist
                         </a>
                     {% endif %}
                 </div><!-- end of btn groupe-->

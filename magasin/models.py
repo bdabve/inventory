@@ -88,7 +88,7 @@ class Movement(models.Model):
     art_id = models.ForeignKey(Article, related_name='article_id', db_index=True, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, related_name='mov_user_id', on_delete=models.CASCADE)
     movement_date = models.DateTimeField()
-    movement_choice = (('entree', 'Entree'), ('sortie', 'Sortie'),)
+    movement_choice = (('entree', 'Entree'), ('sortie', 'Sortie'), ('initial', 'Initial'))
     movement = models.CharField(max_length=10, choices=movement_choice)
     qte = models.PositiveIntegerField(null=True)
     prix = models.DecimalField(decimal_places=2, max_digits=15, null=True)

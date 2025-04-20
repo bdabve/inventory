@@ -38,12 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'fontawesome',
     'widget_tweaks',
     'bootstrap_modal_forms',
     'magasin.apps.MagasinConfig',
     'fournisseur.apps.FournisseurConfig',
-    'debug_toolbar',                # django debug_toolbar
     'django.contrib.humanize',      # format in human readable; doc(https://docs.djangoproject.com/en/3.1/ref/contrib/humanize)
 ]
 
@@ -55,7 +53,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',              # django debug_toolbar
 ]
 
 ROOT_URLCONF = 'inv.urls'
@@ -74,10 +71,6 @@ TEMPLATES = [
             ],
         },
     },
-]
-
-INTERNAL_IPS = [        # django debug_toolbar
-    '127.0.0.1',
 ]
 
 WSGI_APPLICATION = 'inv.wsgi.application'

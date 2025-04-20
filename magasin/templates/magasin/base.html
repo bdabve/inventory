@@ -1,7 +1,7 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html>
+<html data-bs-theme="light" lang="en">
     <head>
     <title>{% block title %}{% endblock %}</title>
 
@@ -15,9 +15,8 @@
     </head>
     <body>
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg mr-auto border-bottom border-body fixed-top bg-body-tertiary" 
-            data-bs-theme="light">
-            <div class="container">
+        <nav class="navbar navbar-expand-lg mr-auto border-bottom border-body fixed-top bg-body-tertiary">
+            <div class="container-fluid">
                 <a class="navbar-brand" href="{% url "magasin:dashboard" %}">Inventory</a><!--HOME-->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#app-nav" 
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,21 +38,12 @@
                                 <i class="bi bi-arrow-repeat"></i> Movement
                             </a>
                         </li>
-
-                        {% comment %}
-                        <!-- Gestion Stocks -->
-                        <li class="nav-item {% if nbar == 'movement' %}active{% endif %}">
-                            <a class="nav-link" href="{% url "magasin:gestion_stocks" %}">G.Stocks</a>
-                        </li>
-                        {% endcomment %}
-
                         <!-- History -->
                         <li class="nav-item ">
                             <a class="nav-link {% if nbar == "history" %}active{% endif %}" href="{% url "magasin:magasin_log" %}">
                                 <i class="bi bi-clock"></i> History
                             </a>
                         </li>
-
                         <!-- Commands -->
                         <li class="nav-item ">
                             <a class="nav-link {% if nbar == "command" %}active{% endif %}" 
@@ -61,8 +51,7 @@
                                 <i class="bi bi-truck-flatbed"></i> Commands
                             </a>
                         </li>
-
-                        <!-- Dropdown action -->
+                        <!-- Actions Dropdown -->
                         <li class="nav-item dropdown ">
                             <a class="nav-link dropdown-toggle" href="#" id="actionDropdown" role="button" 
                                data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-database-gear"></i> &nbsp;Actions
@@ -87,56 +76,82 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item bs-modal" href="#" data-form-url="{% url "magasin:total_articles" %}">
+                                    <a id="totalsModal"class="dropdown-item" href="#" 
+                                       data-form-url="{% url "magasin:total_articles" %}">
                                         <i class="bi bi-currency-dollar"></i> Total Des Produits
                                     </a>
                                 </li>
                             </ul>
                         </li> <!-- end of dropdown -->
-                        {% endif %}
+                        {% endif %}  <!-- end of user.is_authenticated -->
+                        <!-- Divider  forr date -->
+                        <li class="nav-item">
+                            <div class="vr d-none d-lg-flex h-100 mx-lg-2"></div>
+                            <hr class="d-lg-none my-2 text-white-50">
+                        </li>
+                        <!-- date -->
+                        <span class="navbar-text hijri_date fw-bold text-dark px-4">
+                            <i class="bi bi-calendar-day"></i>
+                            <span dir='ltr'>
+                                {{ hijri.day_gr }}  {{ hijri.month_name_gr }}  {{ hijri.year_gr }} 
+                            </span>
+                            ---
+                            {{ hijri.day_name }}: {{ hijri.day }} {{ hijri.month_name }} {{ hijri.year }}
+                        </span>
+                        <!-- Divider -->
+                        <li class="nav-item">
+                            <div class="vr d-none d-lg-flex h-100 mx-lg-2"></div>
+                            <hr class="d-lg-none my-2 text-white-50">
+                        </li>
                     </ul><!-- end of navbar-nav -->
 
                     {% if request.user.is_authenticated %}
-
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item dropdown ms-auto ">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
-                               data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-person"></i>&nbsp;{{ request.user.username }}
-                            </a>
-                            <ul class="dropdown-menu navbar-right" aria-labelledby="navbarDropdown">
-                                {% if request.user.profile.groupe == 'admin' %}
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item dropdown ms-auto ">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person"></i>&nbsp;{{ request.user.username }}
+                                </a>
+                                <ul class="dropdown-menu navbar-right login-div" aria-labelledby="navbarDropdown">
                                     <li>
-                                        <a class="dropdown-item" href="{% url "accounts:manage_users"%}">
-                                            <i class="bi bi-person-lines-fill"></i>&nbsp; Manage Users
+                                        <a href="#" class="dropdown-item" id="toggle-theme">
+                                            <i class="bi bi-moon-stars"></i>&nbsp; Dark
                                         </a>
                                     </li>
-                                {% endif %}
-                                <li>
-                                    <a class="dropdown-item" href="{% url "accounts:logout" %}">
-                                        <i class="bi bi-box-arrow-in-right"></i> &nbsp;Logout
-                                    </a>
-                                </li>
-                            </ul>
-                        </li><!-- end of nav-item -->
-                    </ul><!-- end of nav-bar right item -->
+                                    {% if request.user.profile.groupe == 'admin' %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url "accounts:manage_users"%}">
+                                                <i class="bi bi-person-lines-fill"></i>&nbsp; Manage Users
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url "accounts:logout" %}">
+                                            <i class="bi bi-box-arrow-in-right"></i> &nbsp;Logout
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li><!-- end of nav-item -->
+                        </ul><!-- end of nav-bar right item -->
                     {% else %}
+                        <!-- Login  url -->
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item ms-auto">
+                                <a class="nav-link" href="{% url "accounts:login" %}"><i class="bi bi-sign-in-alt"></i> Login</a>
+                            </li>
+                        </ul>
+                    {% endif %} <!-- end of login or logged-in users -->
 
-                    <!-- Login  url -->
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item ms-auto">
-                            <a class="nav-link" href="{% url "accounts:login" %}"><i class="fa fa-sign-in-alt"></i> Login</a>
-                        </li>
-                    </ul>
-                    {% endif %}
                 </div><!-- end of collapse-nav -->
             </div><!-- end of navbar container -->
         </nav>
 
         <!-- Date -->
+        {% comment %}
         {% if request.user.is_authenticated %}
-            <div class="hijri_date" dir="rtl">
-                <i class="fa fa-calendar-day"></i>
+            <div class="hijri_date alert alert-success p-3 mx-2 my-4 fs-5 fw-bold shadow shadow-lg" 
+                 style="width: 400px;"dir="rtl">
+                <i class="bi bi-calendar-day"></i>
                 {{ hijri.day_name }}: {{ hijri.day }} {{ hijri.month_name }} {{ hijri.year }}
                             ---
                 <span dir='ltr'>
@@ -144,8 +159,14 @@
                 </span>
             </div>
         {% endif %}
+        {% endcomment %}
 
         <div class="container-fluid">
+            <div id="successAlert" class="alert alert-info alert-dismissible d-none" role="alert">                
+                <span class="successMsg"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+                
             {% block content %}{% endblock %}
 
             <!-- Modal -->

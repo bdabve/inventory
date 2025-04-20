@@ -1,6 +1,5 @@
 {% extends "magasin/base.html" %}
 {% load static %}
-{% load fontawesome %}
 {% load humanize %}
 
 {% block title %}Profile{% endblock %}
@@ -24,7 +23,7 @@
             <li class="list-group-item"><span class="list_title">Groupe</span><span>: {{ request.user.profile.groupe }}</span></li>
         </ul>
         <a href="{% url 'accounts:edit_profile' request.user.id %}" class="btn btn-outline-success float-end mt-3">
-            {% fontawesome_icon 'edit' %} Edit
+            <i class="bi bi-pencil-square"></i> Edit
         </a>
     </div><!--End of card body-->
 </div><!--End of card-->

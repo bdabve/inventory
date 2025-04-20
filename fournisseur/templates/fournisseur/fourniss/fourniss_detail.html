@@ -1,6 +1,5 @@
 {% extends "magasin/base.html" %}
 {% load static %}
-{% load fontawesome %}
 
 {% block title %}
     {% if category %}{{ category.name }}{% else %}Articles{% endif %}
@@ -65,23 +64,23 @@
                 <div class="text-center">
                     {% if request.user.is_superuser %}
                         <a href="{% url "magasin:entree" article.art_id article.slug %}" class="btn btn-info">
-                            {% fontawesome_icon 'plus-square-o' %} Entree
+                            Entree
                         </a>
 
                         <a href="{% url "magasin:sortie" article.art_id article.slug %}" class="btn btn-warning">
-                            {% fontawesome_icon 'minus-square-o' %} Sortie
+                            Sortie
                         </a>
                     {% endif %}
 
                     {% if movement %}
                         <a href="{% url "magasin:movement_article" article.art_id %}" class="btn btn-success">
-                            {% fontawesome_icon 'exchange' %} Movement
+                            Movement
                         </a>
                     {% endif %}
 
                     {% if history %}
                         <a href="{% url "magasin:magasin_log_article" article.art_id %}" class="btn btn-secondary">
-                            {% fontawesome_icon 'history' %} Historique
+                            Historique
                         </a>
                     {% endif %}
                 </div>

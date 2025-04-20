@@ -1,5 +1,4 @@
 {% extends "magasin/base.html" %}
-{% load fontawesome %}
 {% load widget_tweaks %}
 
 {% block title %}Manage Users{% endblock %}
@@ -14,8 +13,9 @@
 {% endfor %}
 
 <div class="container">
-    <a class="btn btn-primary float-end mb-2 mt-2" href="{% url "accounts:add_user"%}">
-        {% fontawesome_icon 'user-plus' %} Add User
+    <a id="createUserBtn" class="btn btn-primary float-end mb-2 mt-2" href="#"
+       data-form-url="{% url 'accounts:add_user_form' %}">
+        <i class="bi bi-person-plus-fill"></i> Add User
     </a>
 <!-- Table -->
 <table class="table table-bordered table-hover main_table">
@@ -34,7 +34,7 @@
     </thead>
     <tbody>
         {% for user in users %}
-            <tr class="{% if article.qte < 1%}alert alert-danger{% endif %}">
+            <tr class="{% if user.profile.groupe == 'admin' %}table-secondary{% endif %}" id="user-row-{{ user.id }}">
                 <th scope="row">
                     <a class="text-decoration-none" href="" 
                        data-toggle="tooltip" data-placement="bottom" title="{{ artcile.designation }}">
@@ -55,25 +55,26 @@
                     <!-- SuperUser -->
                     {% if request.user.profile.groupe == 'admin' %}
                     <!-- Read User -->
-                    <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
+                    <button class="readUserBtn btn btn-sm btn-outline-primary" 
                             data-form-url="{% url "accounts:read_profile" user.id %}">
-                        <i class="fa fa-id-card-alt"></i>
+                        <i class="bi bi-eyeglasses"></i>
                     </button>
                     <!-- Update User -->
-                    <a type="button" href="{% url "accounts:edit_profile" user.id %}" class="btn btn-sm btn-outline-info">
-                        <i class="fa fa-user-edit"></i>
+                    <a class="editUserBtn btn btn-sm btn-outline-info" 
+                       data-form-url="{% url "accounts:edit_profile_form" user.id %}">
+                        <i class="bi bi-pencil-square"></i>
                     </a>
-
                     <!-- Delete User -->
-                    <button type="button" id="delete-article" class="bs-modal btn btn-sm btn-outline-danger" 
-                            data-form-url="{% url "accounts:delete_user" user.id %}">
-                        <i class="fa fa-user-minus"></i>
+                    <button class="deleteUserBtn btn btn-sm btn-outline-danger" 
+                            data-userid="{{ user.id }}" data-username="{{ user.username }}"
+                            data-form-url="{% url "accounts:delete_user" user.id %}" >
+                        <i class="bi bi-person-dash-fill"></i>
                     </button>
 
                     {% else %}
                     <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
                             data-form-url="">
-                        {% fontawesome_icon 'eye' %} Details
+                        <i class="bi bi-eyeglasses"></i> Details
                     </button>
                     {% endif %} <!-- endif for checking user group -->
                 </td><!-- end of operation td -->

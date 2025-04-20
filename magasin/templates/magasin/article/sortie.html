@@ -1,7 +1,6 @@
 {% load widget_tweaks %}
-{% load fontawesome %}
 
-<form action="" method="POST" id="sortie_form_modal">
+<form id="sortieArticleForm" action="" method="POST" data-form-url='{% url "magasin:sortie_ajax" article.art_id article.slug %}'>
     {% csrf_token %}
     <div class="modal-header">
         <h5 class="modal-title text-danger">Nouvelle Sortie</h5>
@@ -10,57 +9,41 @@
 
     <div class="modal-body">
 
-        <div class="{% if sortie_form.errors %}invalid{% endif %} mb-2">
-            {% for error in sortie_form.errors %}{{ error }}{% endfor %}
-        </div>
+        <div id="formErrors" class="alert alert-danger" style="display: none;"></div>
 
-        <div class="form-group row mb-2" style="display: none;">
+        <div class="form-group row mb-2" style="">
+            <label class="col-sm-3 col-form-label" for="{{ form.slug.id_for_label }}">Code</label>
             <div class="col-sm-9">
-                {% render_field sortie_form.slug|append_attr:"readonly:readonly" value=article.slug %}
+                <input class="form-control-plaintext text-uppercase fw-bold" name="slug" value="{{ article.slug }}" readonly>
             </div>
         </div>
 
         <div class="form-group row mb-2">
-            <label class="col-sm-3 col-form-label" for="{{ sortie_form.sortie_date.id_for_label }}">Date</label>
+            <label class="col-sm-3 col-form-label" for="{{ form.sortie_date.id_for_label }}">Date</label>
             <div class="col-sm-9">
                 <div class="row date_row">
-                    {% if sortie_form.sortie_date.errors %}
-                        {% render_field sortie_form.sortie_date class+="invalid is-invalid" %}
-                        {% for error in sortie_form.sortie_date.errors %}
-                            <div class="invalid-feedback"><span>{{ error }}</span></div>
-                        {% endfor %}
-
-                    {% else %}
-                        {% render_field sortie_form.sortie_date %}
-                    {% endif %}
+                    {% render_field form.sortie_date %}
                 </div>
             </div>
         </div>
 
         <div class="form-group row mb-2">
-            <label class="col-sm-3 col-form-label" for="{{ sortie_form.sortie_qte.id_for_label }}">Qte</label>
+            <label class="col-sm-3 col-form-label" for="{{ form.qte.id_for_label }}">Qte</label>
             <div class="col-sm-9">
-                {% if sortie_form.sortie_qte.errors %}
-                    {% render_field sortie_form.sortie_qte class+="invalid is-invalid" value=1 %}
-                    {% for error in sortie_form.sortie_qte.errors %}
-                        <div class="invalid-feedback"><span>{{ error }}</span></div>
-                    {% endfor %}
-                {% else %}
-                    {% render_field sortie_form.sortie_qte value=1 %}
-                {% endif %}
+                {% render_field form.qte class="form-control" value=1 %}
             </div>
         </div>
 
         <div class="form-group row mb-2">
-            <label class="col-sm-3 col-form-label" for="{{ sortie_form.sortie_prix.id_for_label }}">Prix</label>
+            <label class="col-sm-3 col-form-label" for="{{ form.sortie_prix.id_for_label }}">Prix</label>
             <div class="col-sm-9">
-                {% render_field sortie_form.sortie_prix|append_attr:"readonly:readonly" value=article.prix %}
+                {% render_field form.prix|append_attr:"readonly:readonly" class="form-control" value=article.prix %}
             </div>
         </div>
     </div><!--End body modal-->
 
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-danger">{% fontawesome_icon 'minus-square' %} Sortie</button>
+        <button type="submit" class="btn btn-danger"><i class="bi bi-minus-square"></i> Sortie</button>
     </div><!--End of footer card-->
 </form>

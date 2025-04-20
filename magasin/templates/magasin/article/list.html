@@ -9,17 +9,14 @@
 {% block content %}
 <div class="row">
     <div class="col col-md-2">
-        <div class="cat_list shadow bg-body rounded border">
-            <h5 class=" text-center d-flex">
+        <div class="shadow bg-body rounded border">
+            <h5 class="text-center d-flex p-4 justify-content-arround align-items-center border-bottom border-3">
                 <!--cat_list_header-->
-                <div class="">
-                    Categories 
-                </div>
-                <div class="">
-                    <a href="#" type="button" id="addCategoryBtn" class="add_cat" >
-                        <i class="bi bi-plus-square"></i>
-                    </a>
-                </div>
+                <span class="me-1">Categories</span>
+                <button class="btn btn-sm btn-default text-primary" id="addCategoryBtn" 
+                        data-form-url='{% url "magasin:category_form_partial" %}'>
+                    <i class="bi bi-patch-plus fs-4"></i>
+                </button>
             </h5>
 
             <ul class="list-group list-group-flush text-center cat_list_item">
@@ -32,8 +29,13 @@
                 <!-- Loup through all categories -->
                 {% for c in categories %}
                     <a href="{{ c.get_absolute_url }}" 
-                       {% if category.slug == c.slug %} class="list-group-item list-group-item-action active" 
-                       {% else %}class="list-group-item list-group-item-action"{% endif %}>{{ c.name }}</a>
+                       class="list-group-item list-group-item-action {% if category.slug == c.slug %}active{% endif %}
+                              d-flex align-items-center justify-content-between">
+                            {{ c.name }}
+                        <button class="btn btn-sm btn-default text-danger removeCategoryBtn" data-slug="{{ c.slug }}">
+                            <i class="bi bi-patch-minus fs-5"></i>
+                        </button>
+                    </a>
                 {% endfor %}
             </ul>
         </div><!--End of card div-->
@@ -43,39 +45,44 @@
     <div class="col col-md-10">
         <div class="main-table" id="article_table">
             <h2 class="header_title">
-                {% if category %}{{ category.name }} Articles
-                {% elif stock_alarm %}Stock Egale a 0
-                {% else %}Tous Les Articles{% endif %}
+                {% if category %}
+                    {{ category.name }} Articles
+                {% elif stock_alarm %}
+                    Stock Egale a 0
+                {% else %}
+                    Tous Les Articles
+                {% endif %}
             </h2>
 
-            <!-- ========================| Search form |============================-->
-            <div class="row mb-2">
-                <div class="col-sm-10">
-                    <form class="row row-cols-lg-auto align-items-center" action="" method="post">
-                        {% csrf_token %}
-                        <div class="col-12">
-                            <div class="input-group">
-                                <div class="input-group-text"><i class="bi bi-search"></i></div>
-                                {% render_field search_article_form.search_word class+="search_wrd" placeholder="Code; Reference; Desigation" %}
-                            </div>
-                        </div>
+            <!-- =========================== 
+                ==> Search form 
+            ============================-->
+            <div class="d-flex justify-content-between mb-4">
+                <form class="row row-cols-lg-auto align-items-center" action="" method="post">
+                    {% csrf_token %}
 
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-outline-primary search_btn">Search</button>
+                    <div class="col-12">
+                        <div class="input-group">
+                            <div class="input-group-text"><i class="bi bi-search"></i></div>
+                            {% render_field search_article_form.search_word  placeholder="Code; Reference; Desigation" %}
                         </div>
-                    </form>
-                </div>
+                    </div>
 
-                <div class="col-sm-2">
-                    {% if request.user.profile.groupe == 'admin' %}
-                    <button id="addArticleBtn" type="button" class="btn btn-primary float-end" 
-                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Nouveaux Article">
-                        <i class="bi bi-plus"></i> N. Article
-                    </button>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-outline-primary shadow">
+                            <i class="bi bi-search"></i>&nbsp; Recherche
+                        </button>
+                    </div>
+                </form>
+
+                {% if request.user.profile.groupe == 'admin' %}
+                <button id="addArticleBtn" type="button" class="btn btn-success shadow" 
+                        data-form-url='{% url "magasin:article_form_partial" %}'
+                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ajouter un nouveaux Produit">
+                    <i class="bi bi-plus-lg"></i>&nbsp; N. Article
+                </button>
                 {% endif %}
-                </div>
-
-            </div>
+            </div><!-- end of search form -->
             
             <!-- Display Messages -->
             {% for msg in messages %}
@@ -84,32 +91,37 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
-            <div id="successAlert" class="alert alert-success d-none" role="alert"></div>
-
-            <!-- Table -->
-            <table class="table table-bordered table-hover main_table">
-                <thead class="table-success">
+            
+            <!--======================
+                ==> Products Table 
+            =========================== -->
+            <table class="table table-bordered table-hover main_table shadow">
+                <thead class="table-secondary text-center">
                     <tr>
-                        <th scope="col">Designation</th>
-                        <th scope="col">Code</th>
-                        <th scope="col">Reference</th>
-                        <th scope="col">Emp</th>
-                        <th scope="col">U-M</th>
-                        <th scope="col">Quantité</th>
-                        <th scope="col">Prix-U</th>
-                        <th scope="col">Operations</th>
+                        <th class="py-3" scope="col">Designation</th>
+                        <th class="py-3" scope="col">Code</th>
+                        <th class="py-3" scope="col">Reference</th>
+                        <th class="py-3" scope="col">Emp</th>
+                        <th class="py-3" scope="col">U-M</th>
+                        <th class="py-3" scope="col">Quantité</th>
+                        <th class="py-3" scope="col">Prix-U</th>
+                        <th class="py-3" scope="col">Operations</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="table-group-divider">
                     {% for article in articles %}
-                        <tr class="{% if article.qte < 1 %}table-danger{% endif %}" id="article-row-{{ article.art_id }}">
+                        <tr class="{% if article.qte < 1 %}table-danger{% endif %}" 
+                            id="article-row-{{ article.art_id }}">
                             <td scope="row">
                                 <a class="text-decoration-none" href="{{ article.get_absolute_url }}">
                                     {{ article.designation|truncatechars:17 }}
                                 </a>
                             </td>
                             <td data-bs-toggle="tooltip" data-bs-placement="bottom" 
-                                title="OBS: {% if article.observation %}{{ article.observation }}{% else %}RAS{%endif%}">
+                                title="OBS: {% if article.observation %}
+                                                {{ article.observation }}
+                                            {% else %}RAS{%endif%}"
+                            >
                                 {{ article.code }}
                             </td>
                             <td data-toggle="tooltip" data-placement="bottom" title="{{ artcile.ref }}">
@@ -120,23 +132,29 @@
                             <td>{{ article.qte }}</td>
                             <!--Comment prix unitaire-->
                             <td>{{ article.prix|intcomma }}</td>
-                            <!--<td>
-                                {% if article.observation == None %}RAS{% else %}{{ article.observation|truncatechars:10 }}{% endif %}
-                                </td>-->
+
+                            {% comment %}
+                            <td>
+                                {% if article.observation == None %}
+                                    RAS
+                                {% else %}
+                                    {{ article.observation|truncatechars:10 }}
+                                {% endif %}
+                            </td>
+                            {% endcomment %}
 
                             <!-- Operations buttons-->
                             <td class="text-center">
-                                <!-- SuperUser -->
-                                {% if request.user.profile.groupe == 'admin' %}
                                 <!-- Read Article -->
                                 <button type="button" class="readArticleBtn btn btn-sm btn-outline-primary" 
-                                        data-slug="{{ article.slug }}" data-art-id="{{ article.art_id }}">
+                                        data-form-url='{% url "magasin:read_article" article.art_id article.slug %}'>
                                     <i class="bi bi-eye"></i>
                                 </button>
+                                <!-- SuperUser -->
+                                {% if request.user.profile.groupe == 'admin' %}
                                 <!-- Update Article -->
                                 <button type="button" class="updateArticleBtn btn btn-sm btn-outline-info" 
-                                        data-slug="{{ article.slug }}" data-art-id="{{ article.art_id }}">
-                                        {% comment %}data-form-url="{% url "magasin:update_article" article.art_id article.slug %}">{% endcomment %}
+                                        data-form-url='{% url "magasin:update_form_partial" article.art_id article.slug %}'>
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
 
@@ -148,31 +166,26 @@
 
                                 <!-- Drop down menu for ENTREE, SORTIE -->
                                 <div class="btn-group dropstart">
-                                    <button class="btn btn-outline-dark btn-sm dropdown-toggle" data-bs-toggle="dropdown" 
-                                        aria-expanded="false">
+                                    <button class="btn btn-outline-dark btn-sm dropdown-toggle" 
+                                            data-bs-toggle="dropdown" 
+                                            aria-expanded="false">
                                         <i class="bi bi-arrow-left-right"></i>
                                     </button>
                                     <ul class="dropdown-menu" aria-labelledby="actionMenu">
                                         <li>
-                                            <a href="#" class="bs-modal dropdown-item" id="entree-article" 
-                                                data-form-url="{% url "magasin:entree" article.art_id article.slug %}">
+                                            <a href="#" class="newEntreeBtn dropdown-item"
+                                              data-form-url="{% url "magasin:entree_form_partial" article.art_id article.slug %}">
                                                 <i class="bi bi-download"></i> Entree
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="#" class="bs-modal dropdown-item" id="sortie-article"
-                                               data-form-url="{% url "magasin:sortie" article.art_id article.slug %}">
+                                            <a href="#" class="newSortieBtn dropdown-item"
+                                               data-form-url="{% url "magasin:sortie_form_partial" article.art_id article.slug %}">
                                                 <i class="bi bi-upload"></i> Sortie
                                             </a>
                                         </li>
                                     </ul>
                                 </div><!-- end of dropdown entree/sortie -->
-
-                                {% else %}
-                                <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
-                                        data-form-url="{% url "magasin:read_article" article.art_id article.slug %}">
-                                    <i class="bi bi-eye"></i>
-                                </button>
                                 {% endif %} <!-- endif for checking user group -->
                             </td><!-- end of operation td -->
                         </tr><!-- end of table row-->

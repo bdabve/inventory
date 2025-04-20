@@ -1,20 +1,35 @@
 {% load humanize %}
 <div class="modal-header text-center">
-    <h3 class="modal-title">Article Details</h3>
+    <h3 class="modal-title">User Details</h3>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <div class="modal-body">
     <ul class="list-group list-group-flush">
-        <li class="list-group-item"><span class="list_title">Username</span><span>: {{ user.username }}</span></li>
-        <li class="list-group-item"><span class="list_title">First Name</span><span>: {{ user.first_name }}</span></li>
-        <li class="list-group-item"><span class="list_title">Last Name</span><span>: {{ user.last_name }}</span></li>
-        <li class="list-group-item"><span class="list_title">Email</span><span>: {{ user.last_name }}</span></li>
-        <li class="list-group-item">
-            <span class="list_title">Poste Travaille</span><span>: {{ request.user.profile.poste_travaille }}</span>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic w-25" style="font-size: 0.75rem;">Username</span>
+            <span class="text-capitalize">{{ user.username }}</span>
         </li>
-
-        <li class="list-group-item"><span class="list_title">Groupe</span><span>: {{ user.profile.groupe }}</span></li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic w-25" style="font-size: 0.75rem;">First Name</span>
+            <span class="text-capitalize">{{ user.first_name }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic w-25" style="font-size: 0.75rem;">Last Name</span>
+            <span class="text-capitalize">{{ user.last_name }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic w-25" style="font-size: 0.75rem;">Email</span>
+            <span class="text-capitalize">{{ user.email }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic w-25" style="font-size: 0.75rem;">Poste Travaille</span>
+            <span class="text-capitalize">{{ request.user.profile.poste_travaille }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic w-25" style="font-size: 0.80rem;">Groupe</span>
+            <span class="text-capitalize">{{ user.profile.groupe }}</span>
+        </li>
     </ul>
 </div>
 

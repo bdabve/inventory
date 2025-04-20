@@ -9,29 +9,11 @@
 body {
     /*font-family: cursive, Monaco !important;*/
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol' !important;
+    margin-top: 70px;
 }
 
 .hijri_date {
     font-family: Amiri;
-    font-weight: bold;
-    font-size: 20px;
-    text-align: center;
-    background-color: #212529;
-    color: #fff;
-    padding: 15px;
-    margin-bottom: 40px;
-    border-radius: 10px;
-    max-width: 400px;
-    position: relative;
-    left: 939px;
-    top: 25px;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
-}
-
-.list_title {
-    float: left;
-    width: 135px;
-    font-weight: bold;
 }
 
 .list_of_totals .list_title {
@@ -52,6 +34,9 @@ body {
     padding: 0 11px;
 }
 
+.login-div {
+    left: -57px !important;
+}
 /* -------------------------------------------
  *  Login Page 
  * ---------------*/

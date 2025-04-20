@@ -1,5 +1,4 @@
 {% extends "magasin/base.html" %}
-{% load fontawesome %}
 {% load widget_tweaks %}
 
 {% block title %} Fournisseur List {% endblock %}
@@ -23,13 +22,13 @@
             {% csrf_token %}
             <div class="col-12">
                 <div class="input-group">
-                    <div class="input-group-text">{% fontawesome_icon 'search' %}</div>
+                    <div class="input-group-text"><i class="bi bi-search"></i></div>
                     {% render_field search_fourniss_form.fourniss_search class="form-control ml-0 col-sm-12" placeholder="By Email" %}
                 </div>
             </div>
 
             <div class="col-12">
-                <button type="submit" class="btn btn-outline-primary">{% fontawesome_icon 'search' %} Go</button>
+                <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
             </div>
         </form>
     </div>
@@ -37,10 +36,11 @@
     <div class="col-md-3">
         {% if request.user.profile.groupe == 'admin' %}
             <!--<a type="button" href="{% url "fournisseur:add_fourniss" %}" class="mb-3 btn btn-success float-end" name="button">-->
-                <!--{% fontawesome_icon 'plus-square' %} N. Fournisseur-->
+                <!-- <i class="bi bi-plus"></i> N. Fournisseur-->
             <!--</a>-->
             <button type="button" id="read-article" class="bs-modal btn btn-primary float-end" 
-                    data-form-url="{% url "fournisseur:create_fourniss" %}">{% fontawesome_icon 'plus-square' %} Add Fournisseur 
+                    data-form-url="{% url "fournisseur:create_fourniss" %}">
+                <i class="bi bi-person-plus"></i> Add Fournisseur 
             </button>
         {% endif %}
     </div>
@@ -83,7 +83,7 @@
                         <!-- Read Article -->
                         <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
                                 data-form-url="{% url "fournisseur:read_fourniss" fourniss.fourrnis_id %}">
-                            {% fontawesome_icon 'eye' %} 
+                            <i class="bi bi-eye"></i>
                         </button>
 
                     </td>
@@ -94,13 +94,11 @@
                         <!-- Update Article -->
                         <button type="button" id="update-article" class="bs-modal btn btn-sm btn-outline-info" 
                                 data-form-url="{% url "magasin:update_article" article.art_id article.slug %}">
-                            {% fontawesome_icon 'pencil' %} 
                         </button>
 
                         <!-- Delete Article -->
                         <button type="button" id="delete-article" class="bs-modal btn btn-sm btn-outline-danger" 
                                 data-form-url="{% url "magasin:delete_article" article.art_id article.slug %}">
-                            {% fontawesome_icon 'trash' %} 
                         </button>
 
                         <!-- Drop down menu for ENTREE, SORTIE -->
@@ -108,14 +106,13 @@
                             <div class="dropdown show dropleft">
                                 <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="actionMenu" 
                                    data-toggle="dropdown" aria-haspopup="True" aria-expanded="false">
-                                    {% fontawesome_icon 'exchange' %}
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="actionMenu">
                                     <a class="dropdown-item" href="{% url "magasin:entree" article.art_id article.slug %}">
-                                        {% fontawesome_icon 'plus-square-o' %} Entrée
+                                        Entrée
                                     </a>
                                     <a class="dropdown-item" href="{% url "magasin:sortie" article.art_id article.slug %}">
-                                        {% fontawesome_icon 'minus-square-o' %} Sortie
+                                        Sortie
                                     </a>
                                 </div>
                             </div>

@@ -1,6 +1,5 @@
 {% extends "magasin/base.html" %}
 {% load static %}
-{% load fontawesome %}
 {% load widget_tweaks %}
 
 {% block title %}Commands{% endblock %}
@@ -46,7 +45,7 @@
                         </button>
                     {% if article.status == 0 %}
                         <a href="{% url "magasin:manage_command" article.command_id %}" class="btn btn-sm btn-outline-primary">
-                            {% fontawesome_icon "check-circle" %} Activé
+                            <i class="bi bi-check-circle"></i> Activé
                         </a>
                     </td>
                     {% endif %}
