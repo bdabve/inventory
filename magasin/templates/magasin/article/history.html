@@ -5,47 +5,51 @@
 {% block title %}History{% endblock %}
 
 {% block content %}
-<div class="row">
-    <!-- Main display -->
-    <div class="col">
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            Ce tableaux contient les <strong>encient valeur</strong>.
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <!-- Table -->
-        <table class="table table-bordered table-hover main_table">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Operation</th>
-                    <th scope="col">Slug</th>
-                    <th scope="col">Designation</th>
-                    <th scope="col">Code</th>
-                    <th scope="col">Reference</th>
-                    <th scope="col">Emp</th>
-                    <th scope="col">U-M</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for article in articles %}
-                    <tr>
-                        <td>{{ article.log_date|date:"d M Y" }}</td>
-                        <td>{{ article.operation }}</td>
-                        <th scope="row"><a href="{% url "magasin:magasin_log_article" article.art_id %}">
-                                {{ article.slug|upper }}</a>
-                        </th>
-                        <td>{{ article.designation|truncatechars:25 }}</td>
-                        <td><a href="{% url "magasin:article_detail" article.art_id article.slug %}">{{ article.code }}<a></td>
-                        <td>{{ article.ref|truncatechars:20 }}</td>
-                        <td>{{ article.emp }}</td>
-                        <td>{{ article.umesure }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div><!--End of table col-->
-</div><!-- End of row-->
+<div class="container">
 
+    <h2 class="alert alert-dark my-5 fst-italic rounded text-center shadow">
+        Historique
+    </h2>
+    <div id="historyAlert" class="alert alert-info alert-dismissible d-none" role="alert"></div>
+
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <!-- Before table buttons -->
+        Ce tableaux contient les <strong>Encient valeur</strong>.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <!-- Table -->
+    <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+        <!-- Main table -->
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Operation</th>
+                <th scope="col">Slug</th>
+                <th scope="col">Designation</th>
+                <th scope="col">Code</th>
+                <th scope="col">Reference</th>
+                <th scope="col">Emp</th>
+                <th scope="col">U-M</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr>
+                <td>{{ article.log_date|date:"d/m/Y" }}</td>
+                <td>{{ article.operation }}</td>
+                <th scope="row"><a href="{% url "magasin:magasin_log_article" article.art_id %}">
+                        {{ article.slug|upper }}</a>
+                </th>
+                <td>{{ article.designation|truncatechars:25 }}</td>
+                <td><a href="{% url "magasin:article_detail" article.art_id article.slug %}">{{ article.code }}<a></td>
+                <td>{{ article.ref|truncatechars:20 }}</td>
+                <td>{{ article.emp }}</td>
+                <td>{{ article.umesure }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
 {% endblock %}

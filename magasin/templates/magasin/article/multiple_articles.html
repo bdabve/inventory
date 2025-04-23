@@ -1,0 +1,21 @@
+
+<form id="uploadArticleForm" data-form-url="{% url 'magasin:upload_articles' %}" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="modal-header">
+    <h5 class="modal-title">📥 Importer des articles (Excel)</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  </div>
+
+  <div class="modal-body">
+    <div id="formErrors" class="alert alert-danger d-none"></div>
+    <div class="mb-3">
+      <label for="excelFile" class="form-label">Sélectionnez un fichier Excel</label>
+      <input class="form-control" type="file" name="excel_file" id="excelFile" accept=".xlsx, .xls" required>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-primary">📤 Importer</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+  </div>
+</form>

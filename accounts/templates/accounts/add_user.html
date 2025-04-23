@@ -4,7 +4,7 @@
     {% csrf_token %}
 
     <div class="modal-header">
-        <h5 class="modal-title">Nouveaux Utilisateur</h5>
+        <h5 class="modal-title"><i class="bi bi-person-plus me-3"></i>Nouvel Utilisateur</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div><!--End of header card-->
 
@@ -12,7 +12,8 @@
         <div id="formErrors" class="alert alert-danger mt-2" style="display: none;"></div>
         {% for field in user_form %}
             <div class="form-group row mb-2">
-                <label class="col-sm-4 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <label class="col-sm-4 col-form-label text-secondary fst-italic" 
+                       for="{{ field.id_for_label }}">{{ field.label }}</label>
                 <div class="col">
                     {% if field.errors %}
                         {% render_field field class="form-control is-invalid" placeholder=field.label %}
@@ -28,7 +29,9 @@
         <hr>
         {% for field in profile_form %}
             <div class="form-group row mb-2">
-                <label class="col-sm-4 col-form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <label class="col-sm-4 col-form-label text-secondary fst-italic" 
+                       for="{{ field.id_for_label }}">
+                    {{ field.label }}</label>
                 <div class="col">
                     {% if field.errors %}
                         {% render_field field class="form-control is-invalid" placeholder=field.label%}
@@ -43,7 +46,9 @@
         {% endfor %}
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-info"><i class="bi bi-person-plus"></i> Ajoutér</button>
+        <button type="button" class="btn btn-default border" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-2"></i>Close
+        </button>
+        <button type="submit" class="btn btn-info"><i class="bi bi-person-plus"></i> Enregistrer</button>
     </div>
 </form>

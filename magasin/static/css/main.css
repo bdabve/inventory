@@ -21,10 +21,6 @@ body {
     width: 165px;
 }
 
-.header_title {
-    padding: 25px 0;
-}
-
 .card_form {
     max-width: 500px;
     margin: auto;
@@ -173,9 +169,9 @@ body {
     font-size: 17px;
 }
 
-.main_table {
-    font-size: 16px;
-}
+/*.main_table {*/
+    /*font-size: 16px;*/
+/*}*/
 
 #create-article {
     font-size: 16px;

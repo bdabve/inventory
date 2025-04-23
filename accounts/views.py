@@ -35,72 +35,63 @@ def user_login(request):
 # ------------------------------------------------
 # ==| Add User
 # -----------------
-def add_user_form(request):
-    user_form = UserAddForm()
-    profile_form = ProfileAddForm()
-    return render(request, 'accounts/add_user.html', {'user_form': user_form, 'profile_form': profile_form})
-
-
 @login_required
-@require_POST
 def add_user(request):
-    user_form = UserAddForm(data=request.POST)
-    profile_form = ProfileAddForm(data=request.POST)
-    if user_form.is_valid() and profile_form.is_valid():
-        new_user = user_form.save(commit=False)
-        new_user.set_password(user_form.cleaned_data['password'])   # Set the chosen password
-        new_user.save()                                             # Save the User object
-        cd_profile = profile_form.cleaned_data
-        Profile.objects.create(
-            user=new_user,
-            poste_travaille=cd_profile['poste_travaille'],
-            groupe=cd_profile['groupe']
-        )
-        return JsonResponse({'success': True, 'message': '✅ Utilisateur ajouté avec succès.'})
+    if request.method == 'POST':
+        user_form = UserAddForm(data=request.POST)
+        profile_form = ProfileAddForm(data=request.POST)
+        if user_form.is_valid() and profile_form.is_valid():
+            new_user = user_form.save(commit=False)
+            new_user.set_password(user_form.cleaned_data['password'])   # Set the chosen password
+            new_user.save()                                             # Save the User object
+            cd_profile = profile_form.cleaned_data
+            Profile.objects.create(
+                user=new_user,
+                poste_travaille=cd_profile['poste_travaille'],
+                groupe=cd_profile['groupe']
+            )
+            return JsonResponse({'success': True, 'message': '✅ Utilisateur ajouté avec succès.'})
+        else:
+            errors = {
+                'user_form': user_form.errors.get_json_data(),
+                'profile_form': profile_form.errors.get_json_data()
+            }
+            return JsonResponse({'success': False, 'errors': errors})
     else:
-        errors = {
-            'user_form': user_form.errors.get_json_data(),
-            'profile_form': profile_form.errors.get_json_data()
-        }
-        return JsonResponse({'success': False, 'errors': errors})
+        user_form = UserAddForm()
+        profile_form = ProfileAddForm()
+
+    return render(request, 'accounts/add_user.html', {'user_form': user_form, 'profile_form': profile_form})
 
 
 # ------------------------------------------------
 # ==| Edit Profile
 # -----------------
 @login_required
-def edit_profile_form(request, pk):
-    # get user info
-    user = get_object_or_404(User, pk=pk)
-    profile = get_object_or_404(Profile, user_id=pk)
-
-    # create forms
-    user_form = UserEditForm(instance=user)
-    profile_form = ProfileAddForm(instance=profile)
-
-    context = {'user': user, 'user_form': user_form, 'profile_form': profile_form}
-    return render(request, 'accounts/edit_profile.html', context)
-
-
-@login_required
-@require_POST
 def edit_profile(request, pk):
     user = get_object_or_404(User, pk=pk)
     profile = get_object_or_404(Profile, user_id=pk)
 
-    user_form = UserEditForm(instance=user, data=request.POST)
-    profile_form = ProfileEditForm(instance=profile, data=request.POST)
+    if request.method == 'POST':
+        user_form = UserEditForm(instance=user, data=request.POST)
+        profile_form = ProfileEditForm(instance=profile, data=request.POST)
 
-    if user_form.is_valid() and profile_form.is_valid():
-        user_form.save()
-        profile_form.save()
-        return JsonResponse({'success': True, 'message': '✅ Utilisateur Modifier avec succès.'})
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            return JsonResponse({'success': True, 'message': '✅ Utilisateur Modifier avec succès.'})
+        else:
+            errors = {
+                'user_form': user_form.errors.get_json_data(),
+                'profile_form': profile_form.errors.get_json_data()
+            }
+            return JsonResponse({'success': False, 'errors': errors})
     else:
-        errors = {
-            'user_form': user_form.errors.get_json_data(),
-            'profile_form': profile_form.errors.get_json_data()
-        }
-        return JsonResponse({'success': False, 'errors': errors})
+        user_form = UserEditForm(instance=user)
+        profile_form = ProfileAddForm(instance=profile)
+
+    context = {'user': user, 'user_form': user_form, 'profile_form': profile_form}
+    return render(request, 'accounts/edit_profile.html', context)
 
 
 # ------------------------------------------------

@@ -9,12 +9,13 @@
 {% block content %}
 <div class="row">
     <div class="col col-md-2">
+        <!-- Categories -->
         <div class="shadow bg-body rounded border">
             <h5 class="text-center d-flex p-4 justify-content-arround align-items-center border-bottom border-3">
-                <!--cat_list_header-->
+                <!-- Category list header-->
                 <span class="me-1">Categories</span>
                 <button class="btn btn-sm btn-default text-primary" id="addCategoryBtn" 
-                        data-form-url='{% url "magasin:category_form_partial" %}'>
+                        data-form-url='{% url "magasin:create_category" %}'>
                     <i class="bi bi-patch-plus fs-4"></i>
                 </button>
             </h5>
@@ -32,7 +33,7 @@
                        class="list-group-item list-group-item-action {% if category.slug == c.slug %}active{% endif %}
                               d-flex align-items-center justify-content-between">
                             {{ c.name }}
-                        <button class="btn btn-sm btn-default text-danger removeCategoryBtn" data-slug="{{ c.slug }}">
+                        <button class="btn btn-sm btn-default text-danger removeCategoryBtn" data-item-id="{{ c.cat_id }}">
                             <i class="bi bi-patch-minus fs-5"></i>
                         </button>
                     </a>
@@ -44,7 +45,8 @@
     <!-- ===========================| Main Column |================================= -->
     <div class="col col-md-10">
         <div class="main-table" id="article_table">
-            <h2 class="header_title">
+            <!-- Table header by category -->
+            <h2 class="alert alert-dark my-4 fst-italic rounded text-center shadow">
                 {% if category %}
                     {{ category.name }} Articles
                 {% elif stock_alarm %}
@@ -76,11 +78,29 @@
                 </form>
 
                 {% if request.user.profile.groupe == 'admin' %}
-                <button id="addArticleBtn" type="button" class="btn btn-success shadow" 
-                        data-form-url='{% url "magasin:article_form_partial" %}'
-                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ajouter un nouveaux Produit">
-                    <i class="bi bi-plus-lg"></i>&nbsp; N. Article
-                </button>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" 
+                            data-bs-toggle='dropdown' aria-expanded="false">
+                        <i class="bi bi-plus-lg"></i> Ajouter
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <button id="addArticleBtn" class="dropdown-item" type="button" 
+                                    data-form-url='{% url "magasin:create_article" %}'>
+                                <i class="bi bi-plus-lg me-1"></i>Nouvel article
+                            </button>
+                        </li>
+
+                        <li>
+                            <button id="createMultipleArticles" class="dropdown-item" type="button" 
+                                    data-form-url="{% url 'magasin:upload_articles' %}">
+                                <i class="bi bi-file-earmark-plus"></i>Importer Articles Excel
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+
                 {% endif %}
             </div><!-- end of search form -->
             
@@ -92,10 +112,10 @@
                 </div>
             {% endfor %}
             
-            <!--======================
-                ==> Products Table 
-            =========================== -->
+            <div id="articleAlert" class="alert alert-info alert-dismissible d-none" role="alert"></div>
+
             <table class="table table-bordered table-hover main_table shadow">
+                <!-- Products Table  -->
                 <thead class="table-secondary text-center">
                     <tr>
                         <th class="py-3" scope="col">Designation</th>
@@ -133,18 +153,8 @@
                             <!--Comment prix unitaire-->
                             <td>{{ article.prix|intcomma }}</td>
 
-                            {% comment %}
-                            <td>
-                                {% if article.observation == None %}
-                                    RAS
-                                {% else %}
-                                    {{ article.observation|truncatechars:10 }}
-                                {% endif %}
-                            </td>
-                            {% endcomment %}
-
-                            <!-- Operations buttons-->
                             <td class="text-center">
+                                <!-- Operations buttons-->
                                 <!-- Read Article -->
                                 <button type="button" class="readArticleBtn btn btn-sm btn-outline-primary" 
                                         data-form-url='{% url "magasin:read_article" article.art_id article.slug %}'>
@@ -154,18 +164,18 @@
                                 {% if request.user.profile.groupe == 'admin' %}
                                 <!-- Update Article -->
                                 <button type="button" class="updateArticleBtn btn btn-sm btn-outline-info" 
-                                        data-form-url='{% url "magasin:update_form_partial" article.art_id article.slug %}'>
+                                        data-form-url='{% url "magasin:update_article" article.art_id article.slug %}'>
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
 
                                 <!-- Delete Article -->
                                 <button type="button" class="deleteArticleBtn btn btn-sm btn-outline-danger" 
-                                        data-slug="{{ article.slug }}" data-art-id="{{ article.art_id }}">
+                                        data-item-id="{{ article.art_id }}">
                                     <i class="bi bi-trash"></i>
                                 </button>
 
-                                <!-- Drop down menu for ENTREE, SORTIE -->
                                 <div class="btn-group dropstart">
+                                    <!-- Drop down: ENTREE, SORTIE -->
                                     <button class="btn btn-outline-dark btn-sm dropdown-toggle" 
                                             data-bs-toggle="dropdown" 
                                             aria-expanded="false">
@@ -174,13 +184,13 @@
                                     <ul class="dropdown-menu" aria-labelledby="actionMenu">
                                         <li>
                                             <a href="#" class="newEntreeBtn dropdown-item"
-                                              data-form-url="{% url "magasin:entree_form_partial" article.art_id article.slug %}">
+                                              data-form-url="{% url "magasin:entree_ajax" article.art_id  %}">
                                                 <i class="bi bi-download"></i> Entree
                                             </a>
                                         </li>
                                         <li>
                                             <a href="#" class="newSortieBtn dropdown-item"
-                                               data-form-url="{% url "magasin:sortie_form_partial" article.art_id article.slug %}">
+                                               data-form-url="{% url "magasin:sortie_ajax" article.art_id %}">
                                                 <i class="bi bi-upload"></i> Sortie
                                             </a>
                                         </li>

@@ -1,38 +1,40 @@
 {% load humanize %}
 <div class="modal-header text-center">
-    <h3 class="modal-title">User Details</h3>
+    <h3 class="modal-title"><i class="bi bi-person-lines-fill me-3"></i>Détails de l'utilisateur</h3>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <div class="modal-body">
     <ul class="list-group list-group-flush">
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic w-25" style="font-size: 0.75rem;">Username</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Username</span>
             <span class="text-capitalize">{{ user.username }}</span>
         </li>
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic w-25" style="font-size: 0.75rem;">First Name</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">First Name</span>
             <span class="text-capitalize">{{ user.first_name }}</span>
         </li>
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic w-25" style="font-size: 0.75rem;">Last Name</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Last Name</span>
             <span class="text-capitalize">{{ user.last_name }}</span>
         </li>
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic w-25" style="font-size: 0.75rem;">Email</span>
-            <span class="text-capitalize">{{ user.email }}</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Email</span>
+            <span>{{ user.email }}</span>
         </li>
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic w-25" style="font-size: 0.75rem;">Poste Travaille</span>
-            <span class="text-capitalize">{{ request.user.profile.poste_travaille }}</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Poste Travaille</span>
+            <span>{{ request.user.profile.poste_travaille }}</span>
         </li>
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic w-25" style="font-size: 0.80rem;">Groupe</span>
-            <span class="text-capitalize">{{ user.profile.groupe }}</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Groupe</span>
+            <span>{{ user.profile.groupe }}</span>
         </li>
     </ul>
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-default border" data-bs-dismiss="modal">
+        <i class="bi bi-x-lg me-1"></i>Close
+    </button>
 </div>

@@ -13,12 +13,22 @@
 {% endfor %}
 
 <div class="container">
-    <a id="createUserBtn" class="btn btn-primary float-end mb-2 mt-2" href="#"
-       data-form-url="{% url 'accounts:add_user_form' %}">
-        <i class="bi bi-person-plus-fill"></i> Add User
+
+    <!-- Title -->
+    <h2 class="alert alert-dark my-4 fst-italic rounded text-center shadow shadow-lg">
+        Gérer les utilisateurs
+    </h2>
+    
+    <!-- ALERT DIV and Main Buttons -->   
+    <div id="usersAlert" class="alert alert-info alert-dismissible d-none" role="alert"></div>
+
+    <!-- Search, Add user button -->   
+    <a id="createUserBtn" class="btn btn-primary float-end mb-2 mt-2" href="#" data-form-url="{% url 'accounts:add_user' %}">
+        <i class="bi bi-person-plus-fill"></i> Nouvel Utilisateur
     </a>
-<!-- Table -->
+
 <table class="table table-bordered table-hover main_table">
+    <!-- Main Table -->
     <thead class="table-success">
         <tr>
             <th scope="col">ID</th>
@@ -50,31 +60,29 @@
                 <td >{{ user.profile.groupe }}</td>
                 <td >{{ user.last_login|date:"d M Y" }}</td>
 
-                <!-- Operations buttons-->
                 <td class="text-center">
+                <!-- Operations buttons-->
                     <!-- SuperUser -->
                     {% if request.user.profile.groupe == 'admin' %}
                     <!-- Read User -->
                     <button class="readUserBtn btn btn-sm btn-outline-primary" 
                             data-form-url="{% url "accounts:read_profile" user.id %}">
-                        <i class="bi bi-eyeglasses"></i>
+                        <i class="bi bi-person-lines-fill"></i>
                     </button>
                     <!-- Update User -->
                     <a class="editUserBtn btn btn-sm btn-outline-info" 
-                       data-form-url="{% url "accounts:edit_profile_form" user.id %}">
+                       data-form-url="{% url "accounts:edit_profile" user.id %}">
                         <i class="bi bi-pencil-square"></i>
                     </a>
                     <!-- Delete User -->
-                    <button class="deleteUserBtn btn btn-sm btn-outline-danger" 
-                            data-userid="{{ user.id }}" data-username="{{ user.username }}"
-                            data-form-url="{% url "accounts:delete_user" user.id %}" >
+                    <button class="deleteUserBtn btn btn-sm btn-outline-danger" data-item-id="{{ user.id }}">
                         <i class="bi bi-person-dash-fill"></i>
                     </button>
 
                     {% else %}
                     <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
                             data-form-url="">
-                        <i class="bi bi-eyeglasses"></i> Details
+                        <i class="bi bi-person-lines-fill"></i> Details
                     </button>
                     {% endif %} <!-- endif for checking user group -->
                 </td><!-- end of operation td -->

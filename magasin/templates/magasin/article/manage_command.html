@@ -6,7 +6,6 @@
 
 {% block content %}
 <div class="container">
-
     <!-- Display Messages -->
     {% for msg in messages %}
         <div class="alert alert-info alert-dismissible fade show" role="alert">
@@ -15,8 +14,13 @@
         </div>
     {% endfor %}
 
-    <!-- Table -->
-    <h2 class="text-center mb-5 mt-3 alert alert-dark fst-italic rounded">Commandes</h2>
+    <!-- Title -->
+    <h2 class="alert alert-dark my-5 fst-italic rounded text-center shadow">
+        Gérer les commandes
+    </h2>
+    <div id="commandeAlert" class="alert alert-info alert-dismissible d-none" role="alert"></div>
+
+    <!-- Main Table -->
     <table class="table table-bordered table-hover">
         <thead class="table-dark">
             <tr>
@@ -48,15 +52,12 @@
                         <button class="editCommandeBtn btn btn-sm btn-warning" 
                                 data-bs-toggle="tooltip" data-bs-placement="bottom" 
                                 title="Modifier la commande."
-                                data-form-url="{% url "magasin:edit_commande_form" commande.command_id %}">
+                                data-form-url="{% url "magasin:update_commande" commande.command_id %}">
                             <i class="bi bi-pencil"></i>
                         </button>
 
-                        <button class="deleteCommandeBtn btn btn-sm btn-danger" 
-                                data-bs-toggle="tooltip" data-bs-placement="bottom" 
-                                title="Supprimé la commande."
-                                data-commande-id="{{ commande.command_id}}"
-                                data-form-url="{% url "magasin:delete_commande" commande.command_id %}">
+                        <button class="deleteCommandeBtn btn btn-sm btn-danger" data-item-id="{{ commande.command_id}}" 
+                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Supprimé la commande.">
                             <i class="bi bi-trash"></i>
                         </button>
                         {% if commande.status == 0 %}

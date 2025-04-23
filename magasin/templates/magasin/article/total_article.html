@@ -1,27 +1,27 @@
 {% load humanize %}
-<div class="modal-header text-center">
-    <h3 class="modal-title">Statistique</h3>
+<div class="modal-header">
+    <h3 class="modal-title"><i class="bi bi-graph-up-arrow me-4"></i>Statistique</h3>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
 <div class="modal-body">
     <ul class="list-group list-group-flush list_of_totals">
-        <li class="list-group-item">
-            <span class="list_title">Total Des Produits</span>
-            <span>: {{ total_article.article_count }} Article.</span>
+        <li class="list-group-item d-flex justify-content-start align-items-center">
+            <span class="fst-italic text-secondary">Total Des Produits</span>
+            <span class="fw-bold ps-5">{{ total_article.article_count }} Article.</span>
         </li>
 
-        <li class="list-group-item">
-            <span class="list_title">Total Des Quantité</span>
-            <span>: {{ total_article_qte.total_article_qte }}</span>
+        <li class="list-group-item d-flex justify-content-start align-items-center">
+            <span class="fst-italic text-secondary">Total Des Quantité</span>
+            <span class="fw-bold ps-5">{{ total_article_qte.total_article_qte }}</span>
         </li>
 
-        <li class="list-group-item">
-            <span class="list_title"><i class="bi bi-usd"></i> Total Des Valeur</span>
-            <span>: {{ total_valeur.total_valeur|floatformat:"3"|intcomma }} DA.</span>
+        <li class="list-group-item d-flex justify-content-start align-items-center">
+            <span class="fst-italic text-secondary"><i class="bi bi-usd"></i> Total Des Valeur</span>
+            <span class="fw-bold ps-5">{{ total_valeur.total_valeur|floatformat:"3"|intcomma }} DA.</span>
         </li>
     </ul>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-default border" data-bs-dismiss="modal"><i class="bi bi-x-lg me-2"></i>Close</button>
 </div>

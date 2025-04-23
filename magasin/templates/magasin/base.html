@@ -90,7 +90,7 @@
                             <hr class="d-lg-none my-2 text-white-50">
                         </li>
                         <!-- date -->
-                        <span class="navbar-text hijri_date fw-bold text-dark px-4">
+                        <span class="navbar-text hijri_date fw-bold px-4">
                             <i class="bi bi-calendar-day"></i>
                             <span dir='ltr'>
                                 {{ hijri.day_gr }}  {{ hijri.month_name_gr }}  {{ hijri.year_gr }} 
@@ -174,8 +174,6 @@
 
         <div class="container-fluid">
             <div id="successAlert" class="alert alert-info alert-dismissible d-none" role="alert">                
-                <span class="successMsg"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
                 
             {% block content %}{% endblock %}

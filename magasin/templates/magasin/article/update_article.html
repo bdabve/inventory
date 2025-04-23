@@ -5,7 +5,7 @@
     {% csrf_token %}
 
     <div class="modal-header">
-        <h5 class="modal-title">Update Article</h5>
+        <h5 class="modal-title"><i class="bi bi-pencil-square me-3"></i>Modification Article</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div><!--End of header card-->
 
@@ -29,7 +29,9 @@
     </div><!--End body modal-->
 
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-info">Update</button>
+        <button type="button" class="btn btn-default border" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-2"></i>Close
+        </button>
+        <button type="submit" class="btn btn-info"><i class="bi bi-floppy me-2"></i>Enregistré</button>
     </div><!--End of footer card-->
 </form>

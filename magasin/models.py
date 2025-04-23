@@ -32,11 +32,11 @@ class Article(models.Model):
     category = models.ForeignKey(Category, related_name='articles', on_delete=models.CASCADE)
     art_id = models.AutoField(primary_key=True)
     slug = models.SlugField(max_length=200, db_index=True)
-    designation = models.CharField(max_length=255, db_index=True, null=True)
+    designation = models.CharField(max_length=255, db_index=True, null=True, blank=True)
     code = models.CharField(max_length=100, db_index=True, unique=True)
-    ref = models.CharField(max_length=255, db_index=True, null=True)
-    umesure = models.CharField(max_length=50, null=True)
-    emp = models.CharField(max_length=50, null=True)
+    ref = models.CharField(max_length=255, db_index=True, null=True, blank=True)
+    emp = models.CharField(max_length=50, null=True, blank=True)
+    umesure = models.CharField(max_length=50, null=True, blank=True, default='pcs')
     qte = models.PositiveIntegerField()
     prix = models.DecimalField(decimal_places=2, max_digits=15)
     valeur = models.DecimalField(decimal_places=2, max_digits=20, null=True)
@@ -51,7 +51,7 @@ class Article(models.Model):
     def save(self, *args, **kwargs):
         self.code = self.code.upper()
         self.slug = slugify(self.code.lower())
-        self.emp = self.emp.upper()
+        self.emp = self.emp.upper() if self.emp else ''
         self.valeur = (self.qte * self.prix)
         super(Article, self).save(*args, **kwargs)
 
@@ -112,6 +112,9 @@ class Command(models.Model):
     command_date = models.DateTimeField()
     qte = models.PositiveIntegerField(null=True)
     status = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ('-command_date',)          # order by movement_date DESC
 
 
 # class GestionStocks(models.Model):

@@ -1,9 +1,9 @@
 {% load widget_tweaks %}
 
-<form id="sortieArticleForm" action="" method="POST" data-form-url='{% url "magasin:sortie_ajax" article.art_id article.slug %}'>
+<form id="sortieArticleForm" action="" method="POST" data-form-url='{% url "magasin:sortie_ajax" article.art_id %}'>
     {% csrf_token %}
     <div class="modal-header">
-        <h5 class="modal-title text-danger">Nouvelle Sortie</h5>
+        <h5 class="modal-title text-danger"><i class="bi bi-box-arrow-right me-3"></i>Nouvelle Sortie</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div><!--End of header card-->
 
@@ -41,7 +41,9 @@
     </div><!--End body modal-->
 
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-danger"><i class="bi bi-minus-square"></i> Sortie</button>
+        <button type="button" class="btn btn-default border" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-2"></i>Close
+        </button>
+        <button type="submit" class="btn btn-danger"><i class="bi bi-floppy"></i> Enregistré</button>
     </div><!--End of footer card-->
 </form>

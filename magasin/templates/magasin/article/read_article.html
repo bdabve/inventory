@@ -1,6 +1,6 @@
 {% load humanize %}
 <div class="modal-header text-center">
-    <h3 class="modal-title">Article Details</h3>
+    <h3 class="modal-title">Fiche d'article N° {{ article.art_id }}</h3>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
@@ -46,5 +46,8 @@
 </div>
 
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-default border me-2" data-bs-dismiss="modal">
+        <i class="bi bi-x-lg me-2"></i>
+        Close
+    </button>
 </div>
