@@ -6,8 +6,8 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
-from django.db.models import Q
-from django.db.models import Count, Sum, F
+from django.db import transaction
+from django.db.models import Q, Count, Sum, F
 from . import forms
 from . import models
 from . import functions
@@ -19,12 +19,12 @@ from datetime import date
 def dashboard(request):
     hijri = functions.hijri_()
     nbar = 'dashboard'
-    total_command = models.Command.objects.aggregate(command_count=Count('command_id'))
-    total_articles = models.Article.objects.aggregate(article_count=Count('art_id'))
-    total_valeur = models.Article.objects.aggregate(total_valeur=Sum('valeur'))
-    stock_alarm = models.Article.objects.filter(qte=0).aggregate(stock_alarm=Count('art_id'))
-    pending_command = models.Command.objects.filter(status=0)
-    latest_movement = models.Movement.objects.all().order_by('-movement_date')[:5]
+    total_command = models.Command.objects.count()
+    total_articles = models.Article.objects.count()
+    stock_alarm = models.Article.objects.filter(qte=0).count()
+    total_valeur = models.Article.objects.aggregate(total_valeur=Sum('valeur'))['total_valeur']
+    pending_command = models.Command.objects.filter(status=0).select_related('user_id')
+    latest_movement = models.Movement.objects.order_by('-movement_date')[:5]
 
     context = {
         'nbar': nbar, 'hijri': hijri,
@@ -40,34 +40,26 @@ def dashboard(request):
 
 @login_required
 def article_list(request, category_slug=None, stock_alarm=False, art_sans_prix=False):
-    hijri = functions.hijri_()
     nbar = 'magasin'
-    category = None
+    hijri = functions.hijri_()
+    search_word = None
     categories = models.Category.objects.all()
-    articles = models.Article.objects.all()
-
-    if stock_alarm:
-        articles = models.Article.objects.filter(qte=0)
-
-    if art_sans_prix:
-        articles = models.Article.objects.filter(prix=0)
-
-    if category_slug:
-        category = get_object_or_404(models.Category, slug=category_slug)
-        articles = articles.filter(category=category)
 
     # Search for an article
     if request.method == 'POST':
         search_article_form = forms.SearchArticleForm(request.POST)     # PdrSearchForm comme from forms.py file
         if search_article_form.is_valid():
             search_word = search_article_form.cleaned_data['search_word']
-            articles = models.Article.objects.filter(
-                Q(designation__icontains=search_word) |
-                Q(code__icontains=search_word) |
-                Q(ref__icontains=search_word)
-            ).select_related('category')
     else:
         search_article_form = forms.SearchArticleForm()
+
+    # filtering and searching for article
+    articles, category, count = functions.filter_articles(
+        search_word=search_word,
+        category_slug=category_slug,
+        stock_alarm=stock_alarm,
+        art_sans_prix=art_sans_prix
+    )
 
     # Add pagination to our site
     paginator = Paginator(articles, 30)     # instantiate the Paginator with the number of objects to display
@@ -89,7 +81,8 @@ def article_list(request, category_slug=None, stock_alarm=False, art_sans_prix=F
         'articles': articles,
         'search_article_form': search_article_form,
         'page': page,
-        'stock_alarm': stock_alarm
+        'stock_alarm': stock_alarm,
+        'count': count
     }
     return render(request, 'magasin/article/list.html', context)
 
@@ -103,23 +96,14 @@ def article_list(request, category_slug=None, stock_alarm=False, art_sans_prix=F
 def article_detail(request, art_id, slug, history=False, movement=False):
     hijri = functions.hijri_()
     article = get_object_or_404(models.Article, art_id=art_id, slug=slug)
-    article_movement = models.Movement.objects.filter(art_id=art_id)
-    article_command = models.Command.objects.filter(art_id=art_id)
-
-    # if movment; than display all command related with article
-    if article_movement:
-        article_mov = article_movement
-    else:
-        article_mov = 'empty'
-
-    # if commande; than display all command related with article
-    if article_command:
-        art_cmd = article_command
-    else:
-        art_cmd = 'empty'
 
     art_history = models.MagasinLog.objects.filter(art_id=art_id)
     art_movement = models.Movement.objects.filter(art_id=art_id)
+    article_mov = art_movement if art_movement.exists() else 'empty'
+    art_cmd = models.Command.objects.filter(art_id=art_id) or 'empty'
+
+    if art_history: history = True
+    if art_movement: movement = True
 
     # Search for article with code
     if request.method == 'POST' and 'search_form' in request.POST:
@@ -145,34 +129,12 @@ def article_detail(request, art_id, slug, history=False, movement=False):
             new_qte = entree_form.cleaned_data['qte']      # retrieve the user input form
             new_prix = entree_form.cleaned_data['prix']
             entree_date = entree_form.cleaned_data['entree_date']
-
-            # Save movement in Movement table
-            models.Movement.objects.create(
-                art_id=article,
-                movement_date=entree_date,
-                user_id=request.user,
-                movement="Entree",
-                qte=new_qte,
-                prix=new_prix,
-            )
-
-            # save in main Article table
-            if article.prix == new_prix:
-                # if prix is equal to old prix; only add quantity
-                article.qte = F('qte') + new_qte
-                article.save()
-
+            result = functions.process_stock_entry(article, new_qte, new_prix, entree_date, request.user)
+            if result:
+                messages.info(request, 'Entree Ajouter avec Succés')
+                return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
             else:
-                # if prix is not equal to old prix; modify prix
-                # prix = ( sum(valeur) / sum(qte)); cout moyen penduré
-                total_val = (new_qte * new_prix) + (article.valeur or 0)
-                total_qte = article.qte + new_qte
-                article.prix = total_val / total_qte
-                article.qte = F('qte') + new_qte
-                article.save()
-
-            messages.info(request, 'Entree Ajouter avec Succés')
-            return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
+                messages.error(request, result)
     else:
         entree_form = forms.EntreeForm()
     # ----------------------------------------------------------------
@@ -182,21 +144,15 @@ def article_detail(request, art_id, slug, history=False, movement=False):
         sortie_form = forms.SortieForm(request.POST)     # PdrSearchForm comme from forms.py file
         if sortie_form.is_valid():
             # form fields passed validation
-            sortie_qte = sortie_form.cleaned_data['qte']      # retrieve the user input form
-            article.qte = F('qte') - sortie_qte
+            new_qte = sortie_form.cleaned_data['sortie_qte']      # retrieve the user input form
+            article.qte = F('qte') - new_qte
             sortie_date = sortie_form.cleaned_data['sortie_date']
-            # Save movement in Movement table
-            models.Movement.objects.create(
-                art_id=article,
-                user_id=request.user,
-                movement_date=sortie_date,
-                movement="Sortie",
-                qte=sortie_qte,
-                prix=article.prix,
-            )
-            article.save()
-            messages.info(request, 'Sortie Enregistrés avec Succés.')
-            return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
+            result = functions.process_stock_sortie(article, new_qte, sortie_date, request.user)
+            if result:
+                messages.info(request, 'Sortie Ajouter avec Succés')
+                return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
+            else:
+                messages.error(request, result)
     else:
         sortie_form = forms.SortieForm()
 
@@ -206,8 +162,7 @@ def article_detail(request, art_id, slug, history=False, movement=False):
     if request.method == 'POST' and 'update_art' in request.POST:
         update_art_form = forms.ArticalForm(request.POST, instance=article)
         if update_art_form.is_valid():
-            update_art_form.save()
-            # article.save()
+            article.save()
             messages.info(request, 'Article Modifier avec Succés')
             return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
     else:
@@ -234,21 +189,20 @@ def article_detail(request, art_id, slug, history=False, movement=False):
     else:
         command_form = forms.CreateCommandForm()
 
-    if art_history: history = True
-    if art_movement: movement = True
-
     context = {
         'hijri': hijri,
         'article': article,
         'history': history,
         'movement': movement,
+
         'article_mov': article_mov,
         'art_cmd': art_cmd,             # commande
+
         'search_form': search_form,
         'entree_form': entree_form,
         'sortie_form': sortie_form,
         'update_art_form': update_art_form,
-        'command_form': command_form
+        'command_form': command_form,
     }
 
     return render(request, 'magasin/article/detail.html', context)
@@ -290,19 +244,24 @@ def create_article(request):
     if request.method == 'POST':
         form = forms.ArticalForm(request.POST)
         if form.is_valid():
-            article = form.save()
-            # Save initial movement in Movement table
-            models.Movement.objects.create(
-                art_id=article,
-                movement_date=today,
-                user_id=request.user,
-                movement="Initial",
-                qte=form.cleaned_data['qte'],
-                prix=form.cleaned_data['prix'],
-            )
-            return JsonResponse({'success': True, 'message': f'✅ Article {article.code} Enregistrés avec succés'})
+            try:
+                with transaction.atomic():
+                    article = form.save()
+                    # Save initial movement in Movement table
+                    models.Movement.objects.create(
+                        art_id=article,
+                        movement_date=today,
+                        user_id=request.user,
+                        movement="Initial",
+                        qte=form.cleaned_data['qte'],
+                        prix=form.cleaned_data['prix'],
+                    )
+                return JsonResponse({'success': True, 'message': f'✅ Article {article.code} Enregistrés avec succés'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': f'Erreur lors de l\'ajout de l\'article: {str(e)}'})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
+
     else:
         form = forms.ArticalForm()
 
@@ -392,28 +351,7 @@ def entree_article_ajax(request, art_id):
             new_prix = form.cleaned_data['prix']
             entree_date = form.cleaned_data['entree_date']
 
-            # Save movement in Movement table
-            models.Movement.objects.create(
-                art_id=article,
-                movement_date=entree_date,
-                user_id=request.user,
-                movement="Entree",
-                qte=new_qte,
-                prix=new_prix,
-            )
-
-            # save in database
-            if article.prix == new_prix:
-                # if prix is equal to old prix; only add quantity
-                article.qte = F('qte') + new_qte
-            else:
-                # if prix is not equal to old prix; than prix = ( sum(valeur) / sum(qte)); cout moyen penduré
-                total_val = (new_qte * new_prix) + (article.valeur or 0)
-                total_qte = article.qte + new_qte
-                article.prix = total_val / total_qte
-                article.qte = F('qte') + new_qte
-
-            article.save()
+            functions.process_stock_entry(article, new_qte, new_prix, entree_date, request.user)
             return JsonResponse({'success': True, 'message': f'✅ Entrée ajoutée avec succès code article {article.code}.'})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
@@ -435,18 +373,9 @@ def sortie_article_ajax(request, art_id):
             sortie_date = form.cleaned_data['sortie_date']
             article.qte = F('qte') - sortie_qte
 
-            # Save movement in Movement table
-            models.Movement.objects.create(
-                art_id=article,
-                user_id=request.user,
-                movement_date=sortie_date,
-                movement="Sortie",
-                qte=sortie_qte,
-                prix=article.prix,
-            )
-
-            article.save()
-            return JsonResponse({'success': True, 'message': f'✅ Sortie ajoutée avec succès code article {article.code}.'})
+            functions.process_stock_sortie(article, sortie_qte, sortie_date, request.user)
+            success, msg = functions.process_stock_sortie(article, sortie_qte, sortie_date, request.user)
+            return JsonResponse({'success': success, 'message': msg})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
     else:

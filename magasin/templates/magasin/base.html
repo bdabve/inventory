@@ -33,6 +33,20 @@
                                 <i class="bi bi-house"></i> Magasin
                             </a>
                         </li>
+                        <!-- Commands -->
+                        <li class="nav-item ">
+                            <a class="nav-link {% if nbar == "command" %}active{% endif %}" 
+                               href="{% url "magasin:manage_command" %}">
+                                <i class="bi bi-truck-flatbed"></i> Commands
+                            </a>
+                        </li>
+                        <!-- Fournisseur -->
+                        <li class="nav-item">
+                            <a class="nav-link {% if nbar == "fournisseur" %}active{% endif %}"  
+                               href="{% url "fournisseur:fourniss_list" %}">
+                                <i class="bi bi-truck me-1"></i>Fournisseur
+                            </a>
+                        </li>
                         <!-- Movement -->
                         <li class="nav-item ">
                             <a class="nav-link {% if nbar == "movement" %}active{% endif %}" 
@@ -47,13 +61,7 @@
                                 <i class="bi bi-clock"></i> History
                             </a>
                         </li>
-                        <!-- Commands -->
-                        <li class="nav-item ">
-                            <a class="nav-link {% if nbar == "command" %}active{% endif %}" 
-                               href="{% url "magasin:manage_command" %}">
-                                <i class="bi bi-truck-flatbed"></i> Commands
-                            </a>
-                        </li>
+                        {% comment %}
                         <!-- Actions Dropdown -->
                         <li class="nav-item dropdown ">
                             <a class="nav-link dropdown-toggle" href="#" id="actionDropdown" role="button" 
@@ -83,6 +91,7 @@
                                 </li>
                             </ul>
                         </li> <!-- end of dropdown -->
+                        {% endcomment %}
                         {% endif %}  <!-- end of user.is_authenticated -->
                         <!-- Divider  forr date -->
                         <li class="nav-item">
@@ -122,13 +131,6 @@
                                                 Manage Users
                                             </a>
                                         </li>
-                                        <li>
-                                            <a class="dropdown-item" 
-                                               href="{% url "fournisseur:fourniss_list" %}">
-                                                <i class="bi bi-truck"></i> &nbsp;
-                                                Gestion des Fournisseur
-                                            </a>
-                                        </li>
                                     {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
@@ -157,20 +159,6 @@
             </div><!-- end of navbar container -->
         </nav>
 
-        <!-- Date -->
-        {% comment %}
-        {% if request.user.is_authenticated %}
-            <div class="hijri_date alert alert-success p-3 mx-2 my-4 fs-5 fw-bold shadow shadow-lg" 
-                 style="width: 400px;"dir="rtl">
-                <i class="bi bi-calendar-day"></i>
-                {{ hijri.day_name }}: {{ hijri.day }} {{ hijri.month_name }} {{ hijri.year }}
-                            ---
-                <span dir='ltr'>
-                    {{ hijri.year_gr }}  {{ hijri.month_name_gr }}  {{ hijri.day_gr }} 
-                </span>
-            </div>
-        {% endif %}
-        {% endcomment %}
 
         <div class="container-fluid">
             <div id="successAlert" class="alert alert-info alert-dismissible d-none" role="alert">                

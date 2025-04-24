@@ -53,7 +53,7 @@ class EntreeForm(forms.ModelForm):
     tday = date.today()
     entree_date = forms.DateField(
         label="Date d'entrée",
-        widget=forms.DateInput(attrs={'class': 'col form-control', 'type': 'date'}),
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         required=True,
         initial=tday
     )
@@ -61,6 +61,9 @@ class EntreeForm(forms.ModelForm):
     class Meta:
         model = Article
         fields = ['slug', 'qte', 'prix']
+        widgets = {
+            'qte': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'})
+        }
 
     def clean(self):
         super(EntreeForm, self).clean()
@@ -74,7 +77,7 @@ class SortieForm(forms.ModelForm):
     tday = date.today()
     sortie_date = forms.DateField(
         label="Date de sortie",
-        widget=forms.DateInput(attrs={'class': 'col form-control', 'type': 'date'}),
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         required=True,
         initial=tday
     )

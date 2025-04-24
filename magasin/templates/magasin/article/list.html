@@ -24,7 +24,7 @@
                 <a href="{% url "magasin:article_list" %}"
                    {% if not category %}class="list-group-item list-group-item-action active"
                    {% else %}class="list-group-item list-group-item-action"{% endif %}>
-                   All
+                   Tous
                 </a>
 
                 <!-- Loup through all categories -->
@@ -46,13 +46,13 @@
     <div class="col col-md-10">
         <div class="main-table" id="article_table">
             <!-- Table header by category -->
-            <h2 class="alert alert-dark my-4 fst-italic rounded text-center shadow">
+            <h2 class="alert alert-dark my-4 fst-italic text-center shadow">
                 {% if category %}
-                    {{ category.name }} Articles
+                    {{ category.name }} Articles ({{ count }})
                 {% elif stock_alarm %}
-                    Stock Egale a 0
+                    Stock Egale a 0 ({{ count }})
                 {% else %}
-                    Tous Les Articles
+                    Tous Les Articles ({{ count }})
                 {% endif %}
             </h2>
 
@@ -78,30 +78,60 @@
                 </form>
 
                 {% if request.user.profile.groupe == 'admin' %}
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" 
-                            data-bs-toggle='dropdown' aria-expanded="false">
-                        <i class="bi bi-plus-lg"></i> Ajouter
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <button id="addArticleBtn" class="dropdown-item" type="button" 
-                                    data-form-url='{% url "magasin:create_article" %}'>
-                                <i class="bi bi-plus-lg me-1"></i>Nouvel article
-                            </button>
-                        </li>
+                <div class="d-flex">
+                    <div class="dropdown me-2">
+                        <!-- ACTIONS [ stock-alarm, article-sans-prix, total-statistics ]-->
+                        <button class="btn btn-info dropdown-toggle" type="button" 
+                                data-bs-toggle='dropdown' aria-expanded="false">
+                            <i class="bi bi-plus-lg me-1"></i> Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url "magasin:stock_alarm" 1 %}">
+                                    <i class="bi bi-alarm me-1"></i> Stock Alarm
+                                </a>
+                            </li>
 
-                        <li>
-                            <button id="createMultipleArticles" class="dropdown-item" type="button" 
-                                    data-form-url="{% url 'magasin:upload_articles' %}">
-                                <i class="bi bi-file-earmark-plus"></i>Importer Articles Excel
-                            </button>
-                        </li>
-                    </ul>
+                            <li>
+                                <a class="dropdown-item" href="{% url "magasin:art_sans_prix" 1 %}">
+                                    <i class="bi bi-journal-minus me-1"></i> Article Sans Prix
+                                </a>
+                            </li>
+
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a id="totalsModal"class="dropdown-item" href="#" 
+                                   data-form-url="{% url "magasin:total_articles" %}">
+                                    <i class="bi bi-currency-dollar me-1"></i> Total Des Produits
+                                </a>
+                            </li>
+                        </ul>
+                    </div> <!-- End of ACTIONS [ stock-alarm, article-sans-prix, total-statistics ]-->
+                    <div class="dropdown">
+                        <!-- CREATE ARTICLES -->
+                        <button class="btn btn-success dropdown-toggle" type="button" 
+                                data-bs-toggle='dropdown' aria-expanded="false">
+                            <i class="bi bi-plus-lg me-1"></i> Ajouter
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <button id="addArticleBtn" class="dropdown-item" type="button" 
+                                        data-form-url='{% url "magasin:create_article" %}'>
+                                    <i class="bi bi-journal-plus text-success me-1"></i>Nouvel article
+                                </button>
+                            </li>
+
+                            <li>
+                                <button id="createMultipleArticles" class="dropdown-item" type="button" 
+                                        data-form-url="{% url 'magasin:upload_articles' %}">
+                                    <i class="bi bi-file-earmark-plus text-success me-1"></i>Importer des articles (Excel)
+                                </button>
+                            </li>
+                        </ul>
+                    </div><!-- end of CREATE ARTICLE -->
                 </div>
-
-
                 {% endif %}
+
             </div><!-- end of search form -->
             
             <!-- Display Messages -->

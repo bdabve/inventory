@@ -38,6 +38,15 @@
         {% endfor %}
 
         <!-- Error Messages-->
+        {% if update_art_form.errors  %}
+            <div class="alert alert-danger alert-dismissible fade show">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {% for field_with_error, error_messages in update_art_form.errors.items %}
+                    <span class="me-2">Modification imposible verifier :</span><span class="fw-bold">{{ field_with_error }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         {% if entree_form.errors  %}
             <div class="alert alert-danger alert-dismissible fade show">
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -328,7 +337,8 @@
                             </div>
 
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ sortie_form.sortie_date.id_for_label }}">
+                                <label class="col-sm-3 col-form-label fst-italic text-secondary" 
+                                       for="{{ sortie_form.sortie_date.id_for_label }}">
                                     Date
                                 </label>
                                 <div class="col-sm-9">
@@ -345,7 +355,8 @@
                             </div>
 
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ sortie_form.qte.id_for_label }}">Qte</label>
+                                <label class="col-sm-3 col-form-label fst-italic text-secondary" 
+                                       for="{{ sortie_form.qte.id_for_label }}">Qte</label>
                                 <div class="col-sm-9">
                                     {% if sortie_form.qte.errors %}
                                         {% render_field sortie_form.qte class+="form-control is-invalid" value=1 %}
@@ -353,7 +364,7 @@
                                             <div class="invalid-feedback"><span>{{ error }}</span></div>
                                         {% endfor %}
                                     {% else %}
-                                        {% render_field sortie_form.qte class="form-control" value=1 %}
+                                        {% render_field sortie_form.qte class="form-control" value=1 min=1 %}
                                     {% endif %}
                                 </div>
                             </div>
