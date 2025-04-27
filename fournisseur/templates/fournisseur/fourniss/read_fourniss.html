@@ -1,23 +1,73 @@
 {% load humanize %}
 <div class="modal-header text-center">
-    <h3 class="modal-title">Article Details</h3>
+    <h4 class="modal-title">
+        <i class="bi bi-person me-3"></i>Detail du Fournisseur
+    </h4>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
-<div class="modal-body fournisseur_details">
+<div class="modal-body">
     <ul class="list-group list-group-flush">
-        <li class="list-group-item"><span class="list_title">Nom</span><span>: {{ fournisseur.nom }}</span></li>
-        <li class="list-group-item"><span class="list_title">Address</span><span>: {{ fournisseur.address }}</span></li>
-        <li class="list-group-item"><span class="list_title">Fourniture</span><span>: {{ fournisseur.fourniture }}</span></li>
-        <li class="list-group-item"><span class="list_title">Code Postal</span><span>: {{ fournisseur.code_postal }}</span></li>
-        <li class="list-group-item"><span class="list_title">Pays</span><span>: {{ fournisseur.pays }}</span></li>
-        <li class="list-group-item"><span class="list_title">Tél</span><span>: {{ fournisseur.telephone }}</span></li>
-        <li class="list-group-item"><span class="list_title">Fax</span><span>: {{ fournisseur.fax }}</span></li>
-        <li class="list-group-item"><span class="list_title">Email</span><span>: {{ fournisseur.email }}</span></li>
-        <li class="list-group-item"><span class="list_title">Obs</span><span>: {{ fournisseur.note }}</span></li>
-    </ul>
-</div>
 
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Nom
+            </span>
+            <span class="text-capitalize">{{ fournis.nom }}</span>
+        </li>        
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Address
+            </span>
+            <span class="text-capitalize">{{ fournis.address }}</span>
+        </li>        
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Fourniture
+            </span>
+            <span class="text-capitalize">{{ fournis.fourniture }}</span>
+        </li>        
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Code Postale
+            </span>
+            <span class="text-capitalize">{{ fournis.code_postal }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Payé
+            </span>
+            <span class="text-capitalize">{{ fournis.pays }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Téléphone
+            </span>
+            <span class="text-capitalize">{{ fournis.telephone }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Fax
+            </span>
+            <span class="text-capitalize">{{ fournis.fax }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Email
+            </span>
+            <span class="text-capitalize">{{ fournis.email }}</span>
+        </li>
+        <li class="list-group-item d-flex align-items-center">
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Note
+            </span>
+            <span class="text-capitalize">
+                {% if fournis.note %}{{ fournis.note }}{% else %}Ras{% endif %}</span>
+        </li>
+    </ul>        
+</div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-default border me-2" data-bs-dismiss="modal">
+        <i class="bi bi-x-lg me-2"></i>Close
+    </button>
 </div>

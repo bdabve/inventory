@@ -1,38 +1,29 @@
 {% load widget_tweaks %}
 
-<form id="articleEditForm" action="" method="POST" 
-      data-form-url='{% url "magasin:update_article" article.art_id article.slug %}'>
+<form id="fournissEditForm" action="" method="POST" 
+      data-form-url='{% url "fournisseur:update_fourniss" fourniss.fourrnis_id %}'>
     {% csrf_token %}
 
     <div class="modal-header">
         <h4 class="modal-title">
-            <i class="bi bi-pencil-square me-3"></i>Modification Article
+            <i class="bi bi-pencil-square me-3"></i>Modification Fournisseur
         </h4>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div><!--End of header card-->
 
     <div class="modal-body">
+        <div id="formErrors" class="alert alert-danger mt-2" style="display: none;"></div>
+
         {% for field in form %}
             <div class="form-group row mb-2">
-                <label class="text-secondary fst-italic col-sm-3 col-form-label" 
-                       for="{{ field.id_for_label }}">
+                <label class="text-secondary fst-italic col-sm-3 col-form-label" for="{{ field.id_for_label }}">
                     {{ field.label }}
                 </label>
                 <div class="col-sm-9">
-                    {% if field.name == "category" %}
-                        {% render_field field class="form-select" %}
-                    {% else %}
-                        {% render_field field class="form-control" %}
-                    {% endif %}
+                    {% render_field field class="form-control" %}
                 </div>
             </div>
         {% endfor %}
-        <!-- Errors -->
-        <div class="form-group row mb-2">
-            <div class="col-sm-3"></div>
-            <div id="formErrors" class="col-sm-9 text-danger mt-2" style="display: none;"></div>
-        </div>
-        
     </div><!--End body modal-->
 
     <div class="modal-footer">

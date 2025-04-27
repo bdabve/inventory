@@ -33,10 +33,20 @@ def user_login(request):
 
 
 # ------------------------------------------------
-# ==| Add User
+# ==| Manage users
 # -----------------
 @login_required
-def add_user(request):
+def manage_users(request):
+    hijri = functions.hijri_()
+    users = User.objects.all().exclude(id='1').order_by('-date_joined')
+    context = {'hijri': hijri, 'users': users}
+    return render(request, 'accounts/manage_users.html', context)
+
+
+# ------------------------------------------------
+# ==| Create User
+@login_required
+def create_user(request):
     if request.method == 'POST':
         user_form = UserAddForm(data=request.POST)
         profile_form = ProfileAddForm(data=request.POST)
@@ -61,12 +71,19 @@ def add_user(request):
         user_form = UserAddForm()
         profile_form = ProfileAddForm()
 
-    return render(request, 'accounts/add_user.html', {'user_form': user_form, 'profile_form': profile_form})
+    return render(request, 'accounts/create_user.html', {'user_form': user_form, 'profile_form': profile_form})
+
+
+# ----------------------------------------------------------------------
+# ==> Read User Profile
+# ---------------------
+def read_profile(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    return render(request, 'accounts/read_profile.html', {'user': user})
 
 
 # ------------------------------------------------
 # ==| Edit Profile
-# -----------------
 @login_required
 def edit_profile(request, pk):
     user = get_object_or_404(User, pk=pk)
@@ -94,23 +111,22 @@ def edit_profile(request, pk):
     return render(request, 'accounts/edit_profile.html', context)
 
 
-# ------------------------------------------------
-# ==| Manage users
-# -----------------
 @login_required
-def manage_users(request):
-    hijri = functions.hijri_()
-    users = User.objects.all().exclude(id='1')
-    context = {'hijri': hijri, 'users': users}
-    return render(request, 'accounts/manage_users.html', context)
-
-
-# ----------------------------------------------------------------------
-# ==> Read User Profile View (bootstrap-modal-form)
-# -----------------------------------------------------
-def read_profile(request, pk):
+@require_POST
+def change_user_group(request, pk):
     user = get_object_or_404(User, pk=pk)
-    return render(request, 'accounts/read_profile.html', {'user': user})
+    if user:
+        groupe = user.profile.groupe
+        user.profile.groupe = 'other' if groupe == 'admin' else 'admin'
+        user.profile.save()
+        return JsonResponse(
+            {
+                'success': True,
+                'message': f'✅ Utilisateur {user.username} modifie avec succés {user.profile.groupe}.'
+            }
+        )
+    else:
+        return JsonResponse({'success': False, 'error': 'User Not Found'})
 
 
 # ----------------------------------------------------------------------

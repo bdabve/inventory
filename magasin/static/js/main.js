@@ -232,7 +232,6 @@ $(document).ready(function (){
     // -----------------------
     //
     // Total Modal
-    //
     openModalOnClick('#totalsModal');       // Open modal and load Statistics
     //
     // toggle info dashboard
@@ -263,19 +262,22 @@ $(document).ready(function (){
     // ----------------
     //
     // Create Category
-    openModalOnClick('#addCategoryBtn')    // load the form dynamically
-    handleAjaxFormSubmit('#categoryForm', '#articleAlert'); // Handle form submission
+    openModalOnClick('#addCategoryBtn')                         // load the form dynamically
+    handleAjaxFormSubmit('#categoryForm', '#articleAlert');     // Handle form submission
     //
+    // Edit Category
+    openModalOnClick('.updateCategoryBtn');                         // load the form dynamically
+    handleAjaxFormSubmit('#categoryEditForm', '#articleAlert');     // Handle form submission
     // Remove Category
     openDeleteDialog('.removeCategoryBtn', 'catégorie', 'confirmDeleteCatBtn');
     handleDeleteConfirmClick('confirmDeleteCatBtn', '/magasin/delete-category/');
     //
     // Read Article
-    openModalOnClick('.readArticleBtn');    // load the form dynamically
+    openModalOnClick('.readArticleBtn');                        // load the template in modal.
     //
     // Create Article
-    openModalOnClick('#addArticleBtn');    // load the form dynamically
-    handleAjaxFormSubmit('#articleForm', '#articleAlert');  // Handle form submission
+    openModalOnClick('#addArticleBtn');                         // load the form dynamically
+    handleAjaxFormSubmit('#articleForm', '#articleAlert');      // Handle form submission
     //
     // Create Multiple Articles from Excel file
     openModalOnClick('#createMultipleArticles');    // load the form dynamically
@@ -309,8 +311,8 @@ $(document).ready(function (){
     });
     //
     // Update Article
-    openModalOnClick('.updateArticleBtn');    // load the form dynamically
-    handleAjaxFormSubmit('#articleEditForm', '#articleAlert'); // Handle form submission
+    openModalOnClick('.updateArticleBtn');                          // load the form dynamically
+    handleAjaxFormSubmit('#articleEditForm', '#articleAlert');      // Handle form submission
     //
     // Delete Article
     openDeleteDialog('.deleteArticleBtn', "l'article", 'confirmDeleteArtBtn');    // open dialog
@@ -323,11 +325,11 @@ $(document).ready(function (){
     );
     //
     // Entree Article
-    openModalOnClick('.newEntreeBtn');    // load the form dynamically
+    openModalOnClick('.newEntreeBtn');                              // load the form dynamically
     handleAjaxFormSubmit('#entreeArticleForm', '#articleAlert');    // Handle form submission
     //
     // Sortie Article
-    openModalOnClick('.newSortieBtn');    // load the form dynamically
+    openModalOnClick('.newSortieBtn');                              // load the form dynamically
     handleAjaxFormSubmit('#sortieArticleForm', '#articleAlert');    // Handle Sortie form submission
     //
     // ---------------------------------------------------------------
@@ -335,19 +337,46 @@ $(document).ready(function (){
     // ----------------
     //
     // Read User
-    openModalOnClick('.readUserBtn');    // load the form dynamically
+    openModalOnClick('.readUserBtn');                           // load the form dynamically
     //
     // Create user
-    openModalOnClick('#createUserBtn');    // load the form dynamically
-    handleAjaxFormSubmit('#addUserForm', '#usersAlert');    // Handle CreateUser form submission
+    openModalOnClick('#createUserBtn');                         // load the form dynamically
+    handleAjaxFormSubmit('#addUserForm', '#usersAlert');        // Handle CreateUser form submission
     //
     // Edit user
-    openModalOnClick('.editUserBtn');    // load the form dynamically
-    handleAjaxFormSubmit('#userEditForm', '#usersAlert');   // Handle UpdateUser form submission
+    openModalOnClick('.editUserBtn');                           // load the form dynamically
+    handleAjaxFormSubmit('#userEditForm', '#usersAlert');       // Handle UpdateUser form submission
+    //
+    // Change user Groupe
+    $(document).on('click', '.changeUserGroupBtn', function (e) {
+        e.preventDefault();  // Prevent default action
+        const url = $(this).data('form-url');
+        $.ajax({
+            url: url,
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': getCSRFToken()  // Include CSRF token for security
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Display a success message
+                    showMessages(response.message, 'alert-success', alertDiv='#usersAlert'); 
+                    $(this).remove();           
+                    // location.reload();
+                } else {
+                    console.log(response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                // Handle AJAX error
+                showMessages('An error occurred while processing your request.', 'alert-danger');
+            }
+        });
+    });
     //
     // Delete User AJAX
     openDeleteDialog('.deleteUserBtn', "l'utilisateur", 'confirmDeleteUserBtn');    // open dialog
-    handleDeleteConfirmClick(               // confirm delete ajax
+    handleDeleteConfirmClick(                                                       // confirm delete ajax
         confirmBtnClass='confirmDeleteUserBtn',
         deleteUrlBase='/accounts/delete-user/',
         messageContainer='#usersAlert',
@@ -370,9 +399,9 @@ $(document).ready(function (){
             success: function(response) {
                 if (response.success) {
                     // Display a success message
-                    showMessages(response.message, 'alert-success');
-                    // Optionally, you can reload the page or update the UI
-                    location.reload();  // Uncomment to reload the page after success
+                    showMessages(response.message, 'alert-success', '#commandeAlert');
+                    $(this).fadeOut(500);
+                    // location.reload();
                 }
             },
             error: function(xhr, status, error) {
@@ -383,10 +412,14 @@ $(document).ready(function (){
     });
     //
     // Read Commande
-    openModalOnClick('.readCommandBtn');    // load the form dynamically
+    openModalOnClick('.readCommandBtn');                            // load the form dynamically
     //
+    // Create Commande
+    openModalOnClick('.newCommandeBtn');                            // load the form dynamically
+    handleAjaxFormSubmit('#createCommandeForm', '#articleAlert');   // Handle EditCommande form submission
+    
     // Edit Commande
-    openModalOnClick('.editCommandeBtn');    // load the form dynamically
+    openModalOnClick('.editCommandeBtn');                           // load the form dynamically
     handleAjaxFormSubmit('#commandeEditForm', '#commandeAlert');    // Handle EditCommande form submission
     //
     // Delete Commande AJAX
@@ -403,11 +436,34 @@ $(document).ready(function (){
     // --------------------
     //
     // Delete Movement AJAX
-    openDeleteDialog('.deleteMovementBtn', "le movement ", 'confirmDeleteMovBtn');    // open dialog
-    handleDeleteConfirmClick(           // confirm delete ajax
+    openDeleteDialog('.deleteMovementBtn', "le movement ", 'confirmDeleteMovBtn');  // open dialog
+    handleDeleteConfirmClick(                                                       // confirm delete ajax
         confirmBtnClass='confirmDeleteMovBtn',
         deleteUrlBase='/magasin/delete-movement/',
         messageContainer='#movementAlert',
         rowPrefix='movement-row-'
+    );
+    //
+    //------------------------------------------
+    // ==> Fournisseur Page
+    //----------------------
+    openModalOnClick('.readFournisBtn');
+    //
+    // Create Fournisseur
+    openModalOnClick('#createFournissBtn');                         // load the form dynamically
+    handleAjaxFormSubmit('#createFournissForm', '#fournisAlert');   // Handle create form submission
+    //    
+    // Edit Fournisseur
+    openModalOnClick('.editFournissBtn');                           // load the form dynamically
+    handleAjaxFormSubmit('#fournissEditForm', '#fournisAlert');     // Handle update form submission
+    //
+    // Delete Commande AJAX
+    openDeleteDialog('.deleteFournissBtn', "Fournisseur ", 'confirmDeleteFournissBtn'); // open dialog
+    handleDeleteConfirmClick(                                                       
+        // confirm delete ajax
+        confirmBtnClass='confirmDeleteFournissBtn',
+        deleteUrlBase='fournisseur/delete-fourniss/',
+        messageContainer='#fournisAlert',
+        rowPrefix='fourniss-row-'
     );
 })

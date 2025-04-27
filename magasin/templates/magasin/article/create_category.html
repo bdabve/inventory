@@ -7,13 +7,17 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div><!--End of header card-->
 
-    <div class="modal-body">
-        <div id="formErrors" class="alert alert-danger" style="display: none;"></div>
+    <div class="modal-body">        
         <div class="form-group row mb-3">
             <label class="col-sm-3 col-form-label">Category</label>
             <div class="col-sm-9">
                 {% render_field form.name class="form-control" placeholder="Category Name" %}
             </div>
+        </div>
+        <!-- Errors -->
+        <div class="form-group row mb-2">
+            <div class="col-sm-3"></div>
+            <div id="formErrors" class="col-sm-9 text-danger mt-2" style="display: none;"></div>
         </div>
     </div><!--End body modal-->
 

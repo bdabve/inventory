@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form id="addUserForm" action="" method="POST" data-form-url='{% url "accounts:add_user" %}'>
+<form id="addUserForm" action="" method="POST" data-form-url='{% url "accounts:create_user" %}'>
     {% csrf_token %}
 
     <div class="modal-header">

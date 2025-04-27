@@ -1,24 +1,23 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
-
-from .forms import AddFournisseurForm, CreateFournissForm, SearchFournissForm
-from bootstrap_modal_forms.generic import BSModalReadView, BSModalCreateView
+from django.http import JsonResponse
 
 from django.db.models import Q
-from .models import Fournisseur
+from django.db import transaction
+from . import models
+from . import forms
 from magasin import functions
 
 
 @login_required
 def fourniss_list(request):
     hijri = functions.hijri_()
-    fourniss_list = Fournisseur.objects.all()
-    search_fourniss_form = SearchFournissForm(request.POST or None)
+    fourniss_list = models.Fournisseur.objects.all()
+    search_form = forms.SearchForm(request.POST or None)
 
-    if request.method == 'POST' and search_fourniss_form.is_valid():
-        query = search_fourniss_form.cleaned_data['fourniss_search']
-        fourniss_list = Fournisseur.objects.filter(
+    if request.method == 'POST' and search_form.is_valid():
+        query = search_form.cleaned_data['search_word']
+        fourniss_list = models.Fournisseur.objects.filter(
             Q(email__icontains=query) |
             Q(nom__icontains=query) |
             Q(telephone__icontains=query) |
@@ -29,7 +28,7 @@ def fourniss_list(request):
     context = {
         'hijri': hijri,
         'fourniss_list': fourniss_list,
-        'search_fourniss_form': search_fourniss_form,
+        'search_form': search_form,
     }
     return render(request, 'fournisseur/fourniss/fourniss_list.html', context)
 
@@ -37,43 +36,69 @@ def fourniss_list(request):
 # ----------------------------------------------------------------------
 # ==> Read Article View (django-bootstrap-modal-form)
 # -----------------------------------------------------
-class ReadFourniss(BSModalReadView):
-    model = Fournisseur
-    template_name = 'fournisseur/fourniss/read_fourniss.html'
+def read_fournisseur(request, pk):
+    fournis = get_object_or_404(models.Fournisseur, fourrnis_id=pk)
+    return render(request, 'fournisseur/fourniss/read_fourniss.html', {'fournis': fournis})
 
 
 # ----------------------------------------------------------------------
 # ==> Create Fournisseur View (django-bootstrap-modal-form)
 # -----------------------------------------------------
-class CreateFournissView(BSModalCreateView):
-    template_name = 'fournisseur/fourniss/create_fourniss.html'
-    form_class = CreateFournissForm
-    success_message = 'Success: Fournisseur Ajouter.'
-    success_url = reverse_lazy('fournisseur:fourniss_list')
+@login_required
+def create_fournis(request):
+    if request.method == 'POST':
+        form = forms.FournisseurForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    fournis = form.save()
+                return JsonResponse({'success': True, 'message': f'✅ Fournisseur {fournis.nom} Enregistrés avec succés'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': f'Erreur lors de l\'ajout du fournisseur: {str(e)}'})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+
+    else:
+        form = forms.FournisseurForm()
+
+    context = {'form': form}
+    return render(request, 'fournisseur/fourniss/create_fourniss.html', context)
+
+
+def update_fourniss(request, pk):
+    fourniss = get_object_or_404(models.Fournisseur, fourrnis_id=pk)
+    if request.method == 'POST':
+        form = forms.FournisseurForm(request.POST, instance=fourniss)
+        if form.is_valid():
+            updated_fourniss = form.save()
+            return JsonResponse(
+                {
+                    'success': True,
+                    'message': f'✅ Fournisseur {updated_fourniss.nom} Modifier avec succés.'
+                }
+            )
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    else:
+        form = forms.FournisseurForm(instance=fourniss)
+
+    context = {'form': form, 'fourniss': fourniss}
+    return render(request, 'fournisseur/fourniss/update_fourniss.html', context)
+
+
+# ==> Delete Article View (bootstrap-modal-form)
+def delete_fourniss(request, pk):
+    if request.method == 'POST':
+        fourniss = get_object_or_404(models.Fournisseur, fourrnis_id=pk)
+        fourniss.delete()
+        return JsonResponse({'success': True, 'message': f'✅ Fournisseur {fourniss.nom} supprimé avec succés.'})
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 
 @login_required
 def fourniss_detail(request, fourniss_id):
     hijri = functions.hijri_()
-    fourniss_detail = get_object_or_404(Fournisseur, fourrnis_id=fourniss_id)
+    fourniss_detail = get_object_or_404(models.Fournisseur, fourrnis_id=fourniss_id)
 
     context = {'hijri': hijri, 'fourniss_detail': fourniss_detail}
     return render(request, 'fournisseur/fourniss/fourniss_detail.html', context)
-
-
-@login_required
-def add_fournisseur(request):
-    hijri = functions.hijri_()
-    if request.method == 'POST':
-        # form was submited
-        add_fourniss_form = AddFournisseurForm(request.POST)
-        if add_fourniss_form.is_valid():
-            fourniss_detail = add_fourniss_form.cleaned_data      # retrieve the user input form
-            print(fourniss_detail)
-            add_fourniss_form.save()
-    else:
-        add_fourniss_form = AddFournisseurForm()
-
-    context = {'hijri': hijri, 'add_fourniss_form': add_fourniss_form}
-
-    return render(request, 'fournisseur/fourniss/add_fourniss.html', context)

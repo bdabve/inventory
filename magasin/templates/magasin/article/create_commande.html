@@ -1,12 +1,12 @@
 {% load widget_tweaks %}
 
-<form id="articleForm" action="" method="POST" data-form-url='{% url "magasin:create_article" %}'>
+<form id="createCommandeForm" action="" method="POST" 
+      data-form-url='{% url "magasin:create_commande" article.art_id %}'>
     {% csrf_token %}
 
     <div class="modal-header">
-        <h5 class="modal-title">Nouvel Article</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-        </button>
+        <h5 class="modal-title">Nouvel Commande</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div><!--End of header card-->
 
     <div class="modal-body">        
@@ -17,7 +17,7 @@
                     {{ field.label }}
                 </label>
                 <div class="col-sm-9">
-                    {% render_field field class="form-control" placeholder=field.label %}
+                    {% render_field field %}
                 </div>
             </div>
         {% endfor %}

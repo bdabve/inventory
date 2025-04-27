@@ -1,7 +1,7 @@
 {% extends "magasin/base.html" %}
 {% load widget_tweaks %}
 
-{% block title %} Fournisseur List {% endblock %}
+{% block title %}Fournisseur List {% endblock %}
 
 {% block content %}
 <div class="container">
@@ -10,11 +10,13 @@
 <h2 class="alert alert-dark my-5 fst-italic rounded text-center shadow">
     Gérer les fournisseurs
 </h2>
+<div id="fournisAlert" class="alert alert-info alert-dismissible d-none" role="alert"></div>
 <!-- Display Messages -->
 {% for msg in messages %}
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
+    <div id="fournisAlert" class="alert alert-info alert-dismissible fade show" role="alert">
         {{ msg }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+        </button>
     </div>
 {% endfor %}
 
@@ -26,7 +28,7 @@
             <div class="col-12">
                 <div class="input-group">
                     <div class="input-group-text"><i class="bi bi-search"></i></div>
-                    {% render_field search_fourniss_form.fourniss_search class="form-control ml-0 col-sm-12" placeholder="By Email" %}
+                    {% render_field search_form.search_word placeholder="Recherche..." %}
                 </div>
             </div>
 
@@ -36,14 +38,12 @@
         </form>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-3 my-2">
         {% if request.user.profile.groupe == 'admin' %}
-            <!--<a type="button" href="{% url "fournisseur:add_fourniss" %}" class="mb-3 btn btn-success float-end" name="button">-->
-                <!-- <i class="bi bi-plus"></i> N. Fournisseur-->
-            <!--</a>-->
-            <button type="button" id="read-article" class="bs-modal btn btn-primary float-end" 
-                    data-form-url="{% url "fournisseur:create_fourniss" %}">
-                <i class="bi bi-person-plus"></i> Add Fournisseur 
+            <button type="button" id="createFournissBtn" 
+                    class="btn btn-success float-end" 
+                    data-form-url="{% url "fournisseur:create_fournis" %}">
+                <i class="bi bi-person-plus me-1"></i> Ajoutér 
             </button>
         {% endif %}
     </div>
@@ -68,10 +68,10 @@
         </thead>
         <tbody>
             {% for fourniss in fourniss_list %}
-                <tr>
+                <tr id="fourniss-row-{{ fourniss.fourrnis_id }}">
                     <th scope="row">
                         <a class="text-decoration-none" href="{% url "fournisseur:fourniss_detail" fourniss.fourrnis_id %}">
-                            {{ fourniss.nom }} {{ fourniss.fourrnis_id }}
+                            {{ fourniss.nom|upper }}
                         </a>
                     </th>
                     <td>{{ fourniss.address|truncatechars:20 }}</td>
@@ -83,44 +83,29 @@
                     <td>{{ fourniss.email|truncatechars:15 }}</td>
                     <td>{{ fourniss.note }}</td>
                     <td>
-                        <!-- Read Article -->
-                        <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
-                                data-form-url="{% url "fournisseur:read_fourniss" fourniss.fourrnis_id %}">
-                            <i class="bi bi-eye"></i>
-                        </button>
-
+                        <div class="btn-group">
+                            <!-- Read Fournisseur -->
+                            <button type="button" id="read-article" 
+                                    class="readFournisBtn btn btn-sm btn-outline-primary" 
+                                    data-form-url="{% url "fournisseur:read_fournis" fourniss.fourrnis_id %}">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            
+                            {% if request.user.profile.groupe == 'admin' %}
+                            <!-- Update Fourniss -->
+                            <button class="editFournissBtn btn btn-sm btn-outline-info" 
+                                    data-form-url="{% url "fournisseur:update_fourniss" fourniss.fourrnis_id %}">
+                                    <i class="bi bi-pencil-square"></i>
+                            </button>
+                            
+                            <!-- Delete Article -->
+                            <button type="button" class="deleteFournissBtn btn btn-sm btn-outline-danger" 
+                                    data-item-id="{{ fourniss.fourrnis_id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
                     </td>
-
-                    {% comment %}
-
-                    {% comment %}
-                        <!-- Update Article -->
-                        <button type="button" id="update-article" class="bs-modal btn btn-sm btn-outline-info" 
-                                data-form-url="{% url "magasin:update_article" article.art_id article.slug %}">
-                        </button>
-
-                        <!-- Delete Article -->
-                        <button type="button" id="delete-article" class="bs-modal btn btn-sm btn-outline-danger" 
-                                data-form-url="{% url "magasin:delete_article" article.art_id article.slug %}">
-                        </button>
-
-                        <!-- Drop down menu for ENTREE, SORTIE -->
-                        <div class="btn-group dropleft">
-                            <div class="dropdown show dropleft">
-                                <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="actionMenu" 
-                                   data-toggle="dropdown" aria-haspopup="True" aria-expanded="false">
-                                </a>
-                                <div class="dropdown-menu" aria-labelledby="actionMenu">
-                                    <a class="dropdown-item" href="{% url "magasin:entree" article.art_id article.slug %}">
-                                        Entrée
-                                    </a>
-                                    <a class="dropdown-item" href="{% url "magasin:sortie" article.art_id article.slug %}">
-                                        Sortie
-                                    </a>
-                                </div>
-                            </div>
-                        </div><!--End of dropdown show-->
-                    {% endcomment %}
                 </tr>
             {% endfor %}
         </tbody>

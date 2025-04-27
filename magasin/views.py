@@ -47,7 +47,7 @@ def article_list(request, category_slug=None, stock_alarm=False, art_sans_prix=F
 
     # Search for an article
     if request.method == 'POST':
-        search_article_form = forms.SearchArticleForm(request.POST)     # PdrSearchForm comme from forms.py file
+        search_article_form = forms.SearchArticleForm(request.POST)
         if search_article_form.is_valid():
             search_word = search_article_form.cleaned_data['search_word']
     else:
@@ -62,7 +62,8 @@ def article_list(request, category_slug=None, stock_alarm=False, art_sans_prix=F
     )
 
     # Add pagination to our site
-    paginator = Paginator(articles, 30)     # instantiate the Paginator with the number of objects to display
+    # instantiate the Paginator with the number of objects to display
+    paginator = Paginator(articles, 30)
     page = request.GET.get('page')          # indicate the current page number.
 
     try:
@@ -82,7 +83,8 @@ def article_list(request, category_slug=None, stock_alarm=False, art_sans_prix=F
         'search_article_form': search_article_form,
         'page': page,
         'stock_alarm': stock_alarm,
-        'count': count
+        'count': count,
+        'search_word': search_word
     }
     return render(request, 'magasin/article/list.html', context)
 
@@ -178,10 +180,8 @@ def article_detail(request, art_id, slug, history=False, movement=False):
             # form fields passed validation
             cd = command_form.cleaned_data
             models.Command.objects.create(
-                art_id=article,
-                user_id=request.user,
-                command_date=cd['cmnd_date'],
-                qte=cd['cmnd_qte']
+                art_id=article, user_id=request.user,
+                command_date=cd['cmnd_date'], qte=cd['cmnd_qte']
             )
 
             messages.info(request, 'Commande Ajouter avec Succés')
@@ -225,6 +225,28 @@ def create_category(request):
     return render(request, 'magasin/article/create_category.html', {'form': form})
 
 
+# == Edit Category
+def update_category(request, cat_id):
+    category = get_object_or_404(models.Category, cat_id=cat_id)
+    if request.method == 'POST':
+        form = forms.CreateCategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            updated_category = form.save()
+            return JsonResponse(
+                {
+                    'success': True,
+                    'message': f'✅ Catégory {updated_category.name} Modifier avec succés.'
+                }
+            )
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    else:
+        form = forms.CreateCategoryForm(instance=category)
+
+    context = {'form': form, 'category': category}
+    return render(request, 'magasin/article/update_category.html', context)
+
+
 # == Delete Category
 def delete_category(request, cat_id):
     if request.method == 'POST':
@@ -239,6 +261,7 @@ def delete_category(request, cat_id):
 # -----------------------------------------------------
 # ==> Create Article View
 @csrf_exempt
+@login_required
 def create_article(request):
     today = date.today()
     if request.method == 'POST':
@@ -319,7 +342,12 @@ def update_article(request, art_id, slug):
         form = forms.ArticalForm(request.POST, instance=article)
         if form.is_valid():
             updated_article = form.save()
-            return JsonResponse({'success': True, 'message': f'✅ Article {updated_article.code} Modifier avec succés.'})
+            return JsonResponse(
+                {
+                    'success': True,
+                    'message': f'✅ Article {updated_article.code} Modifier avec succés.'
+                }
+            )
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
     else:
@@ -640,3 +668,22 @@ def delete_commande(request, pk):
         return JsonResponse({'success': True, 'message': f'✅ Commande {commande.command_id} supprimé avec succés.'})
     except Exception as err:
         return JsonResponse({'success': False, 'error': f'Invalid request {err}'})
+
+
+def create_commande(request, art_id):
+    article = get_object_or_404(models.Article, art_id=art_id)
+    if request.method == 'POST':
+        form = forms.CreateCommandForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            models.Command.objects.create(
+                art_id=article, user_id=request.user,
+                command_date=cd['cmnd_date'], qte=cd['cmnd_qte']
+            )
+            return JsonResponse({'success': True, 'message': '✅ Commande Enregistrés avec succés'})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    else:
+        form = forms.CreateCommandForm()
+    context = {'form': form, 'article': article}
+    return render(request, 'magasin/article/create_commande.html', context)

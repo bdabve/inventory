@@ -1,9 +1,8 @@
 from django import forms
 from .models import Fournisseur
-from bootstrap_modal_forms.forms import BSModalModelForm
 
 
-class AddFournisseurForm(forms.ModelForm):
+class FournisseurForm(forms.ModelForm):
     class Meta:
         model = Fournisseur
         exclude = ['frns_id']
@@ -22,14 +21,25 @@ class AddFournisseurForm(forms.ModelForm):
         }
         # error_messages = {'Nom': {'max_length': 'Name can only be 20 characters in length'}}
 
+    def clean(self):
+        super(FournisseurForm, self).clean()
+        nom = self.cleaned_data.get('nom').lower()
+        telephone = self.cleaned_data.get('telephone').lower()
+        email = self.cleaned_data.get('email').lower()
 
-class CreateFournissForm(BSModalModelForm):
-    class Meta:
-        model = Fournisseur
-        fields = '__all__'
-        widgets = {'note': forms.Textarea(attrs={'rows': 3})}
+        instance = self.instance
+        if Fournisseur.objects.exclude(pk=instance.pk).filter(nom=nom).exists():
+            self._errors['nom'] = self.error_class(['Ce nom existe déjà pour un autre fournisseur.'])
+
+        if Fournisseur.objects.exclude(pk=instance.pk).filter(telephone=telephone).exists():
+            self._errors['telephone'] = self.error_class(['Ce téléphone existe déjà pour un autre fournisseur.'])
+
+        if Fournisseur.objects.exclude(pk=instance.pk).filter(email=email).exists():
+            self._errors['email'] = self.error_class(['Ce email existe déjà pour un autre fournisseur.'])
+
+        return self.cleaned_data
 
 
-class SearchFournissForm(forms.Form):
-    fourniss_search = forms.CharField(max_length=50, label=False)
-    fourniss_search.widget.attrs.update({'class': 'form-control', 'size': '35'})
+class SearchForm(forms.Form):
+    search_word = forms.CharField(max_length=50, label=False)
+    search_word.widget.attrs.update({'class': 'form-control col-sm-12', 'size': '30'})

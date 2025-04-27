@@ -9,6 +9,7 @@ class Category(models.Model):
     cat_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=200, db_index=True, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ('name', )
@@ -37,9 +38,12 @@ class Article(models.Model):
     ref = models.CharField(max_length=255, db_index=True, null=True, blank=True)
     emp = models.CharField(max_length=50, null=True, blank=True)
     umesure = models.CharField(max_length=50, null=True, blank=True, default='pcs')
+
     qte = models.PositiveIntegerField()
     prix = models.DecimalField(decimal_places=2, max_digits=15)
     valeur = models.DecimalField(decimal_places=2, max_digits=20, null=True)
+
+    created = models.DateTimeField(auto_now_add=True)
     observation = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:

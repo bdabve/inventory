@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
-    'bootstrap_modal_forms',
+    # 'bootstrap_modal_forms',
     'magasin.apps.MagasinConfig',
     'fournisseur.apps.FournisseurConfig',
     'django.contrib.humanize',      # format in human readable; doc(https://docs.djangoproject.com/en/3.1/ref/contrib/humanize)

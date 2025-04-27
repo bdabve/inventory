@@ -1,6 +1,8 @@
 {% load humanize %}
 <div class="modal-header text-center">
-    <h3 class="modal-title">Fiche d'article N° {{ article.art_id }}</h3>
+    <h4 class="modal-title">
+        <i class="bi bi-journal me-3"></i>Fiche d'article N° {{ article.art_id }}
+    </h4>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 
@@ -8,46 +10,63 @@
     <ul class="list-group list-group-flush">
 
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Code</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Code
+            </span>
             <span class="text-capitalize">{{ article.code }}</span>
         </li>
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Désignation</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Désignation
+            </span>
             <span>{{ article.designation }}</span>
         </li>
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Référence</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Référence
+            </span>
             <span>{{ article.ref }}</span>
         </li>
 
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Emplacement</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Emplacement
+            </span>
             <span>{{ article.emp }}</span>
         </li>
 
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Quantité</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Quantité
+            </span>
             <span>{{ article.qte }} {{ article.umesure }}</span>
         </li>
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Prix Unité</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Prix Unité
+            </span>
             <span>{{ article.prix|intcomma }} DA</span>
         </li>
 
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Valeur</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Valeur
+            </span>
             <span>{{ article.valeur|intcomma }} DA</span>
         </li>
         <li class="list-group-item d-flex align-items-center">
-            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">Observation</span>
-            <span>{% if article.observation %}{{ article.observation }}{% else %}RAS{% endif %}</span>
+            <span class="text-secondary fst-italic" style="font-size: 1rem; width: 30%">
+                Observation
+            </span>
+            <span>
+                {% if article.observation %}{{ article.observation }}{% else %}RAS{% endif %}
+            </span>
         </li>
     </ul>
 </div>
 
 <div class="modal-footer">
     <button type="button" class="btn btn-default border me-2" data-bs-dismiss="modal">
-        <i class="bi bi-x-lg me-2"></i>
-        Close
+        <i class="bi bi-x-lg me-2"></i>Close
     </button>
 </div>

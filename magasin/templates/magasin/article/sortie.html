@@ -7,36 +7,44 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div><!--End of header card-->
 
-    <div class="modal-body">
-
-        <div id="formErrors" class="alert alert-danger" style="display: none;"></div>
+    <div class="modal-body">   
 
         <div class="form-group row mb-2" style="">
-            <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ form.slug.id_for_label }}">Code</label>
+            <label class="col-sm-3 col-form-label fst-italic text-secondary" 
+                   for="{{ form.slug.id_for_label }}">Code</label>
             <div class="col-sm-9">
-                <input class="form-control-plaintext text-uppercase fw-bold" name="slug" value="{{ article.slug }}" readonly>
+                <input class="form-control-plaintext text-uppercase fw-bold" name="slug" 
+                       value="{{ article.slug }}" readonly>
             </div>
         </div>
 
         <div class="form-group row mb-2">
-            <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ form.sortie_date.id_for_label }}">Date</label>
+            <label class="col-sm-3 col-form-label fst-italic text-secondary" 
+                   for="{{ form.sortie_date.id_for_label }}">Date</label>
             <div class="col-sm-9">
                 {% render_field form.sortie_date %}
             </div>
         </div>
 
         <div class="form-group row mb-2">
-            <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ form.qte.id_for_label }}">Qte</label>
+            <label class="col-sm-3 col-form-label fst-italic text-secondary" 
+                   for="{{ form.qte.id_for_label }}">Qte</label>
             <div class="col-sm-9">
                 {% render_field form.qte class="form-control" value=1 %}
             </div>
         </div>
 
         <div class="form-group row mb-2">
-            <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ form.sortie_prix.id_for_label }}">Prix</label>
+            <label class="col-sm-3 col-form-label fst-italic text-secondary" 
+                   for="{{ form.sortie_prix.id_for_label }}">Prix</label>
             <div class="col-sm-9">
                 {% render_field form.prix|append_attr:"readonly:readonly" class="form-control" value=article.prix %}
             </div>
+        </div>
+        <!-- Errors -->
+        <div class="form-group row mb-2">
+            <div class="col-sm-3"></div>
+            <div id="formErrors" class="col-sm-9 text-danger mt-2" style="display: none;"></div>
         </div>
     </div><!--End body modal-->
 

@@ -22,8 +22,9 @@
     <!-- ALERT DIV and Main Buttons -->   
     <div id="usersAlert" class="alert alert-info alert-dismissible d-none" role="alert"></div>
 
-    <!-- Search, Add user button -->   
-    <a id="createUserBtn" class="btn btn-primary float-end mb-2 mt-2" href="#" data-form-url="{% url 'accounts:add_user' %}">
+    <!-- Add user button -->   
+    <a id="createUserBtn" class="btn btn-success float-end mb-2 mt-2" href="#" 
+       data-form-url="{% url 'accounts:create_user' %}" >
         <i class="bi bi-person-plus-fill"></i> Nouvel Utilisateur
     </a>
 
@@ -44,45 +45,50 @@
     </thead>
     <tbody>
         {% for user in users %}
-            <tr class="{% if user.profile.groupe == 'admin' %}table-secondary{% endif %}" id="user-row-{{ user.id }}">
-                <th scope="row">
-                    <a class="text-decoration-none" href="" 
-                       data-toggle="tooltip" data-placement="bottom" title="{{ artcile.designation }}">
-                        {{ user.id }}
-                    </a>
-                </th>
+            <tr id="user-row-{{ user.id }}"
+                class="">
+                <th scope="row">{{ user.date_joined|date:"d-m-Y" }}</th>
                 <td>{{ user.username }}</td>
                 <td>{{ user.first_name }}</td>
                 <td>{{ user.last_name }}</td>
                 <td>{{ user.email }}</td>
                 <!--Comment prix unitaire-->
                 <td>{{ user.profile.poste_travaille }}</td>
-                <td >{{ user.profile.groupe }}</td>
-                <td >{{ user.last_login|date:"d M Y" }}</td>
+                <td class="{% if user.profile.groupe == 'admin' %}text-info{% endif %}">
+                    {{ user.profile.groupe }}
+                </td>
+                <td >{{ user.last_login|date:"d/m/Y" }}</td>
 
                 <td class="text-center">
-                <!-- Operations buttons-->
-                    <!-- SuperUser -->
-                    {% if request.user.profile.groupe == 'admin' %}
+                    <!-- Operations buttons-->
                     <!-- Read User -->
                     <button class="readUserBtn btn btn-sm btn-outline-primary" 
-                            data-form-url="{% url "accounts:read_profile" user.id %}">
+                            data-form-url="{% url "accounts:read_profile" user.id %}"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Détail">
                         <i class="bi bi-person-lines-fill"></i>
                     </button>
+                    <!-- SuperUser -->
+                    
+                    {% if request.user.profile.groupe == 'admin' %}
                     <!-- Update User -->
                     <a class="editUserBtn btn btn-sm btn-outline-info" 
-                       data-form-url="{% url "accounts:edit_profile" user.id %}">
+                       data-form-url="{% url "accounts:edit_profile" user.id %}"
+                       data-bs-toggle="tooltip" data-bs-placement="bottom" title="Modifier">
                         <i class="bi bi-pencil-square"></i>
                     </a>
-                    <!-- Delete User -->
-                    <button class="deleteUserBtn btn btn-sm btn-outline-danger" data-item-id="{{ user.id }}">
-                        <i class="bi bi-person-dash-fill"></i>
+                    <!-- Change User Group -->
+                    <button class="changeUserGroupBtn btn btn-sm btn-outline-warning" 
+                            data-form-url="{% url "accounts:change_user_group" user.id %}"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                                title="Changér le groupe 
+                                {% if user.profile.groupe == 'admin' %}Other{% else %}Admin{% endif %}">
+                        <i class="bi bi-star"></i>
                     </button>
-
-                    {% else %}
-                    <button type="button" id="read-article" class="bs-modal btn btn-sm btn-outline-primary" 
-                            data-form-url="">
-                        <i class="bi bi-person-lines-fill"></i> Details
+                    
+                    <!-- Delete User -->
+                    <button class="deleteUserBtn btn btn-sm btn-outline-danger" data-item-id="{{ user.id }}"
+                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Supprimé">
+                        <i class="bi bi-person-dash-fill"></i>
                     </button>
                     {% endif %} <!-- endif for checking user group -->
                 </td><!-- end of operation td -->

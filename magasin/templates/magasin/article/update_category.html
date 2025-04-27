@@ -1,29 +1,25 @@
 {% load widget_tweaks %}
 
-<form id="commandeEditForm" action="" method="POST" 
-      data-form-url='{% url "magasin:update_commande" commande.command_id %}'>
+<form id="categoryEditForm" action="" method="POST" 
+      data-form-url='{% url "magasin:update_category" category.cat_id %}'>
     {% csrf_token %}
 
     <div class="modal-header">
-        <h5 class="modal-title">Modification Commande</h5>
+        <h4 class="modal-title">
+            <i class="bi bi-pencil-square me-3"></i>Modification Category
+        </h4>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div><!--End of header card-->
 
     <div class="modal-body">
-
-        <div class="form-group row mb-2">
-            <label class="col-sm-3 col-form-label fst-italic text-secondary" for="code">Code Article</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control" readonly value="{{ commande.art_id.code }}">
-            </div>
-        </div>
         {% for field in form %}
             <div class="form-group row mb-2">
-                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ field.id_for_label }}">
+                <label class="text-secondary fst-italic col-sm-3 col-form-label" 
+                       for="{{ field.id_for_label }}">
                     {{ field.label }}
                 </label>
                 <div class="col-sm-9">
-                    {% if field.name == "user_id" %}
+                    {% if field.name == "category" %}
                         {% render_field field class="form-select" %}
                     {% else %}
                         {% render_field field class="form-control" %}
@@ -39,7 +35,9 @@
     </div><!--End body modal-->
 
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-info">Update</button>
+        <button type="button" class="btn btn-default border" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-2"></i>Close
+        </button>
+        <button type="submit" class="btn btn-info"><i class="bi bi-floppy me-2"></i>Enregistré</button>
     </div><!--End of footer card-->
 </form>

@@ -21,6 +21,7 @@ urlpatterns = [
 
     # Category urls
     path('magasin/create-category', views.create_category, name='create_category'),
+    path('magasin/update-category/<int:cat_id>', views.update_category, name='update_category'),
     path('magasin/delete-category/<int:cat_id>', views.delete_category, name="delete_category"),
 
     # Articles urls
@@ -52,7 +53,9 @@ urlpatterns = [
     # Commands urls
     path('magasin/commands', views.manage_command, name='manage_command'),                    # all commands
     path('magasin/commands/<int:pk>', views.activate_commande, name='activate_commande'),   # Active Command
-    path('read-command/<int:pk>', views.read_commande, name='read_commande'),   # Commande Details
+    path('magasin/create-command/<int:art_id>', views.create_commande, name='create_commande'),   # Commande Details
+
+    path('magasin/read-command/<int:pk>', views.read_commande, name='read_commande'),   # Commande Details
     path('magasin/update-commande/<int:pk>', views.update_commande, name='update_commande'),
     path('magasin/delete-commande/<int:pk>', views.delete_commande, name='delete_commande'),
 ]

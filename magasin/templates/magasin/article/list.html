@@ -26,16 +26,23 @@
                    {% else %}class="list-group-item list-group-item-action"{% endif %}>
                    Tous
                 </a>
-
                 <!-- Loup through all categories -->
                 {% for c in categories %}
                     <a href="{{ c.get_absolute_url }}" 
-                       class="list-group-item list-group-item-action {% if category.slug == c.slug %}active{% endif %}
+                       class="list-group-item list-group-item-action 
+                              {% if category.slug == c.slug %}active{% endif %}
                               d-flex align-items-center justify-content-between">
                             {{ c.name }}
-                        <button class="btn btn-sm btn-default text-danger removeCategoryBtn" data-item-id="{{ c.cat_id }}">
-                            <i class="bi bi-patch-minus fs-5"></i>
-                        </button>
+                        <div class="button-group">                        
+                            <button class="btn btn-sm btn-default text-info updateCategoryBtn" 
+                                    data-form-url='{% url "magasin:update_category" c.cat_id %}'>
+                                <i class="bi bi-pencil fs-5"></i>
+                            </button>
+                            <button class="btn btn-sm btn-default text-danger removeCategoryBtn" 
+                                    data-item-id="{{ c.cat_id }}">
+                                <i class="bi bi-patch-minus fs-5"></i>
+                            </button>
+                        </div>
                     </a>
                 {% endfor %}
             </ul>
@@ -45,21 +52,26 @@
     <!-- ===========================| Main Column |================================= -->
     <div class="col col-md-10">
         <div class="main-table" id="article_table">
-            <!-- Table header by category -->
+        
             <h2 class="alert alert-dark my-4 fst-italic text-center shadow">
+                <!-- Header Page Title -->
                 {% if category %}
                     {{ category.name }} Articles ({{ count }})
                 {% elif stock_alarm %}
                     Stock Egale a 0 ({{ count }})
+                {% elif search_word %}
+                    {{ search_word }} ({{ count}})
                 {% else %}
                     Tous Les Articles ({{ count }})
                 {% endif %}
             </h2>
-
-            <!-- =========================== 
-                ==> Search form 
-            ============================-->
+            <!-- ALERT DIV -->
+            <div id="articleAlert" class="alert alert-info alert-dismissible d-none" 
+                 role="alert">
+            </div>
+            <!-- ===========================================================================-->
             <div class="d-flex justify-content-between mb-4">
+                <!-- Search form -->
                 <form class="row row-cols-lg-auto align-items-center" action="" method="post">
                     {% csrf_token %}
 
@@ -124,7 +136,8 @@
                             <li>
                                 <button id="createMultipleArticles" class="dropdown-item" type="button" 
                                         data-form-url="{% url 'magasin:upload_articles' %}">
-                                    <i class="bi bi-file-earmark-plus text-success me-1"></i>Importer des articles (Excel)
+                                    <i class="bi bi-file-earmark-plus text-success me-1"></i>
+                                    Importer des articles (Excel)
                                 </button>
                             </li>
                         </ul>
@@ -140,9 +153,7 @@
                     {{ msg }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            {% endfor %}
-            
-            <div id="articleAlert" class="alert alert-info alert-dismissible d-none" role="alert"></div>
+            {% endfor %}            
 
             <table class="table table-bordered table-hover main_table shadow">
                 <!-- Products Table  -->
@@ -160,36 +171,43 @@
                 </thead>
                 <tbody class="table-group-divider">
                     {% for article in articles %}
-                        <tr class="{% if article.qte < 1 %}table-danger{% endif %}" 
-                            id="article-row-{{ article.art_id }}">
+                        <tr id="article-row-{{ article.art_id }}">
                             <td scope="row">
-                                <a class="text-decoration-none" href="{{ article.get_absolute_url }}">
+                                <a class="text-reset text-decoration-none" 
+                                   href="{{ article.get_absolute_url }}">
                                     {{ article.designation|truncatechars:17 }}
                                 </a>
                             </td>
                             <td data-bs-toggle="tooltip" data-bs-placement="bottom" 
-                                title="OBS: {% if article.observation %}
+                                title="Note: {% if article.observation %}
                                                 {{ article.observation }}
-                                            {% else %}RAS{%endif%}"
-                            >
+                                            {% else %}Ras{%endif%}">
                                 {{ article.code }}
                             </td>
                             <td data-toggle="tooltip" data-placement="bottom" title="{{ artcile.ref }}">
                                 {{ article.ref|truncatechars:20 }}
                             </td>
+                            
                             <td>{{ article.emp }}</td>
                             <td>{{ article.umesure }}</td>
-                            <td>{{ article.qte }}</td>
-                            <!--Comment prix unitaire-->
-                            <td>{{ article.prix|intcomma }}</td>
+                            <td class="{% if article.qte <= 0 %}table-danger{% endif %}">
+                                {{ article.qte }}
+                            </td>
+                            <!-- prix unitaire -->
+                            <td class="{% if article.prix <= 0 %}table-danger{% endif %}">
+                                {{ article.prix|intcomma }}
+                            </td>
 
                             <td class="text-center">
                                 <!-- Operations buttons-->
+                                <div class="btn-group">
+                                
                                 <!-- Read Article -->
                                 <button type="button" class="readArticleBtn btn btn-sm btn-outline-primary" 
                                         data-form-url='{% url "magasin:read_article" article.art_id article.slug %}'>
                                     <i class="bi bi-eye"></i>
                                 </button>
+                                
                                 <!-- SuperUser -->
                                 {% if request.user.profile.groupe == 'admin' %}
                                 <!-- Update Article -->
@@ -197,16 +215,11 @@
                                         data-form-url='{% url "magasin:update_article" article.art_id article.slug %}'>
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-
-                                <!-- Delete Article -->
-                                <button type="button" class="deleteArticleBtn btn btn-sm btn-outline-danger" 
-                                        data-item-id="{{ article.art_id }}">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-
+                                
+                                <!-- Actions Dropdown Buttons -->
                                 <div class="btn-group dropstart">
-                                    <!-- Drop down: ENTREE, SORTIE -->
-                                    <button class="btn btn-outline-dark btn-sm dropdown-toggle" 
+                                    <!-- ENTREE, SORTIE -->
+                                    <button class="btn btn-outline-warning btn-sm dropdown-toggle" 
                                             data-bs-toggle="dropdown" 
                                             aria-expanded="false">
                                         <i class="bi bi-arrow-left-right"></i>
@@ -224,9 +237,22 @@
                                                 <i class="bi bi-upload"></i> Sortie
                                             </a>
                                         </li>
+                                        <li>
+                                            <a href="#" class="newCommandeBtn dropdown-item"
+                                               data-form-url='{% url "magasin:create_commande" article.art_id %}'>
+                                                <i class="bi bi-journal-plus"></i> N.Commande
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div><!-- end of dropdown entree/sortie -->
-                                {% endif %} <!-- endif for checking user group -->
+                                
+                                <!-- Delete Article -->
+                                <button type="button" class="deleteArticleBtn btn btn-sm btn-outline-danger" 
+                                        data-item-id="{{ article.art_id }}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                </div>
+                                {% endif %} <!-- endif for checking user group -->                      
                             </td><!-- end of operation td -->
                         </tr><!-- end of table row-->
                     {% endfor %}

@@ -13,9 +13,12 @@ class CreateCategoryForm(forms.ModelForm):
     def clean(self):
         super(CreateCategoryForm, self).clean()
         name = self.cleaned_data.get('name').upper()
-        cat_name = Category.objects.filter(name=name).exists()
+        instance = self.instance
+
+        cat_name = Category.objects.exclude(pk=instance.pk).filter(name=name).exists()
         if cat_name:
-            self._errors['name'] = self.error_class(['Category avec ce NOM exist deja'])
+            self._errors['name'] = self.error_class([f'Category avec le nom {name} exist déja.'])
+
         return self.cleaned_data
 
 
@@ -143,17 +146,20 @@ class Etats(forms.Form):
 class CreateCommandForm(forms.Form):
     tday = date.today()
     cmnd_date = forms.DateField(
-        label="Date de sortie",
+        label="Date",
         widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         required=True,
         initial=tday
     )
-    cmnd_qte = forms.IntegerField(min_value=1)
+    cmnd_qte = forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'value': 1}),
+        min_value=1,
+        label="Quantité"
+    )
 
     def clean(self):
         super(CreateCommandForm, self).clean()
         qte = self.cleaned_data.get('cmnd_qte')
-
         if qte < 1:
             self._errors['cmnd_qte'] = self.error_class(['Valeur doit être superieur ou égale a 1'])
         return self.cleaned_data

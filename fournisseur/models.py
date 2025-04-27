@@ -19,8 +19,16 @@ class Fournisseur(models.Model):
     email = models.EmailField(unique=True, blank=True, validators=[EmailValidator])
     note = models.CharField(max_length=255, blank=True)
 
+    created = models.DateTimeField(auto_now_add=True)
+
     class Meta:
-        ordering = ('fourrnis_id', 'nom')
+        ordering = ('-created', 'nom')
 
     def __str__(self):
         return '{}: {}'.format(self.nom, self.address)
+
+    def save(self, *args, **kwargs):
+        self.nom = self.nom.lower()
+        self.address = self.address.lower()
+        # self.slug = slugify(self.code.lower())
+        super(Fournisseur, self).save(*args, **kwargs)
