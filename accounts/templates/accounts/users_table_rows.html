@@ -1,0 +1,47 @@
+{% for user in users %}
+    <tr id="user-row-{{ user.id }}" class="">
+        <th scope="row">{{ user.date_joined|date:"d-m-Y" }}</th>
+        <td>{{ user.username }}</td>
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.last_name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.profile.poste_travaille }}</td>
+        <td class="{% if user.profile.groupe == 'admin' %}text-info{% endif %}">
+            {{ user.profile.groupe }}
+        </td>
+        <td >{{ user.last_login|date:"d/m/Y" }}</td>
+
+        <td class="text-center">
+            <!-- Operations buttons-->
+            <!-- Read User -->
+            <button class="readUserBtn btn btn-sm btn-outline-primary" 
+                    data-form-url="{% url "accounts:read_profile" user.id %}"
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Détail">
+                <i class="bi bi-person-lines-fill"></i>
+            </button>
+            <!-- SuperUser -->
+            {% if request.user.profile.groupe == 'admin' %}
+            <!-- Update User -->
+            <a class="editUserBtn btn btn-sm btn-outline-info" 
+                data-form-url="{% url "accounts:edit_profile" user.id %}"
+                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Modifier">
+                <i class="bi bi-pencil-square"></i>
+            </a>
+            <!-- Change User Group -->
+            <button class="changeUserGroupBtn btn btn-sm btn-outline-warning" 
+                    data-form-url="{% url "accounts:change_user_group" user.id %}"
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" 
+                    title="Changér le groupe 
+                    {% if user.profile.groupe == 'admin' %}Other{% else %}Admin{% endif %}">
+                <i class="bi bi-star"></i>
+            </button>
+                    
+            <!-- Delete User -->
+            <button class="deleteUserBtn btn btn-sm btn-outline-danger" data-item-id="{{ user.id }}"
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Supprimé">
+                <i class="bi bi-person-dash-fill"></i>
+            </button>
+            {% endif %} <!-- endif for checking user group -->
+        </td><!-- end of operation td -->
+    </tr><!-- end of table row-->
+{% endfor %}

@@ -1,13 +1,19 @@
+import os
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, Http404
+from django.utils.timezone import now
 
 from django.db import transaction
 from django.db.models import Q, Count, Sum, F
+from django.contrib.auth.models import User
+from accounts.models import Profile
+
 from . import forms
 from . import models
 from . import functions
@@ -19,12 +25,29 @@ from datetime import date
 def dashboard(request):
     hijri = functions.hijri_()
     nbar = 'dashboard'
+
+    # Articles Statistics
     total_command = models.Command.objects.count()
     total_articles = models.Article.objects.count()
     stock_alarm = models.Article.objects.filter(qte=0).count()
     total_valeur = models.Article.objects.aggregate(total_valeur=Sum('valeur'))['total_valeur']
     pending_command = models.Command.objects.filter(status=0).select_related('user_id')
     latest_movement = models.Movement.objects.order_by('-movement_date')[:5]
+    # Users Statistics
+    today = now().date()
+    current_month = now().month
+
+    # total users
+    total_users = User.objects.count()
+    users_today = User.objects.filter(date_joined__date=today).count()
+    users_month = User.objects.filter(date_joined__month=current_month).count()
+    active_users = User.objects.filter(is_active=True).count()
+    inactive_users = User.objects.filter(is_active=False).count()
+    group_counts = list(Profile.objects.values('groupe').annotate(count=Count('groupe')))
+    job_title_counts = list(Profile.objects.values('poste_travaille').annotate(count=Count('poste_travaille')))
+
+    from django.core.serializers.json import DjangoJSONEncoder
+    import json
 
     context = {
         'nbar': nbar, 'hijri': hijri,
@@ -33,8 +56,17 @@ def dashboard(request):
         'stock_alarm': stock_alarm,
         'total_command': total_command,
         'pending_command': pending_command,
-        'latest_movement': latest_movement
+        'latest_movement': latest_movement,
+        # users
+        'total_users': total_users,
+        'users_today': users_today,
+        'users_this_month': users_month,
+        'active_users': active_users,
+        'inactive_users': inactive_users,
     }
+    context['group_counts_json'] = json.dumps(group_counts, cls=DjangoJSONEncoder)
+    context['job_title_counts_json'] = json.dumps(job_title_counts, cls=DjangoJSONEncoder)
+
     return render(request, 'magasin/article/dashboard.html', context)
 
 
@@ -47,11 +79,11 @@ def article_list(request, category_slug=None, stock_alarm=False, art_sans_prix=F
 
     # Search for an article
     if request.method == 'POST':
-        search_article_form = forms.SearchArticleForm(request.POST)
+        search_article_form = forms.SearchForm(request.POST)
         if search_article_form.is_valid():
             search_word = search_article_form.cleaned_data['search_word']
     else:
-        search_article_form = forms.SearchArticleForm()
+        search_article_form = forms.SearchForm()
 
     # filtering and searching for article
     articles, category, count = functions.filter_articles(
@@ -99,17 +131,17 @@ def article_detail(request, art_id, slug, history=False, movement=False):
     hijri = functions.hijri_()
     article = get_object_or_404(models.Article, art_id=art_id, slug=slug)
 
-    art_history = models.MagasinLog.objects.filter(art_id=art_id)
-    art_movement = models.Movement.objects.filter(art_id=art_id)
-    article_mov = art_movement if art_movement.exists() else 'empty'
+    # art_movement = models.Movement.objects.filter(art_id=art_id) or ''
+    art_movement = models.Movement.objects.filter(art_id=art_id) or 'empty'
     art_cmd = models.Command.objects.filter(art_id=art_id) or 'empty'
+    art_history = models.MagasinLog.objects.filter(art_id=art_id) or 'empty'
 
-    if art_history: history = True
+    if art_history != 'empty': history = True
     if art_movement: movement = True
 
     # Search for article with code
     if request.method == 'POST' and 'search_form' in request.POST:
-        search_form = forms.SearchArticleForm(request.POST)
+        search_form = forms.SearchForm(request.POST)
         if search_form.is_valid():
             code = search_form.cleaned_data['search_word'].upper()
             try:
@@ -119,45 +151,11 @@ def article_detail(request, art_id, slug, history=False, movement=False):
                 messages.warning(request, f'Aucun article trouvé avec le code « {code} »')
                 return redirect('magasin:article_detail', art_id=art_id, slug=slug)
     else:
-        search_form = forms.SearchArticleForm()
+        search_form = forms.SearchForm()
 
     # ----------------------------------------------------------------
     # Entree form
     # ----------------
-    if request.method == 'POST' and 'entree_form' in request.POST:
-        entree_form = forms.EntreeForm(request.POST)     # PdrSearchForm comme from forms.py file
-        if entree_form.is_valid():
-            # form fields passed validation
-            new_qte = entree_form.cleaned_data['qte']      # retrieve the user input form
-            new_prix = entree_form.cleaned_data['prix']
-            entree_date = entree_form.cleaned_data['entree_date']
-            result = functions.process_stock_entry(article, new_qte, new_prix, entree_date, request.user)
-            if result:
-                messages.info(request, 'Entree Ajouter avec Succés')
-                return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
-            else:
-                messages.error(request, result)
-    else:
-        entree_form = forms.EntreeForm()
-    # ----------------------------------------------------------------
-    # Sortie form
-    # ----------------
-    if request.method == 'POST' and 'sortie_form' in request.POST:
-        sortie_form = forms.SortieForm(request.POST)     # PdrSearchForm comme from forms.py file
-        if sortie_form.is_valid():
-            # form fields passed validation
-            new_qte = sortie_form.cleaned_data['sortie_qte']      # retrieve the user input form
-            article.qte = F('qte') - new_qte
-            sortie_date = sortie_form.cleaned_data['sortie_date']
-            result = functions.process_stock_sortie(article, new_qte, sortie_date, request.user)
-            if result:
-                messages.info(request, 'Sortie Ajouter avec Succés')
-                return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
-            else:
-                messages.error(request, result)
-    else:
-        sortie_form = forms.SortieForm()
-
     # ----------------------------------------------------------------
     # Modification form
     # ----------------
@@ -194,13 +192,10 @@ def article_detail(request, art_id, slug, history=False, movement=False):
         'article': article,
         'history': history,
         'movement': movement,
-
-        'article_mov': article_mov,
-        'art_cmd': art_cmd,             # commande
-
         'search_form': search_form,
-        'entree_form': entree_form,
-        'sortie_form': sortie_form,
+        'article_mov': art_movement,
+        'art_history': art_history,
+        'art_cmd': art_cmd,             # commande
         'update_art_form': update_art_form,
         'command_form': command_form,
     }
@@ -291,42 +286,77 @@ def create_article(request):
     return render(request, 'magasin/article/create_article.html', {'form': form})
 
 
+# 📥 Upload Multiple Articles from Excel
+@login_required
 def upload_articles_from_excel(request):
-    """Multiple article from excel"""
+    today = date.today()
+
     if request.method == 'POST' and request.FILES.get('excel_file'):
         try:
             excel_file = request.FILES['excel_file']
             df = pd.read_excel(excel_file)
 
-            required_columns = ['category', 'code', 'designation', 'ref', 'qte', 'prix']  # example
+            required_columns = ['category', 'code', 'designation', 'ref', 'qte', 'prix']
             if not all(col in df.columns for col in required_columns):
                 return JsonResponse({'success': False, 'message': '❌ Fichier invalide. Vérifiez les colonnes.'})
 
-            for _, row in df.iterrows():
-                category_name = row.get('category')  # Or adjust based on your column name
-                if category_name:
-                    try:
-                        category = models.Category.objects.get(name__iexact=category_name)
-                    except models.Category.DoesNotExist:
-                        return JsonResponse({'success': False, 'message': f"Catégorie « {category_name} » introuvable."})
-                else:
-                    return JsonResponse({'success': False, 'message': "La catégorie est requise."})
+            errors = []
+            for idx, row in df.iterrows():
+                category_name = row.get('category')
+                if not category_name:
+                    errors.append(f"Ligne {idx + 2}: La catégorie est manquante.")
+                    continue
 
-                models.Article.objects.create(
-                    category=category,
-                    code=row['code'],
-                    designation=row['designation'],
-                    ref=row['ref'],
-                    qte=row['qte'],
-                    prix=row['prix'],
+                try:
+                    category = models.Category.objects.get(name__iexact=category_name)
+                except models.Category.DoesNotExist:
+                    errors.append(f"Ligne {idx + 2}: Catégorie « {category_name} » introuvable.")
+                    continue
+
+                try:
+                    with transaction.atomic():
+                        article = models.Article.objects.create(
+                            category=category,
+                            code=row['code'],
+                            designation=row['designation'],
+                            ref=row['ref'],
+                            qte=row['qte'],
+                            prix=row['prix'],
+                        )
+                    models.Movement.objects.create(
+                        art_id=article,
+                        movement_date=today,
+                        user_id=request.user,
+                        movement="Initial",
+                        qte=row['qte'],
+                        prix=row['prix'],
+                    )
+                except Exception as err:
+                    errors.append(f"Ligne {idx + 2}: Erreur: {str(err)}")
+
+            if errors:
+                return JsonResponse(
+                    {
+                        'success': False,
+                        'message': '❌ Certaines lignes contiennent des erreurs.',
+                        'errors': errors
+                    }
                 )
 
-            return JsonResponse({'success': True, 'message': '✅ Articles ajoutés avec succès.'})
+            return JsonResponse({'success': True, 'message': '✅ Tous les articles ont été ajoutés avec succès.'})
 
         except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Erreur: {str(e)}'})
+            return JsonResponse({'success': False, 'message': f'❌ Erreur lors de la lecture du fichier: {str(e)}'})
 
-    return render(request, 'magasin/article/multiple_articles.html')  # HTML for the modal content
+    return render(request, 'magasin/article/multiple_articles.html')
+
+
+def download_exemple_articles(request):
+    file_path = os.path.join(settings.BASE_DIR, 'magasin/static', 'img', 'exemple_articles.ods')
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, 'rb'), as_attachment=True, filename='exemple_articles.xlsx')
+    else:
+        raise Http404("Fichier non trouvé.")
 
 
 # ==> Read Article View (bootstrap-modal-form)
@@ -366,7 +396,7 @@ def delete_article(request, art_id):
 
 
 # -----------------------------
-# ==> New Entree Ajax Bs-modal
+# ==> Article Entree Ajax Bs-modal
 @login_required
 def entree_article_ajax(request, art_id):
     article = get_object_or_404(models.Article, art_id=art_id)
@@ -379,8 +409,9 @@ def entree_article_ajax(request, art_id):
             new_prix = form.cleaned_data['prix']
             entree_date = form.cleaned_data['entree_date']
 
-            functions.process_stock_entry(article, new_qte, new_prix, entree_date, request.user)
-            return JsonResponse({'success': True, 'message': f'✅ Entrée ajoutée avec succès code article {article.code}.'})
+            result = functions.process_stock_entry(article, new_qte, new_prix, entree_date, request.user)
+            if result:
+                return JsonResponse({'success': True, 'message': f'✅ Entrée ajoutée avec succès code article {article.code}.'})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
     else:
@@ -389,7 +420,7 @@ def entree_article_ajax(request, art_id):
 
 
 # -----------------------------
-# ==> New Sortie AJAX Bs-modal
+# ==> Article Sortie AJAX Bs-modal
 @login_required
 def sortie_article_ajax(request, art_id):
     article = get_object_or_404(models.Article, art_id=art_id)
@@ -401,14 +432,49 @@ def sortie_article_ajax(request, art_id):
             sortie_date = form.cleaned_data['sortie_date']
             article.qte = F('qte') - sortie_qte
 
-            functions.process_stock_sortie(article, sortie_qte, sortie_date, request.user)
-            success, msg = functions.process_stock_sortie(article, sortie_qte, sortie_date, request.user)
-            return JsonResponse({'success': success, 'message': msg})
+            result = functions.process_stock_sortie(article, sortie_qte, sortie_date, request.user)
+            if result:
+                return JsonResponse({'success': True, 'message': f'✅ Sortie ajoutée avec succès article {article.code}.'})
+            else:
+                return JsonResponse({'success': False, 'message': result})
         else:
             return JsonResponse({'success': False, 'errors': form.errors})
     else:
         form = forms.SortieForm()
     return render(request, 'magasin/article/sortie.html', {'article': article, 'form': form})
+
+
+def missing_code_finder(request):
+    if request.method == 'GET':
+        cat_id = request.GET.get('cat_id')
+        try:
+            category = models.Category.objects.get(pk=cat_id)
+            articles = models.Article.objects.filter(category=category)
+            existing_codes = articles.values_list('code', flat=True)
+
+            # Extract numbers from codes like 'aro-001'
+            existing_numbers = []
+            len_numbers = 0
+            for code in existing_codes:
+                if '-' in code:
+                    num_part = code.split('-')[1]
+                    len_numbers = len(num_part)
+                    if num_part.isdigit():
+                        existing_numbers.append(int(num_part))
+
+            # Find the first missing number
+            number = 1
+            while number in existing_numbers:
+                number += 1
+
+            # Generate code
+            empty_code = f"{category.slug}-{number:0{len_numbers}d}"
+            return JsonResponse({'success': True, 'empty_code': empty_code, 'message': f'✅ Code libre trouvé : {empty_code}'})
+
+        except models.Category.DoesNotExist:
+            return JsonResponse({'success': False, 'message': '❌ Catégorie introuvable.'})
+    else:
+        return JsonResponse({'success': False, 'message': '❌ Requête invalide.'})
 
 
 # ----------------------------------------------------------------------

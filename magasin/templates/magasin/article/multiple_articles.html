@@ -1,4 +1,3 @@
-
 <form id="uploadArticleForm" data-form-url="{% url 'magasin:upload_articles' %}" enctype="multipart/form-data">
   {% csrf_token %}
   <div class="modal-header">
@@ -11,6 +10,31 @@
     <div class="mb-3">
       <label for="excelFile" class="form-label">Sélectionnez un fichier Excel</label>
       <input class="form-control" type="file" name="excel_file" id="excelFile" accept=".xlsx, .xls" required>
+      <div id="passwordHelpBlock" class="form-text">
+        Exemple de fichier : <a href="{% url 'magasin:download_exemple_articles' %}">Télécharger le modèle</a>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>category</th>
+              <th>code</th>
+              <th>designation</th>
+              <th>ref</th>
+              <th>qte</th>
+              <th>prix</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Catégorie de l'article</td>
+              <td>Code de l'article</td>
+              <td>Désignation de l'article</td>
+              <td>Référence de l'article</td>
+              <td>Quantité de l'article</td>
+              <td>Prix de l'article</td>
+            </tr>
+        </table>
+      </div>
+
     </div>
   </div>
 

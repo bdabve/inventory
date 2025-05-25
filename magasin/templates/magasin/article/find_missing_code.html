@@ -1,0 +1,37 @@
+{% load widget_tweaks %}
+
+<form id="missingCodeForm" action="" method="POST" data-form-url='{% url "magasin:missing_code_finder" %}'>
+    {% csrf_token %}
+
+    <div class="modal-header">
+        <h5 class="modal-title">Trouvé des code vide</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+        </button>
+    </div><!--End of header card-->
+
+    <div class="modal-body">        
+        {% for field in form %}
+            <div class="form-group row mb-2">
+                <label class="col-sm-3 col-form-label fst-italic text-secondary" 
+                       for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                </label>
+                <div class="col-sm-9">
+                    {% render_field field class="form-control" placeholder=field.label %}
+                </div>
+            </div>
+        {% endfor %}
+        <!-- Errors -->
+        <div class="form-group row mb-2">
+            <div class="col-sm-3"></div>
+            <div id="formErrors" class="col-sm-9 text-danger mt-2" style="display: none;"></div>
+        </div>
+    </div><!--End body modal-->
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default border" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-1"></i>Close
+        </button>
+        <button type="submit" class="btn btn-info">Recherche</button>
+    </div><!--End of footer card-->
+</form>

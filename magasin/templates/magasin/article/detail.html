@@ -9,22 +9,43 @@
 <div class="container">
 
     <div class="row">
-        <!-- Search Article Form -->
-        <form class="row row-cols-lg-auto align-items-center mb-2" action="" method="post">
-            {% csrf_token %}
-            <div class="col">
-                <div class="input-group">
-                    <div class="input-group-text"><i class="bi bi-search"></i></div>
-                    {% render_field search_form.search_word placeholder="Code Article" %}
+        <div class="col">
+            <!-- Search Article Form -->
+            <form class="row row-cols-lg-auto align-items-center mb-2" action="" method="post">
+                {% csrf_token %}
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-text"><i class="bi bi-search"></i></div>
+                        {% render_field search_form.search_word placeholder="Code Article" %}
+                    </div>
                 </div>
-            </div>
 
-            <div class="col">
-                <button type="submit" name="search_form" class="btn btn-outline-secondary search_btn">
-                    <i class="bi bi-search"></i> Recherche
-                </button>
-            </div>
-        </form>
+                <div class="col">
+                    <button type="submit" name="search_form" class="btn btn-outline-secondary search_btn">
+                        <i class="bi bi-search"></i> Recherche
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- Buttons -->
+        <div class="col-md-4 d-flex justify-content-end align-items-start">
+            <!-- Entree -->
+            <a href="#" class="newEntreeBtn btn btn-outline-primary"
+               data-form-url="{% url "magasin:entree_ajax" article.art_id  %}">
+                <i class="bi bi-download"></i> Entree
+            </a>
+            <!-- Sortie -->
+            <a href="#" class="newSortieBtn btn btn-outline-danger ms-2"
+               data-form-url="{% url "magasin:sortie_ajax" article.art_id %}">
+                <i class="bi bi-upload"></i> Sortie
+            </a>
+            {% if history %}
+            <a href="{% url "magasin:magasin_log_article" article.art_id %}" 
+               class="btn btn-outline-warning ms-2">
+                <i class="bi bi-hourglass-split"></i> History
+            </a>
+            {% endif %}
+        </div>
     </div><!-- end of search form-->
 
     <div class="card mb-2">
@@ -42,7 +63,8 @@
             <div class="alert alert-danger alert-dismissible fade show">
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 {% for field_with_error, error_messages in update_art_form.errors.items %}
-                    <span class="me-2">Modification imposible verifier :</span><span class="fw-bold">{{ field_with_error }}</span>
+                    <span class="me-2">Modification imposible verifier :</span>
+                    <span class="fw-bold">{{ field_with_error }}</span>
                 {% endfor %}
             </div>
         {% endif %}
@@ -51,7 +73,8 @@
             <div class="alert alert-danger alert-dismissible fade show">
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 {% for field_with_error, error_messages in entree_form.errors.items %}
-                    <span class="me-2">Entree non ajouter verifier: </span><span class="fw-bold">{{ field_with_error }}</span>
+                    <span class="me-2">Entree non ajouter verifier: </span>
+                    <span class="fw-bold">{{ field_with_error }}</span>
                 {% endfor %}
             </div>
         {% endif %}
@@ -60,7 +83,8 @@
             <div class="alert alert-danger alert-dismissible fade show">
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 {% for field_with_error, error_messages in sortie_form.errors.items %}
-                    <span class="me-2">Sortie non ajouter verifier :</span><span class="fw-bold">{{ field_with_error }}</span>
+                    <span class="me-2">Sortie non ajouter verifier :</span>
+                    <span class="fw-bold">{{ field_with_error }}</span>
                 {% endfor %}
             </div>
         {% endif %}
@@ -69,64 +93,56 @@
             <div class="alert alert-danger alert-dismissible fade show">
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 {% for field_with_error, error_messages in command_form.errors.items %}
-                    <span class="me-2">Sortie non ajouter verifier :</span><span class="fw-bold">{{ field_with_error }}</span>
+                    <span class="me-2">Sortie non ajouter verifier :</span>
+                    <span class="fw-bold">{{ field_with_error }}</span>
                 {% endfor %}
             </div>
         {% endif %}
 
         <div class="row card-body">
-            <!-- =============================| 
-                 === ARTICLE DETAILS 
-                |=================================================-->
-            <div class="col col-md-6 {% if request.user.profile.groupe != 'admin' %}art_detail_not_admin{% endif %}">
-                <div class="p-3 text-center border-bottom border-3 d-flex justify-content-between align-items-center">
-                    <span class="h4">Fiche de stock article N° &nbsp;&nbsp;
-                        <span class="text-primary">{{ article.art_id }}</span>
-                    </span>
-
-                    {% if history %}
-                    <a href="{% url "magasin:magasin_log_article" article.art_id %}" class="btn btn-warning">
-                        <i class="bi bi-hourglass-split"></i> Hist
-                    </a>
-                    {% endif %}
-
+            <!-- ARTICLE DETAILS -->
+            <div class="col col-md-6 
+                        {% if request.user.profile.groupe != 'admin' %}art_detail_not_admin{% endif %}">
+                
+                <div class="h4 p-3 text-center border-bottom border-3">Fiche de stock N° &nbsp;&nbsp;
+                    <span class="text-primary">{{ article.art_id }}</span>
                 </div>
-
+                
                 <dl class="row p-3">
                     <dt class="col-sm-3">Code</dt>
-                    <dd class="col-sm-9 lead">{{ article.code }}</dd>
+                    <dd class="col-sm-9">{{ article.code }}</dd>
 
                     <dt class="col-sm-3">Designation</dt>
-                    <dd class="col-sm-9 lead">{{ article.designation }}</dd>
+                    <dd class="col-sm-9">{{ article.designation }}</dd>
 
                     <dt class="col-sm-3">Référence</dt>
-                    <dd class="col-sm-9 lead">{{ article.ref }}</dd>
+                    <dd class="col-sm-9">{{ article.ref }}</dd>
 
                     <dt class="col-sm-3">Emplacement</dt>
-                    <dd class="col-sm-9 lead">{{ article.emp }}</dd>
+                    <dd class="col-sm-9">{{ article.emp }}</dd>
 
                     <dt class="col-sm-3">Quantité</dt>
-                    <dd class="col-sm-9 lead {% if article.qte == 0 %}text-danger{% endif %}">
+                    <dd class="col-sm-9 {% if article.qte == 0 %}text-danger{% endif %}">
                         {{ article.qte }} {{ article.umesure }}
                     </dd>
 
                     <dt class="col-sm-3">Prix Unité</dt>
-                    <dd class="col-sm-9 lead fw-bold text-danger">{{ article.prix|intcomma }} DA</dd>
+                    <dd class="col-sm-9 fw-bold text-danger">{{ article.prix|intcomma }} DA</dd>
 
                     <dt class="col-sm-3">Valeur</dt>
-                    <dd class="col-sm-9 lead">{{ article.valeur|intcomma }} Da</dd>
+                    <dd class="col-sm-9">{{ article.valeur|intcomma }} Da</dd>
 
                     <dt class="col-sm-3">Observation</dt>
-                    <dd class="col-sm-9 lead">{% if article.observation %}{{ article.observation }}{% else %}Ras{% endif %}</dd>
-
+                    <dd class="col-sm-9">
+                        {% if article.observation %}{{ article.observation }}{% else %}Ras{% endif %}
+                    </dd>
                 </dl>
-
             </div><!-- End of article details col-md-6 -->
 
             {% if request.user.profile.groupe == 'admin' %}
             <!-- ==============================================| 
-                 =   TABS: Buttons
-                 =   MOVEMENT / MODIFICATION / ENTREE / SORTIE 
+                =  TABS: Buttons
+                =  MOVEMENT / MODIFICATION / ENTREE / SORTIE 
             |=================================================-->
             <div class="col-md-6 col_art_operation">
                 <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
@@ -147,33 +163,25 @@
                     </li>
                   
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link px-1 py-2" id="entree-tab" 
-                                data-bs-toggle="tab" data-bs-target="#entree" type="button" 
-                                role="tab" aria-controls="entree" aria-selected="false">
-                            <i class="bi bi-arrow-down-short"></i> Entree
-                        </button>
-                    </li>
-                  
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link px-1 py-2" id="sortie-tab" 
-                                data-bs-toggle="tab" data-bs-target="#sortie" type="button" 
-                                role="tab" aria-controls="sortie" aria-selected="false">
-                            <i class="bi bi-arrow-up-short"></i> Sortie
+                        <button class="nav-link px-1 py-2" id="history-tab" 
+                                data-bs-toggle="tab" data-bs-target="#history" type="button" 
+                                role="tab" aria-controls="history" aria-selected="false">
+                            <i class="bi bi-arrow-down-short"></i> History
                         </button>
                     </li>
 
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link px-1 py-2" id="commend-tab" 
-                                data-bs-toggle="tab" data-bs-target="#command" type="button" 
-                                role="tab" aria-controls="command" aria-selected="false">
+                        <button class="nav-link px-1 py-2" id="commande-tab" 
+                                data-bs-toggle="tab" data-bs-target="#commande" type="button" 
+                                role="tab" aria-controls="commande" aria-selected="false">
                             <i class="bi bi-journal-plus"></i> Commands
                         </button>
                     </li>
                 </ul>
-
-                <!-- ========================| 
-                    TABS 
-                |============================ -->
+                <!-- -------------------------------------------------------------------- -->
+                <!-- ==| TABS |== -->
+                
+                <!-- Movement Tab-->
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active tab_content" id="movement" role="tabpanel" 
                         aria-labelledby="movement-tab">
@@ -215,17 +223,17 @@
                         {% endif %}
                     </div><!-- end of movement tab -->
 
-                    <!-- ================================================| 
-                        MODIFICATION FORM 
-                    |=================================================-->
-                    <div class="tab-pane tab_content fade" id="modifier" role="tabpanel" aria-labelledby="modifier-tab">
+                    <!-- ------------------------------------------------------------------- -->
+                    <!--  MODIFICATION FORM -->
+                    <div class="tab-pane tab_content fade" id="modifier" role="tabpanel" 
+                         aria-labelledby="modifier-tab">
                         <h5 class="alert alert-success text-center">Modification Article</h5>
                         <form action="" method="POST">
                             {% csrf_token %}
-
                             {% for field in update_art_form %}
                                 <div class="form-group row mb-2">
-                                    <label class="col-sm-4 col-form-label fst-italic text-secondary" for="{{ field.id_for_label }}">
+                                    <label class="col-sm-4 col-form-label fst-italic text-secondary" 
+                                           for="{{ field.id_for_label }}">
                                         {{ field.label }}
                                     </label>
 
@@ -237,7 +245,9 @@
                                                 {% render_field field class="form-control is-invalid" %}
                                             {% endif %}
                                             <div class="invalid-feedback">
-                                                {% for error in field.errors %}<span>{{ error }}</span>{% endfor %}
+                                                {% for error in field.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
                                             </div>
                                         {% else %}
                                             {% if field.name == "category" %}
@@ -254,135 +264,51 @@
                             </button>
                         </form>
                     </div><!-- end of modify tab -->
+                    
+                    <!-- -------------------------------------------------------------------- -->
+                    <!--  HISTORY TAB -->
+                    <div class="tab-pane tab_content fade" id="history" role="tabpanel" 
+                         aria-labelledby="history-tab">
+                        <h5 class="alert alert-primary text-center">Historique d'Article</h5>
+                        {% if not history %}
+                            <p class="p-3">- Pas d'historique Pour Cette Article.</p>
+                        {% else %}
+                        <table class="table table-sm table-bordered table-hover text-center">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Opération</th>
+                                    <th scope="col">Slug</th>
+                                    <th scope="col">Desigation</th>
+                                    <th scope="col">Code</th>
+                                    <th scope="col">Référence</th>
+                                    <th scope="col">Emplacement</th>
+                                    <th scope="col">Unité de Mésure</th>
+                                </tr>
+                            </thead>
 
-                    <!-- =============================| 
-                        == ENTREE FORM 
-                    |============================================-->
-                    <div class="tab-pane tab_content fade" id="entree" role="tabpanel" aria-labelledby="entree-tab">
-                        <h5 class="alert alert-primary text-center">Nouvelle Entree</h5>
-                        <form action="" method="POST">
-                            {% csrf_token %}
-                            <div class="form-group row mb-2" style="">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ form.slug.id_for_label }}">Code</label>
-                                <div class="col-sm-9">
-                                    <input class="form-control-plaintext text-uppercase fw-bold" 
-                                           name="slug" value="{{ article.slug }}" readonly>
-                                </div>
-                            </div>
-
-                            <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ entree_form.entree_date.id_for_label }}">
-                                    Date
-                                </label>
-                                <div class="col-sm-9">
-                                    {% if entrie_form.entree_date.errors %}
-                                        {% render_field entree_form.entree_date class+="invalid" %}
-                                        {% for error in entree_form.entree_date.errors %}
-                                            <div class="invalid-feedback"><span>{{ error }}</span></div>
-                                        {% endfor %}
-
-                                    {% else %}
-                                        {% render_field entree_form.entree_date %}
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ entree_form.qte.id_for_label }}">Qte</label>
-                                <div class="col-sm-9">
-                                    {% if entree_form.qte.errors %}
-                                        {% render_field entree_form.qte class="form-control is-invalid" value=1 %}
-                                        {% for error in entree_form.qte.errors %}
-                                            <div class="invalid-feedback"><span>{{ error }}</span></div>
-                                        {% endfor %}
-                                    {% else %}
-                                        {% render_field entree_form.qte class="form-control" value=1 %}
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ entree_form.prix.id_for_label }}">Prix</label>
-                                <div class="col-sm-9">
-                                    {% if entree_form.prix.errors %}
-                                        {% render_field entree_form.prix class="form-control is-invalid" value=1 %}
-                                        {% for error in entree_form.prix.errors %}
-                                            <div class="invalid-feedback"><span>{{ error }}</span></div>
-                                        {% endfor %}
-                                    {% else %}
-                                        {% render_field entree_form.prix class="form-control" value=article.prix %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <button type="submit" name="entree_form" class="btn btn-outline-primary float-end">
-                                <i class="bi bi-plus-lg"></i> Entree
-                            </button>
-                        </form>
+                            <tbody>
+                            {% for hist in art_history %}
+                                <tr>
+                                    <td>{{ hist.log_date|date:"d/m/Y" }}</td>
+                                    <td class="">{{ hist.operation }}</td>
+                                    <td>{{ hist.slug }}</td>
+                                    <td>{{ hist.designation|truncatechars:25 }}</td>
+                                    <td>{{ hist.code }}</td>
+                                    <td>{{ hist.ref|truncatechars:20 }}</td>
+                                    <td>{{ hist.emp }}</td>
+                                    <td>{{ hist.umesure }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% endif %}
                     </div><!-- end of entree tab -->
-
-                    <!-- =============================| 
-                        == SORTIE FORM 
-                    |============================================-->
-                    <div class="tab-pane tab_content fade" id="sortie" role="tabpanel" aria-labelledby="contact-tab">
-                        <h5 class="text-center alert alert-danger">Nouvelle Sortie</h5>
-                        <form action="" method="POST">
-                            {% csrf_token %}
-
-                            <div class="form-group row mb-2" style="">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ sortie_form.slug.id_for_label }}">Code</label>
-                                <div class="col-sm-9">
-                                    <input class="form-control-plaintext text-uppercase fw-bold" 
-                                           name="slug" value="{{ article.slug }}" readonly>
-                                </div>
-                            </div>
-
-                            <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" 
-                                       for="{{ sortie_form.sortie_date.id_for_label }}">
-                                    Date
-                                </label>
-                                <div class="col-sm-9">
-                                    {% if sortie_form.sortie_date.errors %}
-                                        {% render_field sortie_form.sortie_date class+="is-invalid" %}
-                                        {% for error in sortie_form.sortie_date.errors %}
-                                            <div class="invalid-feedback"><span>{{ error }}</span></div>
-                                        {% endfor %}
-
-                                    {% else %}
-                                        {% render_field sortie_form.sortie_date %}
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" 
-                                       for="{{ sortie_form.qte.id_for_label }}">Qte</label>
-                                <div class="col-sm-9">
-                                    {% if sortie_form.qte.errors %}
-                                        {% render_field sortie_form.qte class+="form-control is-invalid" value=1 %}
-                                        {% for error in sortie_form.qte.errors %}
-                                            <div class="invalid-feedback"><span>{{ error }}</span></div>
-                                        {% endfor %}
-                                    {% else %}
-                                        {% render_field sortie_form.qte class="form-control" value=1 min=1 %}
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ sortie_form.prix.id_for_label }}">Prix</label>
-                                <div class="col-sm-9">
-                                    {% render_field sortie_form.prix|append_attr:"readonly:readonly" class="form-control" value=article.prix %}
-                                </div>
-                            </div>
-                            <button type="submit" name="sortie_form" class="btn btn-outline-danger float-end">
-                                <i class="bi bi-dash-lg"></i> Sortie
-                            </button>
-                        </form>
-                    </div><!-- end of sorite tab -->
-
-                    <!-- =============================| Command FORM |============================================-->
-                    <div class="tab-pane tab_content fade" id="command" role="tabpanel" aria-labelledby="command-tab">
+                    <!-- --------------------------------------------------------------------- --> 
+                    <!-- Command FORM --> 
+                    
+                    <div class="tab-pane tab_content fade" id="commande" role="tabpanel" 
+                         aria-labelledby="commande-tab">
                         <h5 class="text-center alert alert-info">Commands</h5>
 
                         {% if art_cmd == "empty" %}
@@ -410,14 +336,18 @@
                         </table>
                         {% endif %}
 
-                        <a data-bs-toggle="collapse" href="#command-form" role="button" aria-expanded="false" 
-                           aria-controls="comman-form">N. Commande <i class="fa fa-plus-square"></i>
+                        <a data-bs-toggle="collapse" href="#command-form" role="button" 
+                           aria-expanded="false" aria-controls="command-form">
+                           N. Commande <i class="fa fa-plus-square"></i>
                         </a>
-                        <form action="" method="POST" class="collapse" id="command-form" data-form="command_form">
+                        
+                        <form action="" method="POST" class="collapse" id="command-form" 
+                              data-form="command_form">
                             <hr>
                             {% csrf_token %}
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ command_form.cmnd_date.id_for_label }}">
+                                <label class="col-sm-3 col-form-label fst-italic text-secondary" 
+                                       for="{{ command_form.cmnd_date.id_for_label }}">
                                     Date
                                 </label>
                                 <div class="col-sm-9">
@@ -433,7 +363,10 @@
                             </div>
 
                             <div class="form-group row mb-2">
-                                <label class="col-sm-3 col-form-label fst-italic text-secondary" for="{{ command_form.cmnd_qte.id_for_label }}">Qte</label>
+                                <label class="col-sm-3 col-form-label fst-italic text-secondary" 
+                                       for="{{ command_form.cmnd_qte.id_for_label }}">
+                                       Qte
+                                </label>
                                 <div class="col-sm-9">
                                     {% if command_form.cmnd_qte.errors %}
                                         {% render_field command_form.cmnd_qte class="form-control is-invalid" %}
@@ -451,13 +384,9 @@
                             </button>
                         </form>
                     </div><!-- end of command tab -->
-
                 </div><!-- end of TABS content -->
-
-                <!-- ===================================| BUTTONS |============================================ -->
             </div><!--end of col entree/sortie -->
             {% endif %} <!-- End of check if user == admin -->
-
         </div><!--End of card body-->
     </div><!--End of card-->
 </div><!-- end of container -->

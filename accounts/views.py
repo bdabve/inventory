@@ -1,14 +1,16 @@
 from django.shortcuts import render, get_object_or_404   # , redirect
+from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
-
 from django.contrib.auth.models import User
+from django.db.models import Q
 from .models import Profile
 from .forms import LoginForm, UserEditForm, ProfileEditForm, UserAddForm, ProfileAddForm
 from magasin import functions
+# from magasin.forms import SearchForm
 
 
 def user_login(request):
@@ -38,9 +40,29 @@ def user_login(request):
 @login_required
 def manage_users(request):
     hijri = functions.hijri_()
-    users = User.objects.all().exclude(id='1').order_by('-date_joined')
+    users = User.objects.all().order_by('-date_joined')
     context = {'hijri': hijri, 'users': users}
     return render(request, 'accounts/manage_users.html', context)
+
+
+@login_required
+def ajax_search_users(request):
+    """
+    Search Users on keyup with AJAX
+    """
+    if request.method == 'GET' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        search_word = request.GET.get('search_word', '')
+        users = User.objects.filter(
+            Q(username__icontains=search_word) |
+            Q(email__icontains=search_word) |
+            Q(first_name__icontains=search_word) |
+            Q(last_name__icontains=search_word) |
+            Q(profile__poste_travaille__icontains=search_word)
+        ).select_related('profile').order_by('-date_joined')
+
+        html = render_to_string('accounts/users_table_rows.html', {'users': users, 'request': request})
+        return JsonResponse({'success': True, 'html': html})
+    return JsonResponse({'success': False, 'message': 'Requête invalide.'})
 
 
 # ------------------------------------------------

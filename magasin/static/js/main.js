@@ -103,7 +103,7 @@ $(document).ready(function (){
     // ---------------------------------------------------
     // ==> Handle Ajax Form Submition
     // ------------------------------
-    function handleAjaxFormSubmit(formSelector, alertDiv="#successAlert") {
+    function handleAjaxFormSubmit(formSelector, alertDiv="#successAlert", swalMsgTitle='Success') {
         $(document).on('submit', formSelector, function (e) {
             e.preventDefault();
             const $form = $(this);
@@ -118,7 +118,12 @@ $(document).ready(function (){
                     if (response.success) {
                         $('#formErrors').html('').hide();
                         $('#mainModal').modal('hide');
-                        showMessages(response.message, 'alert-info', alertDiv);
+                        Swal.fire({
+                            icon: 'success',
+                            title: swalMsgTitle,
+                            text: response.message
+                        });
+
                     } else {
                         if (formSelector == '#userEditForm' || formSelector == '#addUserForm') {
                             errorHtml = formatUsersErrors(response.errors);
@@ -219,8 +224,17 @@ $(document).ready(function (){
                                 $(this).remove();
                             });
                         }
-                        showMessages(res.message, 'alert-success', messageContainer);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Suppression réussie',
+                            text: res.message
+                        });
+                        //showMessages(res.message, 'alert-success', messageContainer);
                     } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: res.error,
+                        });
                         $('#deleteErrors').text(res.error);
                     }
                 }
@@ -234,27 +248,13 @@ $(document).ready(function (){
     // Total Modal
     openModalOnClick('#totalsModal');       // Open modal and load Statistics
     //
-    // toggle info dashboard
-    $('.command_form_btn').click(function(){
-        $($(this).data('form')).fadeToggle(1000);
-        $(this).toggleClass('selected');
-
-        if ( $(this).hasClass('selected') ) {
-            $(this).html('Hide <i class="fa fa-chevron-up"></i>')
-            $(this).after('<hr class="cmd_form_hr">');
-        } else {
-            $(this).html('N. Commande <i class="fa fa-chevron-down"></i>')
-            $('.cmd_form_hr').remove();
-        }
-    });
-    //
     // Dashboard: toggle info div
-    $('.toggle_info').click(function(){
+    $('.toggle-info').click(function(){
         $(this).toggleClass('selected').parent().next('.card-body').slideToggle('slow');
         if ( $(this).hasClass('selected') ) {
-            $(this).html('<i class="fa fa-caret-left fa-lg"></i>')
+            $(this).html('<i class="bi bi-caret-up-fill"></i>')
         } else {
-            $(this).html('<i class="fa fa-caret-down fa-lg"></i>')
+            $(this).html('<i class="bi bi-caret-down-fill"></i>')
         }
     });
     // ---------------------------------------------------
@@ -263,11 +263,11 @@ $(document).ready(function (){
     //
     // Create Category
     openModalOnClick('#addCategoryBtn')                         // load the form dynamically
-    handleAjaxFormSubmit('#categoryForm', '#articleAlert');     // Handle form submission
+    handleAjaxFormSubmit('#categoryForm', '#articleAlert', 'Création');     // Handle form submission
     //
     // Edit Category
     openModalOnClick('.updateCategoryBtn');                         // load the form dynamically
-    handleAjaxFormSubmit('#categoryEditForm', '#articleAlert');     // Handle form submission
+    handleAjaxFormSubmit('#categoryEditForm', '#articleAlert', 'Modification');     // Handle form submission
     // Remove Category
     openDeleteDialog('.removeCategoryBtn', 'catégorie', 'confirmDeleteCatBtn');
     handleDeleteConfirmClick('confirmDeleteCatBtn', '/magasin/delete-category/');
@@ -277,7 +277,7 @@ $(document).ready(function (){
     //
     // Create Article
     openModalOnClick('#addArticleBtn');                         // load the form dynamically
-    handleAjaxFormSubmit('#articleForm', '#articleAlert');      // Handle form submission
+    handleAjaxFormSubmit('#articleForm', '#articleAlert', 'Création Article');      // Handle form submission
     //
     // Create Multiple Articles from Excel file
     openModalOnClick('#createMultipleArticles');    // load the form dynamically
@@ -299,9 +299,31 @@ $(document).ready(function (){
                 if (response.success) {
                     $('#formErrors').addClass('d-none').html('');
                     $('#mainModal').modal('hide');
-                    showMessages(response.message, 'alert-success');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Creation articles réussie',
+                        text: res.message
+                    });
                 } else {
-                    $('#formErrors').removeClass('d-none').html(response.message || 'Erreur inconnue');
+                    if (response.errors && Array.isArray(response.errors)) {
+                        // If there are multiple errors
+                        errorHtml = `<p>${response.message}</p>`
+                        errorHtml += '<ul>';
+                        response.errors.forEach(function(err) {
+                            errorHtml += `<li>${err}</li>`;
+                        });
+                        errorHtml += '</ul>';
+                    } else if (response.message) {
+                        // Only one error message
+                        errorHtml = `<p>${response.message}</p>`;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur!',
+                        html: response.message,   // use `html` not `text` here to format nicely
+                    });
+                    $('#formErrors').removeClass('d-none').html(errorHtml || 'Erreur inconnue');
                 }
             },
             error: function () {
@@ -312,7 +334,7 @@ $(document).ready(function (){
     //
     // Update Article
     openModalOnClick('.updateArticleBtn');                          // load the form dynamically
-    handleAjaxFormSubmit('#articleEditForm', '#articleAlert');      // Handle form submission
+    handleAjaxFormSubmit('#articleEditForm', '#articleAlert', 'Modification Article');      // Handle form submission
     //
     // Delete Article
     openDeleteDialog('.deleteArticleBtn', "l'article", 'confirmDeleteArtBtn');    // open dialog
@@ -326,26 +348,91 @@ $(document).ready(function (){
     //
     // Entree Article
     openModalOnClick('.newEntreeBtn');                              // load the form dynamically
-    handleAjaxFormSubmit('#entreeArticleForm', '#articleAlert');    // Handle form submission
+    handleAjaxFormSubmit('#entreeArticleForm', '#articleAlert', 'Nouvel Entrée');    // Handle form submission
     //
     // Sortie Article
     openModalOnClick('.newSortieBtn');                              // load the form dynamically
-    handleAjaxFormSubmit('#sortieArticleForm', '#articleAlert');    // Handle Sortie form submission
+    handleAjaxFormSubmit('#sortieArticleForm', '#articleAlert', 'Nouvel Sortie');    // Handle Sortie form submission
+    //
+    // Find Empty Code
+    $(document).on('click', '.missingCodeBtn', function (e) {
+        e.preventDefault();
+        const cat_id = $(this).data('item-id');
+        console.log('Get empty code for', cat_id);
+        $.ajax({
+            type: 'GET',
+            url: '/magasin/missing-code-finder',  // Adjust the URL if needed
+            data: { cat_id: cat_id },
+            success: function (res) {
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Code disponible',
+                        text: res.message,
+                    });
+                    // You can also insert the code somewhere:
+                    // $('#codeInput').val(res.empty_code);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: res.message,
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: 'Une erreur est survenue lors de la récupération du code.',
+                });
+            }
+        });
+    });
+
     //
     // ---------------------------------------------------------------
     // ===> USERS PAGE
     // ----------------
+    //
+    $('#searchUsersWord').on('keyup', function() {
+        const searchWord = $(this).val();
+        $.ajax({
+            url: "/accounts/search-users/",
+            data: { search_word: searchWord },
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#userTableBody').html(response.html);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Groupe non modifié',
+                        text: response.message
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Groupe non modifié',
+                    text: "Une erreur s'est produite lors de la recherche."
+                });
+            }
+        });
+    });
     //
     // Read User
     openModalOnClick('.readUserBtn');                           // load the form dynamically
     //
     // Create user
     openModalOnClick('#createUserBtn');                         // load the form dynamically
-    handleAjaxFormSubmit('#addUserForm', '#usersAlert');        // Handle CreateUser form submission
+    handleAjaxFormSubmit('#addUserForm', '#usersAlert', 'Création Utilisateur');        // Handle CreateUser form submission
     //
     // Edit user
     openModalOnClick('.editUserBtn');                           // load the form dynamically
-    handleAjaxFormSubmit('#userEditForm', '#usersAlert');       // Handle UpdateUser form submission
+    handleAjaxFormSubmit('#userEditForm', '#usersAlert', 'Modification Utilisateur');       // Handle UpdateUser form submission
     //
     // Change user Groupe
     $(document).on('click', '.changeUserGroupBtn', function (e) {
@@ -360,16 +447,29 @@ $(document).ready(function (){
             success: function(response) {
                 if (response.success) {
                     // Display a success message
-                    showMessages(response.message, 'alert-success', alertDiv='#usersAlert'); 
-                    $(this).remove();           
+                    //showMessages(response.message, 'alert-success', alertDiv='#usersAlert');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Groupe modifié',
+                        text: res.message
+                    });
+                    $(this).remove();
                     // location.reload();
                 } else {
-                    console.log(response.error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Groupe non modifié',
+                        text: response.message
+                    });
                 }
             },
             error: function(xhr, status, error) {
                 // Handle AJAX error
-                showMessages('An error occurred while processing your request.', 'alert-danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while processing your request.'
+                });
             }
         });
     });
@@ -399,16 +499,26 @@ $(document).ready(function (){
             success: function(response) {
                 if (response.success) {
                     // Display a success message
-                    showMessages(response.message, 'alert-success', '#commandeAlert');
+                    //showMessages(response.message, 'alert-success', '#commandeAlert');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Commande activée',
+                        text: res.message
+                    });
                     $(this).fadeOut(500);
                     // location.reload();
                 }
             },
             error: function(xhr, status, error) {
                 // Handle AJAX error
-                showMessages('An error occurred while processing your request.', 'alert-danger');
+                //showMessages('An error occurred while processing your request.', 'alert-danger');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'une erreur est survenue lors de l\'activation de la commande.'
+                });
             }
-            });
+        });
     });
     //
     // Read Commande
@@ -416,11 +526,11 @@ $(document).ready(function (){
     //
     // Create Commande
     openModalOnClick('.newCommandeBtn');                            // load the form dynamically
-    handleAjaxFormSubmit('#createCommandeForm', '#articleAlert');   // Handle EditCommande form submission
-    
+    handleAjaxFormSubmit('#createCommandeForm', '#articleAlert', 'Création commande');   // Handle EditCommande form submission
+
     // Edit Commande
     openModalOnClick('.editCommandeBtn');                           // load the form dynamically
-    handleAjaxFormSubmit('#commandeEditForm', '#commandeAlert');    // Handle EditCommande form submission
+    handleAjaxFormSubmit('#commandeEditForm', '#commandeAlert', 'Modification commande');  // Handle EditCommande form submission
     //
     // Delete Commande AJAX
     openDeleteDialog('.deleteCommandeBtn', "la commande ", 'confirmDeleteCmdBtn');    // open dialog
@@ -451,19 +561,76 @@ $(document).ready(function (){
     //
     // Create Fournisseur
     openModalOnClick('#createFournissBtn');                         // load the form dynamically
-    handleAjaxFormSubmit('#createFournissForm', '#fournisAlert');   // Handle create form submission
-    //    
+    handleAjaxFormSubmit('#createFournissForm', '#fournisAlert', 'Création Fournisseur');   // Handle create form submission
+    //
     // Edit Fournisseur
     openModalOnClick('.editFournissBtn');                           // load the form dynamically
     handleAjaxFormSubmit('#fournissEditForm', '#fournisAlert');     // Handle update form submission
     //
     // Delete Commande AJAX
     openDeleteDialog('.deleteFournissBtn', "Fournisseur ", 'confirmDeleteFournissBtn'); // open dialog
-    handleDeleteConfirmClick(                                                       
+    handleDeleteConfirmClick(
         // confirm delete ajax
         confirmBtnClass='confirmDeleteFournissBtn',
         deleteUrlBase='fournisseur/delete-fourniss/',
         messageContainer='#fournisAlert',
         rowPrefix='fourniss-row-'
     );
+
+    // Group Chart
+    //
+    const groupData = JSON.parse(document.getElementById('group-data').textContent);
+    const jobTitleData = JSON.parse(document.getElementById('job-title-data').textContent);
+
+    // Process for Chart.js
+    const groupLabels = groupData.map(obj => obj.groupe);
+    const groupCounts = groupData.map(obj => obj.count);
+
+    const jobTitleLabels = jobTitleData.map(obj => obj.poste_travaille);
+    const jobTitleCounts = jobTitleData.map(obj => obj.count);
+
+    const groupCtx = document.getElementById('groupChart').getContext('2d');
+    const groupChart = new Chart(groupCtx, {
+        type: 'pie',
+        data: {
+            labels: groupLabels,
+            datasets: [{
+                label: 'User Groups',
+                data: groupCounts,
+                backgroundColor: ['#36A2EB', '#FF6384'],
+            }],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Users by Group'
+                }
+            }
+        }
+    });
+
+    // Job Title Chart
+    const jobTitleCtx = document.getElementById('jobTitleChart').getContext('2d');
+    const jobTitleChart = new Chart(jobTitleCtx, {
+        type: 'bar',
+        data: {
+            labels: jobTitleLabels,
+            datasets: [{
+                label: 'Job Titles',
+                data: jobTitleCounts,
+                backgroundColor: '#4BC0C0',
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Users by Job Title'
+                }
+            }
+        }
+    });
 })

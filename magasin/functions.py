@@ -196,6 +196,18 @@ def detail_handle_add_commande(request, article):
         return redirect('magasin:article_detail', art_id=article.art_id, slug=article.slug)
 
 
+# 🔥 Helper function to create a Movement
+def create_initial_movement(article, user, movement_date, qte, prix):
+    models.Movement.objects.create(
+        art_id=article,
+        movement_date=movement_date,
+        user_id=user,
+        movement="Initial",
+        qte=qte,
+        prix=prix,
+    )
+
+
 def write_to_excel_g(fields, queryset, filename_prefix):
     wb = openpyxl.Workbook()
     ws = wb.active

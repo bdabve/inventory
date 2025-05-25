@@ -24,7 +24,6 @@ SECRET_KEY = 'vf)ks4@)e3a5%e2=i(#%ge&b+=qaohf@z=mv!y)b&4=ig8@-qx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = ['192.168.42.184', 'localhost', '127.0.0.1']
 
 
@@ -39,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
-    # 'bootstrap_modal_forms',
     'magasin.apps.MagasinConfig',
     'fournisseur.apps.FournisseurConfig',
     'django.contrib.humanize',      # format in human readable; doc(https://docs.djangoproject.com/en/3.1/ref/contrib/humanize)
@@ -108,23 +106,16 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
 STATIC_URL = '/static/'
-
 LOGIN_REDIRECT_URL = '/dashboard'
 LOGIN_URL = 'accounts/login'
 LOGOUT_URL = 'accounts/logout'

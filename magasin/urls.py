@@ -27,6 +27,7 @@ urlpatterns = [
     # Articles urls
     path('magasin/create-article', views.create_article, name='create_article'),
     path('magasin/upload-articles', views.upload_articles_from_excel, name='upload_articles'),
+    path('magasin/download_exemple_articles', views.download_exemple_articles, name='download_exemple_articles'),
     path('magasin/read-article/<int:art_id>/<slug:slug>', views.read_article, name='read_article'),
 
     # Edit Article
@@ -36,6 +37,7 @@ urlpatterns = [
     path('magasin/sortie-article/<int:art_id>', views.sortie_article_ajax, name='sortie_ajax'),      # new sortie
     # delete article
     path('magasin/delete-article/<int:art_id>', views.delete_article, name='delete_article'),
+    path('magasin/missing-code-finder', views.missing_code_finder, name='missing_code_finder'),  # find missing code
 
     # -----------------------------------------------------------
     # History

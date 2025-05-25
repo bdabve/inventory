@@ -22,6 +22,10 @@ class CreateCategoryForm(forms.ModelForm):
         return self.cleaned_data
 
 
+class MissingCodeFinderForm(forms.Form):
+    category_name = forms.CharField(label='Nom de la catégorie', max_length=50)
+
+
 # --------- | Articles Forms |------------------------------
 class ArticalForm(forms.ModelForm):
     class Meta:
@@ -47,7 +51,7 @@ class ArticalForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class SearchArticleForm(forms.Form):
+class SearchForm(forms.Form):
     search_word = forms.CharField(max_length=100, label=False)
     search_word.widget.attrs.update({'class': 'form-control', 'size': '35'})
 
